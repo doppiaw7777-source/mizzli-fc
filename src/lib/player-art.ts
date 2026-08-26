@@ -1,17 +1,17 @@
 import type { Player, PlayerRole } from "./types";
 
 export const ROLE_PORTRAIT: Record<PlayerRole, string> = {
-  POR: "/brand/players/player-gk.jpg",
-  DIF: "/brand/players/player-df.jpg",
-  CEN: "/brand/players/player-mf.jpg",
-  ATT: "/brand/players/player-fw.jpg",
+  POR: "/brand/players/player-gk.png",
+  DIF: "/brand/players/player-df.png",
+  CEN: "/brand/players/player-mf.png",
+  ATT: "/brand/players/player-fw.png",
 };
 
 export const ROLE_THUMB: Record<PlayerRole, string> = {
-  POR: "/brand/players/thumb-gk.jpg",
-  DIF: "/brand/players/thumb-df.jpg",
-  CEN: "/brand/players/thumb-mf.jpg",
-  ATT: "/brand/players/thumb-fw.jpg",
+  POR: "/brand/players/thumb-gk.png",
+  DIF: "/brand/players/thumb-df.png",
+  CEN: "/brand/players/thumb-mf.png",
+  ATT: "/brand/players/thumb-fw.png",
 };
 
 export function hashPlayer(player: { id: string; name: string; number: number }) {

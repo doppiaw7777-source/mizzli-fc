@@ -24,6 +24,12 @@ export default function ClubCrest({
       height={size}
       className={`club-crest ${glow ? "club-crest-glow" : ""} ${className}`}
       style={{ width: size, height: size }}
+      onError={(e) => {
+        const el = e.currentTarget;
+        if (!el.src.includes("mizzli-crest.svg")) {
+          el.src = "/brand/mizzli-crest.svg";
+        }
+      }}
     />
   );
 }

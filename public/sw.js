@@ -1,4 +1,4 @@
-const CACHE = "mizzli-fc-v2";
+const CACHE = "mizzli-fc-v3";
 const PRECACHE = ["/", "/scarica", "/manifest.json", "/icon-192.png", "/icon-512.png", "/brand/mizzli-crest.png"];
 
 self.addEventListener("install", (event) => {

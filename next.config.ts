@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "**.supabase.co", pathname: "/storage/v1/object/public/**" },
       { protocol: "https", hostname: "**.onrender.com" },
+      { protocol: "https", hostname: "mizzlifc.it" },
+      { protocol: "https", hostname: "www.mizzlifc.it" },
     ],
   },
   allowedDevOrigins: [
@@ -45,6 +47,11 @@ const nextConfig: NextConfig = {
           { key: "Critical-CH", value: "Sec-CH-UA-Model" },
         ],
       },
+    ];
+  },
+  async rewrites() {
+    return [
+      { source: "/brand/players/:name.jpg", destination: "/brand/players/:name.png" },
     ];
   },
 };

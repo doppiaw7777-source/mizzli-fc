@@ -27,6 +27,12 @@ export default function PlayerCard({ player }: { player: Player }) {
           src={art}
           alt=""
           className="absolute inset-0 h-full w-full object-cover object-top transition duration-500 group-hover:scale-105"
+          onError={(e) => {
+            const el = e.currentTarget;
+            if (!el.src.includes("/brand/players/")) {
+              el.src = playerPhoto({ ...player, photoUrl: "" });
+            }
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         <div className="absolute bottom-2 right-2">

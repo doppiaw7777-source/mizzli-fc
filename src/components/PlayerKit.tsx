@@ -64,7 +64,21 @@ export function PlayerKit({
     >
       <div className="player-mark-frame">
         {photo ? (
-          <img src={photo} alt="" className="player-mark-media" />
+          <img
+            src={photo}
+            alt=""
+            className="player-mark-media"
+            onError={(e) => {
+              const fallback = playerThumb(player);
+              const el = e.currentTarget;
+              if (el.getAttribute("data-fallback") === "1") {
+                el.style.display = "none";
+                return;
+              }
+              el.setAttribute("data-fallback", "1");
+              el.src = fallback;
+            }}
+          />
         ) : (
           <span className="player-mark-fill" />
         )}

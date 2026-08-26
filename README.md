@@ -11,8 +11,7 @@ npm run dev
 
 ## Accesso Admin
 
-- **Utente:** Noldi
-- **Password:** Noninoni99@
+Credenziali configurate nel pannello Admin (non committare password nel repo).
 
 ## Funzionalità
 

@@ -1,0 +1,143 @@
+import { randomUUID } from "crypto";
+import { findUserByEmail, findUserByGoogleId, upsertUser } from "./users";
+import { createUserSession } from "./user-auth";
+import { getRequestOrigin } from "./public-origin";
+import { isValidPhone, normalizePhone } from "./phone";
+
+export { getRequestOrigin };
+
+export function googleConfigured() {
+  return Boolean(
+    process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim()
+  );
+}
+
+export function googleRedirectUri(origin: string) {
+  return `${origin}/api/auth/google/callback`;
+}
+
+const GOOGLE_BASE_SCOPES = [
+  "openid",
+  "email",
+  "profile",
+  "https://www.googleapis.com/auth/userinfo.email",
+  "https://www.googleapis.com/auth/userinfo.profile",
+];
+
+export function googleScopes() {
+  const extras = (process.env.GOOGLE_EXTRA_SCOPES || "")
+    .split(/[,\s]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return [...new Set([...GOOGLE_BASE_SCOPES, ...extras])];
+}
+
+export function googleAuthUrl(origin: string, state: string) {
+  const params = new URLSearchParams({
+    client_id: process.env.GOOGLE_CLIENT_ID || "",
+    redirect_uri: googleRedirectUri(origin),
+    response_type: "code",
+    scope: googleScopes().join(" "),
+    access_type: "offline",
+    include_granted_scopes: "true",
+    prompt: "select_account",
+    state,
+  });
+  return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+}
+
+interface GoogleProfile {
+  sub: string;
+  email: string;
+  email_verified?: boolean;
+  name?: string;
+  picture?: string;
+}
+
+export async function exchangeGoogleCode(code: string, origin: string) {
+  const body = new URLSearchParams({
+    code,
+    client_id: process.env.GOOGLE_CLIENT_ID || "",
+    client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
+    redirect_uri: googleRedirectUri(origin),
+    grant_type: "authorization_code",
+  });
+
+  const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  if (!tokenRes.ok) {
+    const details = await tokenRes.text();
+    throw new Error(`Google ha rifiutato il codice di accesso: ${details}`);
+  }
+  const tokens = await tokenRes.json();
+  const accessToken = tokens.access_token as string | undefined;
+  if (!accessToken) throw new Error("Token Google mancante");
+
+  const profileRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!profileRes.ok) throw new Error("Impossibile leggere il profilo Google");
+  const profile = (await profileRes.json()) as GoogleProfile;
+  const wantsPhone = googleScopes().some((s) => s.includes("phonenumbers"));
+  const phone = wantsPhone ? await fetchGooglePhone(accessToken) : "";
+  return { profile, phone };
+}
+
+async function fetchGooglePhone(accessToken: string) {
+  try {
+    const res = await fetch(
+      "https://people.googleapis.com/v1/people/me?personFields=phoneNumbers",
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    if (!res.ok) return "";
+    const data = (await res.json()) as {
+      phoneNumbers?: Array<{ canonicalForm?: string; value?: string; metadata?: { primary?: boolean } }>;
+    };
+    const nums = data.phoneNumbers || [];
+    const primary = nums.find((n) => n.metadata?.primary) || nums[0];
+    const raw = primary?.canonicalForm || primary?.value || "";
+    return isValidPhone(raw) ? normalizePhone(raw) : "";
+  } catch {
+    return "";
+  }
+}
+
+export async function loginOrRegisterGoogle(profile: GoogleProfile, phone = "") {
+  if (!profile.email) throw new Error("Google non ha fornito un'email");
+  const email = profile.email.toLowerCase();
+
+  let user =
+    (await findUserByGoogleId(profile.sub)) || (await findUserByEmail(email));
+
+  if (user) {
+    user = {
+      ...user,
+      googleId: user.googleId || profile.sub,
+      name: user.name || profile.name || email.split("@")[0],
+      photoUrl: user.photoUrl || profile.picture || "",
+      provider: user.passwordHash ? "both" : "google",
+      phone: user.phone || phone || "",
+      phoneVerified: user.phoneVerified || Boolean(phone),
+    };
+  } else {
+    user = {
+      id: randomUUID(),
+      email,
+      name: profile.name || email.split("@")[0],
+      passwordHash: null,
+      googleId: profile.sub,
+      photoUrl: profile.picture || "",
+      provider: "google",
+      role: "fan",
+      createdAt: new Date().toISOString(),
+      phone: phone || "",
+      phoneVerified: Boolean(phone),
+    };
+  }
+
+  await upsertUser(user);
+  return createUserSession(user);
+}

@@ -1,0 +1,34 @@
+{
+	"appId": "com.noldi.fcunited",
+	"appName": "MIZZLI FC",
+	"webDir": "www",
+	"backgroundColor": "#0d4f2b",
+	"ios": {
+		"contentInset": "automatic",
+		"preferredContentMode": "mobile",
+		"scheme": "NoldiUnited",
+		"limitsNavigationsToAppBoundDomains": false
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 1800,
+			"launchAutoHide": true,
+			"backgroundColor": "#0d4f2b",
+			"showSpinner": false,
+			"androidScaleType": "CENTER_CROP",
+			"splashFullScreen": true,
+			"splashImmersive": true
+		},
+		"StatusBar": {
+			"style": "DARK",
+			"backgroundColor": "#0d4f2b"
+		},
+		"Keyboard": {
+			"resize": "body",
+			"resizeOnFullScreen": true
+		},
+		"Camera": {
+			"presentationStyle": "popover"
+		}
+	}
+}

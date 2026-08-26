@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CAPACITOR_DEBUG</key>
+	<string>$(CAPACITOR_DEBUG)</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>it</string>
+	<key>CFBundleDisplayName</key>
+        <string>MIZZLI FC</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+    <false/>
+    <key>UISceneConfigurations</key>
+    <dict>
+      <key>UIWindowSceneSessionRoleApplication</key>
+      <array>
+        <dict>
+            <key>UISceneConfigurationName</key>
+            <string>Default Configuration</string>
+            <key>UISceneDelegateClassName</key>
+            <string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+            <key>UISceneStoryboardFile</key>
+            <string>Main</string>
+        </dict>
+      </array>
+    </dict>
+	</dict>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>armv7</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>whatsapp</string>
+		<string>instagram</string>
+		<string>fb</string>
+		<string>fb-messenger</string>
+		<string>tg</string>
+		<string>tiktok</string>
+		<string>youtube</string>
+		<string>twitter</string>
+		<string>barcelona</string>
+		<string>snapchat</string>
+		<string>linkedin</string>
+		<string>spotify</string>
+		<string>nflx</string>
+		<string>com.amazon.mobile.shopping</string>
+		<string>googlegmail</string>
+		<string>comgooglemaps</string>
+		<string>googlechrome</string>
+		<string>googledrive</string>
+		<string>googlephoto</string>
+		<string>facetime</string>
+		<string>sgnl</string>
+		<string>viber</string>
+		<string>discord</string>
+		<string>telegram</string>
+		<string>slack</string>
+		<string>msteams</string>
+		<string>zoomus</string>
+		<string>twitch</string>
+		<string>pinterest</string>
+		<string>reddit</string>
+		<string>paypal</string>
+		<string>revolut</string>
+		<string>satispay</string>
+		<string>uber</string>
+		<string>deliveroo</string>
+		<string>glovo</string>
+		<string>justeat</string>
+		<string>capcut</string>
+		<string>shazam</string>
+		<string>soundcloud</string>
+		<string>bookings</string>
+		<string>airbnb</string>
+		<string>maps</string>
+		<string>itms-apps</string>
+		<string>calshow</string>
+	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Per mostrare la posizione precisa di chi è online e di chi ha fatto accesso.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Per aggiornare la posizione precisa mentre l'app è aperta.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Per scattare le foto dei giocatori, dello staff e gli sfondi della squadra.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Per scegliere dalla galleria le foto dei giocatori, dello staff, del logo e degli sfondi.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Per salvare immagini della squadra sul dispositivo.</string>
+</dict>
+</plist>

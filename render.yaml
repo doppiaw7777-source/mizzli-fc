@@ -10,6 +10,7 @@ services:
     runtime: node
     plan: starter
     region: frankfurt
+    repo: https://github.com/doppiaw7777-source/mizzli-fc
     branch: main
     buildCommand: npm ci && npm run build
     startCommand: npm run start:prod

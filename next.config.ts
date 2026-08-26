@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "**.supabase.co", pathname: "/storage/v1/object/public/**" },
+      { protocol: "https", hostname: "**.onrender.com" },
+    ],
+  },
   allowedDevOrigins: [
     "mizzlifc.it",
     "www.mizzlifc.it",
@@ -17,6 +23,7 @@ const nextConfig: NextConfig = {
     "*.ngrok.io",
     "*.cfargotunnel.com",
     "*.serveousercontent.com",
+    "*.onrender.com",
   ],
   async headers() {
     return [

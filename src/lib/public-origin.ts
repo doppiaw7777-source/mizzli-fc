@@ -6,6 +6,7 @@ const CLUB_HOSTS = [
 ];
 
 const HTTPS_HOST_SUFFIXES = [
+  ".onrender.com",
   ".trycloudflare.com",
   ".lhr.life",
   ".localhost.run",

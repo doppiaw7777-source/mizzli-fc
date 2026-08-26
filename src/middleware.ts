@@ -24,6 +24,7 @@ function isAllowedOrigin(origin: string) {
     origin === "https://www.mizzlifc.com" ||
     origin === "http://mizzlifc.com" ||
     origin === "http://www.mizzlifc.com" ||
+    origin.endsWith(".onrender.com") ||
     origin.endsWith(".trycloudflare.com") ||
     origin.endsWith(".lhr.life") ||
     origin.endsWith(".localhost.run") ||

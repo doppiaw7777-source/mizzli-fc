@@ -71,22 +71,14 @@ async function saveToS3(buffer: Buffer, filename: string): Promise<string> {
   });
 
   const objectKey = safeFilename(filename);
-  const putInput: {
-    Bucket: string;
-    Key: string;
-    Body: Buffer;
-    ContentType: string;
-    ACL?: string;
-  } = {
-    Bucket: bucket,
-    Key: objectKey,
-    Body: buffer,
-    ContentType: contentTypeFromName(filename),
-  };
-  const acl = process.env.S3_ACL?.trim();
-  if (acl) putInput.ACL = acl;
-
-  await client.send(new PutObjectCommand(putInput));
+  await client.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: objectKey,
+      Body: buffer,
+      ContentType: contentTypeFromName(filename),
+    })
+  );
 
   if (publicBase) {
     return `${publicBase.replace(/\/$/, "")}/${objectKey}`;

@@ -14,6 +14,27 @@ import { inferMatchKind } from "./match-kind";
 
 const TEAM_FILE = path.join(DATA_DIR, "team.json");
 const CLUB_BACKUP = path.join(process.cwd(), "src/data/club-backup.json");
+const TEAM_KEY = "team";
+
+function canPersistTeamFiles() {
+  return process.env.NEXT_PHASE !== "phase-production-build";
+}
+
+async function readTeamFromStore(): Promise<TeamData | null> {
+  if (process.env.DATABASE_URL) {
+    return readJson<TeamData | null>(TEAM_KEY, null);
+  }
+  return readTeamJson(TEAM_FILE);
+}
+
+async function writeTeamToStore(data: TeamData): Promise<void> {
+  const payload = JSON.stringify(stripMatchLives(data), null, 2);
+  if (process.env.DATABASE_URL) {
+    await writeJson(TEAM_KEY, JSON.parse(payload) as TeamData);
+    return;
+  }
+  await atomicWrite(TEAM_FILE, payload);
+}
 
 async function ensureDataDir() {
   await fs.mkdir(DATA_DIR, { recursive: true });
@@ -45,31 +66,44 @@ async function withMatchLives(data: TeamData): Promise<TeamData> {
 }
 
 export async function getTeamData(): Promise<TeamData> {
-  await ensureDataDir();
+  if (!process.env.DATABASE_URL) {
+    await ensureDataDir();
+  }
   try {
-    const live = await readTeamJson(TEAM_FILE);
+    const live = await readTeamFromStore();
     if (live) return withMatchLives(migrateTeamData(live));
     const backup = await readTeamJson(CLUB_BACKUP);
     const migrated = migrateTeamData((backup || defaultTeam) as TeamData);
-    const stripped = stripMatchLives(migrated);
-    await atomicWrite(TEAM_FILE, JSON.stringify(stripped, null, 2));
+    if (canPersistTeamFiles()) {
+      try {
+        await writeTeamToStore(migrated);
+      } catch {
+        // Read-only or missing dir during bootstrap — serve defaults in memory.
+      }
+    }
     return withMatchLives(migrated);
   } catch (err) {
     const code = (err as NodeJS.ErrnoException)?.code;
     if (code !== "ENOENT") throw err;
     const migrated = migrateTeamData(defaultTeam as TeamData);
-    await atomicWrite(TEAM_FILE, JSON.stringify(stripMatchLives(migrated), null, 2));
+    if (canPersistTeamFiles()) {
+      try {
+        await writeTeamToStore(migrated);
+      } catch {
+        /* ignore */
+      }
+    }
     return withMatchLives(migrated);
   }
 }
 
 export async function saveTeamData(data: TeamData): Promise<void> {
-  await ensureDataDir();
+  if (!process.env.DATABASE_URL) {
+    await ensureDataDir();
+  }
   const store = await getMatchLivesStore();
   const synced = syncStandings(overlayLiveOnTeam(data, store));
-  const disk = stripMatchLives(synced);
-  const payload = JSON.stringify(disk, null, 2);
-  await atomicWrite(TEAM_FILE, payload);
+  await writeTeamToStore(synced);
   await writeClubBackup(synced);
 }
 

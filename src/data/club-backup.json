@@ -1,56 +1,247 @@
+{
+  "settings": {
+    "teamName": "MIZZLI FC",
+    "motto": "Rispetto, lavoro, coraggio",
+    "logoUrl": "/brand/mizzli-crest.png",
+    "appIconUrl": "/brand/mizzli-crest.png",
+    "themeId": "mizzli-viola",
+    "graphicStyle": "rings",
+    "themeGradient": "linear-gradient(165deg, #07040e 0%, #6a1d68 42%, #12081f 100%)",
+    "colors": {
+      "primary": "#91278e",
+      "secondary": "#0b0614",
+      "accent": "#f4f0ff",
+      "text": "#ffffff",
+      "cardBg": "rgba(145, 39, 142, 0.28)"
+    },
+    "backgrounds": {
+      "global": "",
+      "home": "",
+      "rosa": "",
+      "calendario": "",
+      "formazione": "",
+      "admin": ""
+    },
+    "fontFamily": "Inter, system-ui, sans-serif",
+    "navStyle": "glass"
+  },
+  "players": [
+    {
+      "id": "p1",
+      "name": "Marco Rossi",
+      "number": 1,
+      "position": "Portiere",
+      "role": "POR",
+      "birthDate": "1995-03-12",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 0, "assists": 0, "appearances": 28 }
+    },
+    {
+      "id": "p2",
+      "name": "Luca Bianchi",
+      "number": 2,
+      "position": "Terzino destro",
+      "role": "DIF",
+      "birthDate": "1998-07-22",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 2, "assists": 5, "appearances": 30 }
+    },
+    {
+      "id": "p3",
+      "name": "Andrea Verdi",
+      "number": 4,
+      "position": "Difensore centrale",
+      "role": "DIF",
+      "birthDate": "1996-11-05",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 3, "assists": 1, "appearances": 32 }
+    },
+    {
+      "id": "p4",
+      "name": "Giuseppe Neri",
+      "number": 5,
+      "position": "Difensore centrale",
+      "role": "DIF",
+      "birthDate": "1997-01-18",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 1, "assists": 0, "appearances": 29 }
+    },
+    {
+      "id": "p5",
+      "name": "Francesco Blu",
+      "number": 3,
+      "position": "Terzino sinistro",
+      "role": "DIF",
+      "birthDate": "1999-09-30",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 1, "assists": 4, "appearances": 27 }
+    },
+    {
+      "id": "p6",
+      "name": "Davide Gialli",
+      "number": 6,
+      "position": "Mediano",
+      "role": "CEN",
+      "birthDate": "1994-05-14",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 4, "assists": 7, "appearances": 31 }
+    },
+    {
+      "id": "p7",
+      "name": "Simone Viola",
+      "number": 8,
+      "position": "Centrocampista",
+      "role": "CEN",
+      "birthDate": "1997-12-08",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 6, "assists": 9, "appearances": 30 }
+    },
+    {
+      "id": "p8",
+      "name": "Matteo Arancio",
+      "number": 10,
+      "position": "Trequartista",
+      "role": "CEN",
+      "birthDate": "1996-04-25",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 12, "assists": 11, "appearances": 32 }
+    },
+    {
+      "id": "p9",
+      "name": "Alessandro Rosa",
+      "number": 7,
+      "position": "Ala destra",
+      "role": "ATT",
+      "birthDate": "1998-08-17",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 9, "assists": 6, "appearances": 28 }
+    },
+    {
+      "id": "p10",
+      "name": "Roberto Grigio",
+      "number": 9,
+      "position": "Centravanti",
+      "role": "ATT",
+      "birthDate": "1995-02-03",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 18, "assists": 3, "appearances": 32 }
+    },
+    {
+      "id": "p11",
+      "name": "Filippo Celeste",
+      "number": 11,
+      "position": "Ala sinistra",
+      "role": "ATT",
+      "birthDate": "1999-06-21",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 7, "assists": 8, "appearances": 26 }
+    },
+    {
+      "id": "p12",
+      "name": "Paolo Marrone",
+      "number": 12,
+      "position": "Portiere",
+      "role": "POR",
+      "birthDate": "2000-10-11",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 0, "assists": 0, "appearances": 4 }
+    },
+    {
+      "id": "p13",
+      "name": "Emanuele Bianco",
+      "number": 13,
+      "position": "Difensore",
+      "role": "DIF",
+      "birthDate": "2001-01-29",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 0, "assists": 1, "appearances": 12 }
+    },
+    {
+      "id": "p14",
+      "name": "Christian Rosso",
+      "number": 14,
+      "position": "Centrocampista",
+      "role": "CEN",
+      "birthDate": "2000-07-07",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 2, "assists": 3, "appearances": 15 }
+    },
+    {
+      "id": "p15",
+      "name": "Nicola Verde",
+      "number": 15,
+      "position": "Attaccante",
+      "role": "ATT",
+      "birthDate": "2002-03-19",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": { "goals": 3, "assists": 2, "appearances": 10 }
+    }
+  ],
+  "staff": [
     {
       "id": "s1",
-      "name": "Stefano Muschetti",
+      "name": "Noldi",
       "role": "Allenatore",
       "photoUrl": ""
     },
     {
       "id": "s2",
-      "name": "Davide Anselmo",
+      "name": "Carlo Mister",
       "role": "Vice Allenatore",
+      "photoUrl": ""
+    },
+    {
+      "id": "s3",
+      "name": "Dr. Salvatore Medico",
+      "role": "Medico Sociale",
+      "photoUrl": ""
+    },
+    {
+      "id": "s4",
+      "name": "Gianni Preparatore",
+      "role": "Preparatore Atletico",
       "photoUrl": ""
     }
   ],
   "matches": [
     {
       "id": "m1",
-      "date": "2026-08-28",
-      "time": "21:30",
-      "opponent": "Quizena",
+      "date": "2026-08-24",
+      "time": "18:00",
+      "opponent": "ASD Rivale",
       "location": "Stadio Comunale",
       "isHome": true,
-      "competition": "Amichevole",
-      "kind": "amichevole",
+      "competition": "Campionato",
+      "kind": "partita",
       "result": "",
-      "color": "#22c55e",
-      "referee": "",
-      "attendance": "",
-      "tv": "",
-      "ticketUrl": "",
-      "preview": "",
-      "report": "",
-      "motmId": "",
-      "weather": ""
+      "color": "#3b82f6"
     },
     {
       "id": "m2",
-      "date": "2026-09-02",
-      "time": "20:00",
-      "opponent": "Allenamento",
-      "location": "Campo G.Piccardo",
-      "isHome": true,
-      "competition": "Allenamento",
-      "kind": "allenamento",
+      "date": "2026-08-31",
+      "time": "16:30",
+      "opponent": "FC Ospite",
+      "location": "Campo Ospiti",
+      "isHome": false,
+      "competition": "Campionato",
+      "kind": "partita",
       "result": "",
-      "color": "#ffd700",
-      "referee": "",
-      "attendance": "",
-      "tv": "",
-      "ticketUrl": "",
-      "preview": "",
-      "report": "",
-      "motmId": "",
-      "weather": ""
+      "color": "#22c55e"
     },
     {
       "id": "m3",
@@ -62,15 +253,7 @@
       "competition": "Coppa Regionale",
       "kind": "partita",
       "result": "",
-      "color": "#f97316",
-      "referee": "",
-      "attendance": "",
-      "tv": "",
-      "ticketUrl": "",
-      "preview": "",
-      "report": "",
-      "motmId": "",
-      "weather": ""
+      "color": "#f97316"
     },
     {
       "id": "m4",
@@ -82,13 +265,24 @@
       "competition": "Campionato",
       "kind": "partita",
       "result": "",
-      "color": "#3b82f6",
-      "referee": "",
-      "attendance": "",
-      "tv": "",
-      "ticketUrl": "",
-      "preview": "",
-      "report": "",
-      "motmId": "",
-      "weather": ""
+      "color": "#3b82f6"
     }
+  ],
+  "formation": {
+    "scheme": "4-3-3",
+    "starters": [
+      { "playerId": "p1", "x": 50, "y": 88 },
+      { "playerId": "p2", "x": 82, "y": 68 },
+      { "playerId": "p3", "x": 62, "y": 72 },
+      { "playerId": "p4", "x": 38, "y": 72 },
+      { "playerId": "p5", "x": 18, "y": 68 },
+      { "playerId": "p6", "x": 50, "y": 52 },
+      { "playerId": "p7", "x": 72, "y": 48 },
+      { "playerId": "p8", "x": 28, "y": 48 },
+      { "playerId": "p9", "x": 82, "y": 22 },
+      { "playerId": "p10", "x": 50, "y": 15 },
+      { "playerId": "p11", "x": 18, "y": 22 }
+    ],
+    "bench": ["p12", "p13", "p14", "p15"]
+  }
+}

@@ -26,7 +26,8 @@ async function readTeamJson(filePath: string): Promise<TeamData | null> {
   } catch (err) {
     const code = (err as NodeJS.ErrnoException)?.code;
     if (code === "ENOENT") return null;
-    throw err;
+    // Corrupt/partial JSON — treat as missing and fall back to defaults.
+    return null;
   }
 }
 

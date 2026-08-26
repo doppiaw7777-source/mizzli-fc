@@ -12,7 +12,7 @@ services:
     region: frankfurt
     repo: https://github.com/doppiaw7777-source/mizzli-fc
     branch: main
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm run start:prod
     healthCheckPath: /api/health
     autoDeploy: true

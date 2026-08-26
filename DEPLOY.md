@@ -84,25 +84,25 @@ Alternativa S3/R2: imposta `S3_*` in `.env.example`.
 
 > **Importante**: su Render il filesystem è effimero. Le foto in `public/uploads/` si perdono al redeploy. Usa sempre Supabase o S3 in produzione.
 
-## 5. Dominio custom — miodominio.it
+## 5. Dominio custom — mizzlifc.it
 
-### Su Render
+**Guida completa:** vedi [`DOMINIO.md`](./DOMINIO.md)
 
-1. Web Service → **Settings → Custom Domains**
-2. Aggiungi `miodominio.it` e `www.miodominio.it`
-3. Render mostra i record DNS da configurare
+Su Render i domini `mizzlifc.it` e `www.mizzlifc.it` sono già aggiunti.
+`NEXT_PUBLIC_APP_URL=https://mizzlifc.it` è già impostato.
 
-### Sul registrar (es. Cloudflare, Aruba, Register.it)
+### DNS su Register.it
 
-| Tipo | Nome | Valore |
+| Tipo | Host | Valore |
 |------|------|--------|
-| CNAME | `@` o `www` | `mizzli-fc.onrender.com` |
+| **A** | `@` | `216.24.57.1` |
+| **CNAME** | `www` | `mizzli-fc.onrender.com` |
 
-Se usi **Cloudflare**:
-- Proxy arancione OK
+Verifica: `bash scripts/check-dns.sh` — poi **Verify** nel dashboard Render.
+
+Se usi **Cloudflare** (invece di Register.it DNS):
+- CNAME `@` e `www` → `mizzli-fc.onrender.com`
 - SSL/TLS → **Full**
-
-Aggiorna `NEXT_PUBLIC_APP_URL=https://miodominio.it` su Render e redeploy.
 
 ## 6. Flusso di lavoro quotidiano
 

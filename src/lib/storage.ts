@@ -6,6 +6,7 @@ import { getTheme } from "./themes";
 import { mergeClub } from "./club";
 import { dateKey } from "./dates";
 import { syncStandings } from "./standings";
+import { saveUploadedImage as saveBlob } from "./blob-storage";
 import { atomicWrite, DATA_DIR, readJson, writeJson } from "./store";
 import { overlayLiveOnTeam, stripMatchLives } from "./match-live";
 import { getMatchLivesStore, seedMatchLivesFromTeam } from "./match-lives-store";
@@ -83,12 +84,7 @@ export async function saveUploadedImage(
   buffer: Buffer,
   filename: string
 ): Promise<string> {
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
-  await fs.mkdir(uploadsDir, { recursive: true });
-  const safeName = `${Date.now()}-${filename.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-  const filePath = path.join(uploadsDir, safeName);
-  await fs.writeFile(filePath, buffer);
-  return `/uploads/${safeName}`;
+  return saveBlob(buffer, filename);
 }
 
 function migrateTeamData(data: TeamData): TeamData {

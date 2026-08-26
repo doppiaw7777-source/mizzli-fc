@@ -6,6 +6,8 @@
     "dev": "next dev --hostname 0.0.0.0 --port 3000",
     "build": "next build",
     "start": "next start",
+    "start:prod": "node scripts/prestart.js && next start -H 0.0.0.0 -p ${PORT:-3000}",
+    "db:init": "tsx scripts/db-init.ts",
     "lint": "eslint",
     "cap:sync": "npx cap sync",
     "ios:open": "npx cap open ios"
@@ -29,7 +31,10 @@
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "uuid": "^14.0.1"
+    "uuid": "^14.0.1",
+    "pg": "^8.16.3",
+    "@supabase/supabase-js": "^2.56.0",
+    "@aws-sdk/client-s3": "^3.876.0"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
@@ -41,6 +46,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
+    "@types/pg": "^8.15.5",
+    "tsx": "^4.20.5",
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
     "tailwindcss": "^4",

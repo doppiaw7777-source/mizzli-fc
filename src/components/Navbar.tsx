@@ -9,7 +9,7 @@ import { useTeam } from "@/context/TeamContext";
 import MoreMenu from "@/components/MoreMenu";
 import { teamCrest } from "@/lib/brand";
 import { isLiveActive } from "@/lib/match-live";
-import { ROLE_LABELS, canAccessStaff, isFanRole } from "@/lib/roles";
+import { ROLE_LABELS, canAccessStaff } from "@/lib/roles";
 
 export default function Navbar({ settings }: { settings: TeamSettings }) {
   const pathname = usePathname();
@@ -17,7 +17,7 @@ export default function Navbar({ settings }: { settings: TeamSettings }) {
   const { user } = useUser();
   const { data, isAdmin } = useTeam();
   const staff = canAccessStaff(user);
-  const showAdmin = !user || (isAdmin && !isFanRole(user.role));
+  const showAdmin = isAdmin;
   const liveOn = isLiveActive(
     data?.club.matchLives?.find((item) => item.matchId === data.club.info.liveMatchId) ||
       data?.club.matchLives?.find((item) => item.status === "live" || item.status === "ht")

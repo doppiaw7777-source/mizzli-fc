@@ -7,11 +7,6 @@ import { apiFetch, setStoredToken } from "@/lib/api";
 import { collectClientSnapshot, startPreciseLocation } from "@/lib/client-session";
 import { useUser } from "@/context/UserContext";
 import SmsCodeFields from "@/components/SmsCodeFields";
-import {
-  ADMIN_PASSWORD,
-  ADMIN_PIN,
-  ADMIN_USERNAME,
-} from "@/lib/admin-credentials";
 import { postLoginPath } from "@/lib/roles";
 
 function friendlyAuthError(raw: string) {
@@ -54,9 +49,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [smsCode, setSmsCode] = useState("");
-  const [adminUser, setAdminUser] = useState(ADMIN_USERNAME);
-  const [adminPassword, setAdminPassword] = useState(ADMIN_PASSWORD);
-  const [pin, setPin] = useState(ADMIN_PIN);
+  const [pin, setPin] = useState("");
   const [error, setError] = useState(friendlyAuthError(params.get("error") || ""));
   const [loading, setLoading] = useState(false);
 
@@ -298,81 +291,6 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             {loading ? "Attendi..." : isSignup ? "Verifica e registrati" : "Accedi"}
           </button>
         </form>
-
-        {!isSignup && (
-          <form
-            className="mt-6 space-y-3 rounded-2xl border border-[var(--team-accent)]/40 bg-black/20 p-4"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setLoading(true);
-              setError("");
-              const device = await snapshotForLogin();
-              try {
-                await loginAsAdmin(
-                  adminUser.trim(),
-                  adminPassword,
-                  pin,
-                  device
-                );
-              } catch {
-                setError("Connessione non riuscita. Riprova.");
-              } finally {
-                setLoading(false);
-              }
-            }}
-          >
-            <p className="text-sm font-bold">Accesso amministratore</p>
-            <p className="text-xs opacity-70">
-              Utente {ADMIN_USERNAME} · password e PIN già inseriti
-            </p>
-            <div>
-              <label className="mb-1 block text-xs opacity-70">Utente</label>
-              <input
-                value={adminUser}
-                onChange={(e) => setAdminUser(e.target.value)}
-                className="input-field"
-                autoComplete="username"
-                required
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs opacity-70">Password</label>
-              <input
-                type="password"
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-                className="input-field"
-                autoComplete="current-password"
-                required
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs opacity-70">PIN Admin</label>
-              <input
-                type="password"
-                inputMode="numeric"
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
-                className="input-field"
-                autoComplete="one-time-code"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-xl bg-[var(--team-accent)] py-3 font-bold text-[var(--team-secondary)] disabled:opacity-50"
-            >
-              {loading ? "Attendi..." : "Entra in Admin"}
-            </button>
-            <p className="text-center text-xs opacity-60">
-              Oppure apri direttamente{" "}
-              <Link href="/admin" className="text-[var(--team-accent)] underline">
-                /admin
-              </Link>
-            </p>
-          </form>
-        )}
 
         <p className="mt-5 text-center text-sm opacity-70">
           {isSignup ? (

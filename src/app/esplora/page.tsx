@@ -4,11 +4,13 @@ import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import { menuGroupsForUser } from "@/lib/menu";
 import { useUser } from "@/context/UserContext";
+import { useTeam } from "@/context/TeamContext";
 
 export default function EsploraPage() {
   const { user } = useUser();
+  const { isAdmin } = useTeam();
 
-  const groups = menuGroupsForUser(user);
+  const groups = menuGroupsForUser(user, { isAdmin });
 
   return (
     <AppShell page="altro">

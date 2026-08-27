@@ -9,7 +9,6 @@ import {
   ADMIN_USERNAME,
 } from "./admin-credentials";
 
-export { ADMIN_PIN, ADMIN_USERNAME };
 export const SESSION_COOKIE = "squadra_admin_session";
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "squadra-calcio-secret-key-noldi-2026"

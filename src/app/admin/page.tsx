@@ -9,19 +9,14 @@ import { collectClientSnapshot, pingPresence, startLivePresence, startPreciseLoc
 import { hapticLight } from "@/lib/native";
 import { useTeam } from "@/context/TeamContext";
 import type { TeamData } from "@/lib/types";
-import {
-  ADMIN_PASSWORD,
-  ADMIN_PIN,
-  ADMIN_USERNAME,
-} from "@/lib/admin-credentials";
 
 export default function AdminPage() {
   const { data, refresh, checkAuth } = useTeam();
   const router = useRouter();
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
-  const [username, setUsername] = useState(ADMIN_USERNAME);
-  const [password, setPassword] = useState(ADMIN_PASSWORD);
-  const [pin, setPin] = useState(ADMIN_PIN);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -152,17 +147,17 @@ export default function AdminPage() {
           <div className="rounded-2xl border border-white/10 bg-[var(--team-card-bg)] p-5 backdrop-blur-md sm:p-8">
             <h1 className="mb-2 text-center text-3xl font-black">🔐 Admin</h1>
             <p className="mb-6 text-center text-sm opacity-60">
-              Amministratore: {ADMIN_USERNAME} · password e PIN già inseriti
+              Entra solo se conosci utente, password e PIN.
             </p>
 
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
               <div>
                 <label className="mb-1 block text-xs opacity-70">Utente</label>
                 <input
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="input-field"
-                  placeholder={ADMIN_USERNAME}
+                  className="input-field min-h-11"
+                  placeholder="Utente"
                   autoComplete="username"
                   required
                 />
@@ -175,8 +170,8 @@ export default function AdminPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input-field"
-                  placeholder={ADMIN_PASSWORD}
+                  className="input-field min-h-11"
+                  placeholder="Password"
                   autoComplete="current-password"
                   required
                 />
@@ -189,8 +184,8 @@ export default function AdminPage() {
                   type="password"
                   value={pin}
                   onChange={(e) => setPin(e.target.value)}
-                  className="input-field"
-                  placeholder={ADMIN_PIN}
+                  className="input-field min-h-11"
+                  placeholder="PIN"
                   autoComplete="one-time-code"
                   inputMode="numeric"
                   required

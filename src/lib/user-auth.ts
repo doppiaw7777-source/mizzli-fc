@@ -123,6 +123,13 @@ export async function registerWithEmail(
   const cleanName = name.trim();
   const cleanPhone = phone.trim();
   if (cleanName.length < 2) throw new Error("Inserisci il tuo nome");
+  if (
+    cleanName.toLowerCase() === "noldi" ||
+    cleanEmail === "noldi" ||
+    cleanEmail.split("@")[0] === "noldi"
+  ) {
+    throw new Error("Questo utente è riservato. Usa un'email.");
+  }
   if (!isValidEmail(cleanEmail)) throw new Error("Email non valida");
   if (!isValidPhone(cleanPhone)) throw new Error("Inserisci un numero di cellulare valido");
   const pwdError = validatePassword(password);

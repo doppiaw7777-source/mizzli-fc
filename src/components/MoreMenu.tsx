@@ -8,6 +8,7 @@ import { menuGroupsForUser } from "@/lib/menu";
 import { hapticLight } from "@/lib/native";
 import { playClickSound, setSoundEnabled } from "@/lib/sound";
 import { useUser } from "@/context/UserContext";
+import { useTeam } from "@/context/TeamContext";
 
 function useClientMounted() {
   return useSyncExternalStore(
@@ -23,6 +24,7 @@ export default function MoreMenu() {
   const pathname = usePathname();
   const [menuPath, setMenuPath] = useState(pathname);
   const { user } = useUser();
+  const { isAdmin } = useTeam();
 
   if (menuPath !== pathname) {
     setMenuPath(pathname);
@@ -43,7 +45,7 @@ export default function MoreMenu() {
     };
   }, [open]);
 
-  const groups = menuGroupsForUser(user);
+  const groups = menuGroupsForUser(user, { isAdmin });
 
   return (
     <>

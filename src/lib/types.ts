@@ -460,7 +460,7 @@ export interface AuthData {
   passwordHash: string;
 }
 
-export type UserRole = "fan" | "coach" | "assistant_coach" | "team_manager";
+export type UserRole = "fan" | "player" | "coach" | "assistant_coach" | "team_manager";
 
 export interface AppUser {
   id: string;

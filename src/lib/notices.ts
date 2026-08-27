@@ -10,6 +10,8 @@ export type ClubNotice = {
   kind: "callup" | "live" | "news" | "custom";
   createdAt: string;
   idempotencyKey?: string;
+  playerIds?: string[];
+  playerNames?: string[];
 };
 
 const KEY = "notices";
@@ -25,6 +27,8 @@ export async function addNotice(input: {
   href?: string;
   kind?: ClubNotice["kind"];
   idempotencyKey?: string;
+  playerIds?: string[];
+  playerNames?: string[];
 }) {
   const title = String(input.title || "").trim();
   if (!title) return { notice: null as ClubNotice | null, duplicate: false };
@@ -42,6 +46,8 @@ export async function addNotice(input: {
     kind: input.kind || "custom",
     createdAt: new Date().toISOString(),
     idempotencyKey: key || undefined,
+    playerIds: input.playerIds?.filter(Boolean),
+    playerNames: input.playerNames?.filter(Boolean),
   };
   const next = [notice, ...list].slice(0, 40);
   await withRetry(() => writeJson(KEY, next), 3, 200);

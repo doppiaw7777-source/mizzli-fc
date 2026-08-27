@@ -26,7 +26,7 @@ export default function ClubCrest({
       style={{ width: size, height: size }}
       onError={(e) => {
         const el = e.currentTarget;
-        if (!el.src.includes("mizzli-crest.svg")) {
+        if (!el.src.includes("mizzli-crest.svg") && !el.src.includes("/api/media/")) {
           el.src = "/brand/mizzli-crest.svg";
         }
       }}

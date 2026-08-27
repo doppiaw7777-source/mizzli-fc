@@ -11,7 +11,10 @@ export default function NativeBootstrap() {
     initNativeShell();
     const stopSounds = installClickSounds();
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
+      navigator.serviceWorker
+        .register("/sw.js", { updateViaCache: "none" })
+        .then((reg) => reg.update())
+        .catch(() => {});
     }
 
     let remove: (() => void) | undefined;

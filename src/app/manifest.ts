@@ -1,10 +1,16 @@
 import type { MetadataRoute } from "next";
+import { connection } from "next/server";
 import { getTeamData } from "@/lib/storage";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  await connection();
   const data = await getTeamData();
   const name = data.settings.teamName || "MIZZLI FC";
   const icon = data.settings.appIconUrl || data.settings.logoUrl || "/brand/mizzli-crest.png";
+  const iconSrc = icon.includes("?") ? icon : `${icon}?v=${Date.now()}`;
 
   return {
     id: "/",
@@ -23,10 +29,10 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     categories: ["sports", "entertainment"],
     prefer_related_applications: false,
     icons: [
-      { src: icon, sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: icon, sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: icon, sizes: "512x512", type: "image/png", purpose: "maskable" },
-      { src: icon, sizes: "180x180", type: "image/png" },
+      { src: iconSrc, sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: iconSrc, sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: iconSrc, sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: iconSrc, sizes: "180x180", type: "image/png" },
     ],
   };
 }

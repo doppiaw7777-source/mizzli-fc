@@ -39,6 +39,7 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         headers: [
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate" },
           {
             key: "Accept-CH",
             value:

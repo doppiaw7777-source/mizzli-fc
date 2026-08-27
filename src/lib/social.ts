@@ -13,9 +13,9 @@ export function clubSocials(data: TeamData): ClubSocial[] {
   const info = data.club?.info || ({} as ClubInfo);
   const items: ClubSocial[] = [
     { id: "instagram", label: "Instagram", href: "/instagram" },
+    { id: "tiktok", label: "TikTok", href: "/tiktok" },
   ];
   if (info.facebookUrl) items.push({ id: "facebook", label: "Facebook", href: info.facebookUrl });
-  if (info.tiktokUrl) items.push({ id: "tiktok", label: "TikTok", href: info.tiktokUrl });
   if (info.youtubeUrl) items.push({ id: "youtube", label: "YouTube", href: info.youtubeUrl });
   if (info.whatsapp) {
     const phone = info.whatsapp.replace(/\D/g, "");
@@ -66,11 +66,8 @@ export function shareTargets(text: string, url: string) {
       label: "X",
       href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
     },
-    {
-      id: "ig",
-      label: "Instagram",
-      href: "/instagram",
-    },
+    { id: "ig", label: "Instagram", href: "/instagram" },
+    { id: "tt", label: "TikTok", href: "/tiktok" },
   ];
 }
 

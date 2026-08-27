@@ -9,6 +9,7 @@ import { hapticLight } from "@/lib/native";
 import { playClickSound, setSoundEnabled } from "@/lib/sound";
 import { useUser } from "@/context/UserContext";
 import { useTeam } from "@/context/TeamContext";
+import PartnerTicker from "@/components/PartnerTicker";
 
 function useClientMounted() {
   return useSyncExternalStore(
@@ -24,7 +25,8 @@ export default function MoreMenu() {
   const pathname = usePathname();
   const [menuPath, setMenuPath] = useState(pathname);
   const { user } = useUser();
-  const { isAdmin } = useTeam();
+  const { isAdmin, data, updateData } = useTeam();
+  const showPartners = data?.settings.ui.showPartnerBanner !== false;
 
   if (menuPath !== pathname) {
     setMenuPath(pathname);
@@ -96,6 +98,12 @@ export default function MoreMenu() {
               </button>
             </div>
             <div className="max-h-[min(70vh,32rem)] space-y-5 overflow-y-auto p-4">
+              {showPartners && data ? (
+                <PartnerTicker
+                  sponsors={data.sponsors}
+                  title={data.settings.branding.partnersTitle || "Partner"}
+                />
+              ) : null}
               {groups.map((group) => (
                 <section key={group.title}>
                   <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] opacity-50">
@@ -127,6 +135,38 @@ export default function MoreMenu() {
                 </section>
               ))}
               <SoundToggle />
+              {isAdmin && data ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    hapticLight();
+                    void updateData({
+                      settings: {
+                        ...data.settings,
+                        ui: {
+                          ...data.settings.ui,
+                          showPartnerBanner: !showPartners,
+                        },
+                      },
+                    });
+                  }}
+                  className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left ${
+                    showPartners
+                      ? "border-[var(--team-accent)] bg-[var(--team-accent)]/10"
+                      : "border-white/10 hover:bg-white/10"
+                  }`}
+                >
+                  <span>
+                    <span className="block text-sm font-bold leading-tight">Fascia 100 partner</span>
+                    <span className="block text-xs opacity-60">
+                      {showPartners ? "Visibile in questo menu" : "Nascosta dal menu"}
+                    </span>
+                  </span>
+                  <span className="text-xs font-black uppercase tracking-wide opacity-70">
+                    {showPartners ? "On" : "Off"}
+                  </span>
+                </button>
+              ) : null}
             </div>
           </div>
         </div>,

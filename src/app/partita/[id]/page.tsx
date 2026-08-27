@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import FormationView from "@/components/FormationView";
 import MatchCard from "@/components/MatchCard";
+import VenueDetails from "@/components/VenueDetails";
 import { CallupGrid } from "@/components/CallupBoard";
 import SectionPage, { SoftCard } from "@/components/SectionPage";
 import { isCallupLive, sortCalledPlayers } from "@/lib/club";
@@ -40,6 +41,7 @@ export default function PartitaPage() {
     <AppShell page="calendario">
       <SectionPage title={matchPageTitle(match, data.settings.teamName)}>
         <MatchCard match={match} showShare={data.settings.ui.enableMatchShare} />
+        <VenueDetails match={match} data={data} />
         {session ? (
           match.note ? (
             <SoftCard>
@@ -63,10 +65,7 @@ export default function PartitaPage() {
                     <p className="mt-1 text-sm opacity-70">📍 {data.club.callupMeeting}</p>
                   )}
                 </div>
-                <Link
-                  href="/convocati"
-                  className="text-sm font-semibold text-[var(--team-accent)] underline"
-                >
+                <Link href="/convocati" className="text-sm font-semibold text-[var(--team-accent)] underline">
                   Apri convocati
                 </Link>
               </div>
@@ -117,8 +116,7 @@ export default function PartitaPage() {
                 <div>
                   <h2 className="text-xl font-bold">Formazione & voti</h2>
                   <p className="mt-1 text-sm opacity-70">
-                    Tocca un giocatore e dai un voto da 1 a 10. Tutti possono votare
-                    dopo il login.
+                    Tocca un giocatore e dai un voto da 1 a 10. Tutti possono votare dopo il login.
                   </p>
                 </div>
                 <Link

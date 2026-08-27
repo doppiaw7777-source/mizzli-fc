@@ -4,6 +4,7 @@ import {
   googleConfigured,
   googleOAuthOrigin,
   getRequestOrigin,
+  signGoogleState,
 } from "@/lib/google-oauth";
 import { oauthStateCookieOptions } from "@/lib/auth-cookies";
 
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
       )}`
     );
   }
-  const state = crypto.randomUUID();
+  const state = signGoogleState();
   const res = NextResponse.redirect(googleAuthUrl(origin, state));
   res.cookies.set(
     "google_oauth_state",

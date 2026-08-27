@@ -7,20 +7,15 @@ import { findUserByEmail, findUserById, findUserByPhone, toPublicUser, upsertUse
 import { requestIsHttps as originIsHttps } from "./public-origin";
 import { isValidPhone, normalizePhone } from "./phone";
 import { consumePhoneCode } from "./phone-otp";
+import { sessionCookieOptions } from "./auth-cookies";
 
 export const USER_COOKIE = "squadra_user_session";
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "squadra-calcio-secret-key-noldi-2026"
 );
 
-export function userSessionCookieOptions(secure: boolean) {
-  return {
-    httpOnly: true,
-    secure,
-    sameSite: "lax" as const,
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30,
-  };
+export function userSessionCookieOptions(secure: boolean, request?: Request) {
+  return sessionCookieOptions(secure, request);
 }
 
 export function requestIsHttps(request?: Request) {
@@ -36,7 +31,7 @@ export function applyUserSessionCookie(
   response.cookies.set(
     USER_COOKIE,
     token,
-    userSessionCookieOptions(requestIsHttps(request))
+    userSessionCookieOptions(requestIsHttps(request), request)
   );
 }
 
@@ -89,7 +84,7 @@ export async function createUserSession(user: AppUser, request?: Request) {
   cookieStore.set(
     USER_COOKIE,
     token,
-    userSessionCookieOptions(requestIsHttps(request) || originIsHttps(undefined, headerStore))
+    userSessionCookieOptions(requestIsHttps(request) || originIsHttps(undefined, headerStore), request)
   );
   return { token, user: publicUser };
 }
@@ -174,7 +169,6 @@ export async function updateUserPhone(userId: string, phone: string, smsCode = "
   await upsertUser(user);
   return toPublicUser(user);
 }
-
 
 export async function requireUser() {
   const user = await getUserSession();

@@ -14,6 +14,7 @@ type Notice = {
   body: string;
   href: string;
   createdAt: string;
+  playerNames?: string[];
 };
 
 export default function AvvisiPage() {
@@ -106,7 +107,6 @@ export default function AvvisiPage() {
             >
               {copied ? "Copiato" : "Copia URL"}
             </button>
-            <pre className="overflow-x-auto rounded-xl bg-black/40 p-3 text-[11px] opacity-80">{`{\n  "title": "Allenamento spostato",\n  "body": "Domani ore 20.30",\n  "href": "/calendario"\n}`}</pre>
           </div>
         )}
         <div className="space-y-3">
@@ -115,6 +115,15 @@ export default function AvvisiPage() {
             <a key={n.id} href={n.href || "/"} className="block rounded-2xl border border-white/10 bg-[var(--team-card-bg)] p-4">
               <p className="font-bold">{n.title}</p>
               {n.body && <p className="mt-1 text-sm opacity-70">{n.body}</p>}
+              {n.playerNames && n.playerNames.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {n.playerNames.map((name) => (
+                    <span key={name} className="rounded-full bg-white/10 px-2 py-0.5 text-xs">
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              )}
               <p className="mt-2 text-xs opacity-40">{new Date(n.createdAt).toLocaleString("it-IT")}</p>
             </a>
           ))}

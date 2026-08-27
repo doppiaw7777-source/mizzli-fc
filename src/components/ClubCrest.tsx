@@ -3,6 +3,7 @@
 import { MIZZLI_CREST } from "@/lib/brand";
 import type { TeamSettings } from "@/lib/types";
 
+// rebuild 2026-08-27T16:33Z — live still served 15:14 bundle
 export default function ClubCrest({
   size = 40,
   alt = "MIZZLI FC",

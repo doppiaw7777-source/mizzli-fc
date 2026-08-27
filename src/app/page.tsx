@@ -121,7 +121,7 @@ export default function HomePage() {
         {ui.showSponsors && visibleSponsors(data.sponsors).length > 0 && (
           <SponsorBanner sponsors={data.sponsors} title={b.sponsorsTitle || "Main Sponsor"} />
         )}
-        {ui.showSponsors && (
+        {ui.showPartnerBanner !== false && (
           <PartnerTicker
             sponsors={data.sponsors}
             title={b.partnersTitle || "Partner"}

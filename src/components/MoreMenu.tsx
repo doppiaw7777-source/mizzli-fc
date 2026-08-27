@@ -10,6 +10,7 @@ import { playClickSound, setSoundEnabled } from "@/lib/sound";
 import { useUser } from "@/context/UserContext";
 import { useTeam } from "@/context/TeamContext";
 import PartnerTicker from "@/components/PartnerTicker";
+import { NotifyToggle } from "@/components/NotifyCenter";
 
 function useClientMounted() {
   return useSyncExternalStore(
@@ -169,6 +170,14 @@ export default function MoreMenu() {
                   </div>
                 </section>
               ))}
+              <Link href="/avvisi" onClick={() => hapticLight()} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-white/10">
+                <span className="text-xl">🔔</span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-bold leading-tight">Avvisi</span>
+                  <span className="block truncate text-xs opacity-60">Notifiche e comunicazioni</span>
+                </span>
+              </Link>
+              <NotifyToggle />
               <SoundToggle />
             </div>
           </div>

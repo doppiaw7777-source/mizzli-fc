@@ -1,0 +1,8 @@
+.club-crest,
+.club-crest-plain {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0;
+  object-fit: contain;
+}

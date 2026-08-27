@@ -5,7 +5,8 @@ import AppShell from "@/components/AppShell";
 import StandingsTable from "@/components/StandingsTable";
 import SocialButtons from "@/components/SocialButtons";
 import { HomeCallupCard } from "@/components/CallupBoard";
-import { formGuide, lastResult, upcomingBirthdays, upcomingMatch } from "@/lib/club";
+import { formGuide, lastResult, upcomingBirthdays } from "@/lib/club";
+import { nextPlayableFixture } from "@/lib/next-fixture";
 import { formatItDate } from "@/lib/dates";
 import { useTeam } from "@/context/TeamContext";
 import { useUser } from "@/context/UserContext";
@@ -18,6 +19,11 @@ import LiveBoard from "@/components/LiveBoard";
 import SponsorBanner from "@/components/SponsorBanner";
 import { useLiveRefresh } from "@/lib/use-live-refresh";
 import { visibleSponsors } from "@/lib/sponsors";
+import {
+  friendlyOpponent,
+  getMatchKind,
+  matchPageTitle,
+} from "@/lib/match-kind";
 import {
   ROLE_BLURBS,
   ROLE_LABELS,
@@ -33,7 +39,7 @@ export default function HomePage() {
 
   if (!data) return null;
 
-  const nextMatch = upcomingMatch(data);
+  const nextMatch = nextPlayableFixture(data);
   const last = lastResult(data);
   const form = formGuide(data);
   const bdays = upcomingBirthdays(data.players, 14);
@@ -41,6 +47,12 @@ export default function HomePage() {
   const ui = data.settings.ui;
   const magazine = ui.homeLayout === "magazine";
   const minimal = ui.homeLayout === "minimal";
+  const nextKind = nextMatch ? getMatchKind(nextMatch) : null;
+  const nextOpp = nextMatch
+    ? nextKind === "amichevole"
+      ? friendlyOpponent(nextMatch)
+      : (nextMatch.opponent || "").trim()
+    : "";
 
   const cards = [
     {
@@ -137,7 +149,7 @@ export default function HomePage() {
             href="/scarica"
             className="mt-6 inline-block rounded-2xl bg-[var(--team-accent)] px-6 py-3 font-black tracking-tight text-[var(--team-secondary)] shadow-[0_12px_28px_rgba(0,0,0,0.28)] transition hover:brightness-110"
           >
-            Scarica l&apos;app ufficiale
+            Scarica l'app ufficiale
           </Link>
         </section>
 
@@ -170,45 +182,41 @@ export default function HomePage() {
           <section
             className="relative mx-auto max-w-xl overflow-hidden rounded-2xl border bg-[var(--team-card-bg)] p-6 text-center backdrop-blur-md team-card"
             style={{
-              borderColor: hexAlpha(nextMatch.color || defaultEventColor("match"), 0.4),
+              borderColor: hexAlpha(nextMatch.color || defaultEventColor(nextKind === "amichevole" ? "event" : "match"), 0.4),
               boxShadow: `0 18px 40px ${hexAlpha(nextMatch.color || defaultEventColor("match"), 0.12)}`,
             }}
           >
             <span
               className="absolute inset-x-0 top-0 h-1"
-              style={{ background: nextMatch.color || defaultEventColor("match") }}
+              style={{ background: nextMatch.color || defaultEventColor(nextKind === "amichevole" ? "event" : "match") }}
               aria-hidden
             />
             <p className="page-kicker">
-              {b.nextMatchLabel || "Prossima Partita"}
+              {nextKind === "amichevole" ? "Prossima amichevole" : b.nextMatchLabel || "Prossima Partita"}
             </p>
-            <div className="mt-4 flex items-center justify-center gap-3">
-              <TeamBadge
-                name={nextMatch.isHome ? data.settings.teamName : nextMatch.opponent}
-                src={
-                  nextMatch.isHome
-                    ? clubLogo(data.settings)
-                    : resolveTeamLogo(data, nextMatch.opponent)
-                }
-                gold={nextMatch.isHome}
-                size={56}
-              />
-              <span className="text-sm font-black tracking-[0.3em] text-[var(--team-accent)]">VS</span>
-              <TeamBadge
-                name={nextMatch.isHome ? nextMatch.opponent : data.settings.teamName}
-                src={
-                  nextMatch.isHome
-                    ? resolveTeamLogo(data, nextMatch.opponent)
-                    : clubLogo(data.settings)
-                }
-                gold={!nextMatch.isHome}
-                size={56}
-              />
-            </div>
+            {nextOpp ? (
+              <div className="mt-4 flex items-center justify-center gap-3">
+                <TeamBadge
+                  name={nextMatch.isHome ? data.settings.teamName : nextOpp}
+                  src={nextMatch.isHome ? clubLogo(data.settings) : resolveTeamLogo(data, nextOpp)}
+                  gold={nextMatch.isHome}
+                  size={56}
+                />
+                <span className="text-sm font-black tracking-[0.3em] text-[var(--team-accent)]">VS</span>
+                <TeamBadge
+                  name={nextMatch.isHome ? nextOpp : data.settings.teamName}
+                  src={nextMatch.isHome ? resolveTeamLogo(data, nextOpp) : clubLogo(data.settings)}
+                  gold={!nextMatch.isHome}
+                  size={56}
+                />
+              </div>
+            ) : (
+              <div className="mt-4 flex justify-center">
+                <ClubCrest settings={data.settings} size={64} />
+              </div>
+            )}
             <p className="mt-3 text-2xl font-bold tracking-tight">
-              {nextMatch.isHome ? data.settings.teamName : nextMatch.opponent}{" "}
-              <span className="text-[var(--team-accent)]">VS</span>{" "}
-              {nextMatch.isHome ? nextMatch.opponent : data.settings.teamName}
+              {matchPageTitle(nextMatch, data.settings.teamName)}
             </p>
             <p className="mt-2 opacity-70">
               {formatItDate(nextMatch.date, {
@@ -216,14 +224,14 @@ export default function HomePage() {
                 day: "numeric",
                 month: "long",
               })}{" "}
-              · {nextMatch.time}
+              {nextMatch.time ? `· ${nextMatch.time}` : ""}
             </p>
-            <p className="text-sm opacity-50">{nextMatch.location}</p>
+            {nextMatch.location ? <p className="text-sm opacity-50">{nextMatch.location}</p> : null}
             <Link
               href={`/partita/${nextMatch.id}`}
               className="mt-3 inline-block text-sm font-semibold text-[var(--team-accent)]"
             >
-              Dettaglio partita
+              Dettaglio
             </Link>
           </section>
         )}

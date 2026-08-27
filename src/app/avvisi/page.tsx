@@ -25,6 +25,8 @@ export default function AvvisiPage() {
   const [body, setBody] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [hookUrl, setHookUrl] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const load = async () => {
     const res = await apiFetch("/api/notices");
@@ -35,6 +37,14 @@ export default function AvvisiPage() {
   useEffect(() => {
     void load();
   }, []);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    void apiFetch("/api/hooks/notice")
+      .then((r) => r.json())
+      .then((d) => setHookUrl(d.url || ""))
+      .catch(() => {});
+  }, [isAdmin]);
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,6 +90,24 @@ export default function AvvisiPage() {
               {saving ? "Invio..." : "Invia a tutti"}
             </button>
           </form>
+        )}
+        {isAdmin && hookUrl && (
+          <div className="space-y-2 rounded-2xl border border-white/10 bg-[var(--team-card-bg)] p-4">
+            <h2 className="font-bold">Webhook</h2>
+            <p className="text-sm opacity-70">Usa questo URL in Make, Zapier, n8n o un form. Metodo POST, JSON.</p>
+            <code className="block break-all rounded-xl bg-black/40 p-3 text-xs">{hookUrl}</code>
+            <button
+              type="button"
+              className="text-sm text-[var(--team-accent)]"
+              onClick={() => {
+                void navigator.clipboard.writeText(hookUrl);
+                setCopied(true);
+              }}
+            >
+              {copied ? "Copiato" : "Copia URL"}
+            </button>
+            <pre className="overflow-x-auto rounded-xl bg-black/40 p-3 text-[11px] opacity-80">{`{\n  "title": "Allenamento spostato",\n  "body": "Domani ore 20.30",\n  "href": "/calendario"\n}`}</pre>
+          </div>
         )}
         <div className="space-y-3">
           {notices.length === 0 && <p className="text-sm opacity-60">Nessun avviso al momento.</p>}

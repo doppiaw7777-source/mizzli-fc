@@ -17,6 +17,7 @@ import { resolveTeamLogo } from "@/lib/club-teams";
 import { defaultEventColor, hexAlpha } from "@/lib/event-color";
 import LiveBoard from "@/components/LiveBoard";
 import SponsorBanner from "@/components/SponsorBanner";
+import PartnerTicker from "@/components/PartnerTicker";
 import { useLiveRefresh } from "@/lib/use-live-refresh";
 import { visibleSponsors } from "@/lib/sponsors";
 import {
@@ -118,7 +119,13 @@ export default function HomePage() {
     <AppShell page="home">
       <div className={minimal ? "space-y-6" : "space-y-10"}>
         {ui.showSponsors && visibleSponsors(data.sponsors).length > 0 && (
-          <SponsorBanner sponsors={data.sponsors} title={b.sponsorsTitle || "Sponsor"} />
+          <SponsorBanner sponsors={data.sponsors} title={b.sponsorsTitle || "Main Sponsor"} />
+        )}
+        {ui.showSponsors && (
+          <PartnerTicker
+            sponsors={data.sponsors}
+            title={b.partnersTitle || "Partner"}
+          />
         )}
 
         <section className={heroAlign}>

@@ -6,6 +6,7 @@ import { UserProvider } from "@/context/UserContext";
 import NativeBootstrap from "@/components/NativeBootstrap";
 import { getTeamData } from "@/lib/storage";
 import "./globals.css";
+import "./crest-plain.css";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

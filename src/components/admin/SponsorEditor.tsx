@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { isValidImageUrl } from "@/lib/images";
 import type { Sponsor } from "@/lib/types";
+import { sponsorTier } from "@/lib/sponsors";
 
 export default function SponsorEditor({
   sponsor,
@@ -18,6 +19,7 @@ export default function SponsorEditor({
   const [busy, setBusy] = useState(false);
   const [urlDraft, setUrlDraft] = useState("");
   const [error, setError] = useState("");
+  const tier = sponsorTier(sponsor);
 
   const assign = (file?: File) => {
     if (!file) return;
@@ -52,6 +54,16 @@ export default function SponsorEditor({
         />
       </label>
       <div className="min-w-0 flex-1 space-y-3">
+        <FieldBlock label="Livello">
+          <select
+            value={tier}
+            onChange={(e) => onChange({ tier: e.target.value as Sponsor["tier"] })}
+            className="input-field"
+          >
+            <option value="main">Main Sponsor — banner grande</option>
+            <option value="partner">Partner — fascia piccola</option>
+          </select>
+        </FieldBlock>
         <FieldBlock label="Nome">
           <input
             value={sponsor.name}

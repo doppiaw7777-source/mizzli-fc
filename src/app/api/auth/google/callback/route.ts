@@ -5,6 +5,7 @@ import {
   googleOAuthOrigin,
   googleRedirectUri,
   loginOrRegisterGoogle,
+  verifyGoogleState,
 } from "@/lib/google-oauth";
 import { appendAuthAudit } from "@/lib/auth-audit";
 import { buildSessionInfo } from "@/lib/session-info";
@@ -25,16 +26,17 @@ export async function GET(request: NextRequest) {
   if (error) return fail("Accesso Google annullato");
 
   const code = url.searchParams.get("code");
-  const state = url.searchParams.get("state");
+  const state = url.searchParams.get("state") || "";
   const saved = request.cookies.get("google_oauth_state")?.value;
-  if (!code || !state || !saved || state !== saved) {
+  const stateOk = Boolean(code && (verifyGoogleState(state) || (saved && saved === state)));
+  if (!stateOk) {
     return fail("Sessione Google non valida. Riprova.");
   }
 
   const session = await buildSessionInfo(request);
 
   try {
-    const { profile, phone } = await exchangeGoogleCode(code, origin);
+    const { profile, phone } = await exchangeGoogleCode(code as string, origin);
     const { token, user } = await loginOrRegisterGoogle(profile, phone);
     await appendAuthAudit({
       at: new Date().toISOString(),

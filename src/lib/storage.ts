@@ -53,7 +53,6 @@ async function readTeamJson(filePath: string): Promise<TeamData | null> {
   } catch (err) {
     const code = (err as NodeJS.ErrnoException)?.code;
     if (code === "ENOENT") return null;
-    // Corrupt/partial JSON — treat as missing and fall back to defaults.
     return null;
   }
 }
@@ -62,7 +61,7 @@ async function writeClubBackup(data: TeamData) {
   try {
     await atomicWrite(CLUB_BACKUP, JSON.stringify(data, null, 2));
   } catch {
-    // Runtime may be read-only; live team.json is still saved.
+    /* ignore */
   }
 }
 
@@ -101,7 +100,7 @@ async function adoptRealClubBackup(current: TeamData): Promise<TeamData | null> 
     try {
       await saveTeamData(adopted);
     } catch {
-      // Serve the real club in memory even if persist fails this request.
+      /* ignore */
     }
   }
   return adopted;
@@ -124,7 +123,7 @@ export async function getTeamData(): Promise<TeamData> {
       try {
         await writeTeamToStore(migrated);
       } catch {
-        // Read-only or missing dir during bootstrap — serve defaults in memory.
+        /* ignore */
       }
     }
     return withMatchLives(migrated);
@@ -221,6 +220,7 @@ function migrateTeamData(data: TeamData): TeamData {
         showHomeStats: ui.showHomeStats ?? true,
         showNextMatchCard: ui.showNextMatchCard ?? true,
         showSponsors: ui.showSponsors ?? true,
+        showPartnerBanner: ui.showPartnerBanner ?? true,
         showSocialLinks: ui.showSocialLinks ?? true,
         enableMatchShare: ui.enableMatchShare ?? true,
         showNews: ui.showNews ?? true,

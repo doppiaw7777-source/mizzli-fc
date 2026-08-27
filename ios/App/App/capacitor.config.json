@@ -3,6 +3,11 @@
 	"appName": "MIZZLI FC",
 	"webDir": "www",
 	"backgroundColor": "#0d4f2b",
+	"server": {
+		"url": "https://mizzlifc.it",
+		"cleartext": false,
+		"allowNavigation": ["mizzlifc.it", "www.mizzlifc.it"]
+	},
 	"ios": {
 		"contentInset": "automatic",
 		"preferredContentMode": "mobile",

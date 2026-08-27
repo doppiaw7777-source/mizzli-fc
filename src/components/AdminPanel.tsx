@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { uploadImageWithFallback, isValidImageUrl } from "@/lib/images";
 import { hapticLight, pickNativeImage } from "@/lib/native";
 import FormationEditor from "@/components/FormationEditor";
@@ -94,15 +94,48 @@ export default function AdminPanel({ data, onSave, onLogout, allowedTabs, limite
       : tabs;
   const [tab, setTab] = useState<AdminTab>((allowedTabs && allowedTabs[0]) || "impostazioni");
   const [developerOpen, setDeveloperOpen] = useState(false);
+  const skipAutoSave = useRef(true);
+  const lastSent = useRef("");
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleSave = async () => {
+  const handleSave = async (payload = draft) => {
     setSaving(true);
     setMessage("");
-    const ok = await onSave(draft);
-    if (ok) await hapticLight();
+    const ok = await onSave(payload);
+    if (ok) {
+      lastSent.current = JSON.stringify(payload);
+      await hapticLight();
+    }
     setSaving(false);
-    setMessage(ok ? "✅ Salvato con successo!" : "❌ Errore nel salvataggio");
+    setMessage(ok ? "✅ Pubblicato sul sito" : "❌ Errore nel salvataggio");
+    return ok;
   };
+
+  const onSaveRef = useRef(onSave);
+  onSaveRef.current = onSave;
+
+  useEffect(() => {
+    if (skipAutoSave.current) {
+      skipAutoSave.current = false;
+      lastSent.current = JSON.stringify(draft);
+      return;
+    }
+    const json = JSON.stringify(draft);
+    if (json === lastSent.current) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      setSaving(true);
+      setMessage("⏳ Pubblicazione sul sito...");
+      void onSaveRef.current(draft).then((ok) => {
+        if (ok) lastSent.current = json;
+        setSaving(false);
+        setMessage(ok ? "✅ Aggiornato sul sito" : "❌ Non pubblicato. Tocca Salva Tutto.");
+      });
+    }, 800);
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+  }, [draft]);
 
   const downloadBackup = () => {
     const blob = new Blob([JSON.stringify(draft, null, 2)], {
@@ -136,7 +169,7 @@ export default function AdminPanel({ data, onSave, onLogout, allowedTabs, limite
           }),
         });
       }
-      setMessage("✅ Backup caricato. Controlla e premi Salva Tutto.");
+      setMessage("✅ Backup caricato. Si pubblica da solo sul sito.");
     } catch {
       setMessage("❌ Non riesco a leggere questo backup");
     }
@@ -145,11 +178,11 @@ export default function AdminPanel({ data, onSave, onLogout, allowedTabs, limite
   const saveButton = (
     <button
       type="button"
-      onClick={handleSave}
+      onClick={() => void handleSave()}
       disabled={saving}
       className="min-h-11 rounded-xl bg-[var(--team-accent)] px-5 py-2.5 font-bold text-[var(--team-secondary)] transition hover:opacity-90 disabled:opacity-50"
     >
-      {saving ? "Salvataggio..." : "💾 Salva Tutto"}
+      {saving ? "Pubblicazione..." : "💾 Pubblica ora"}
     </button>
   );
 
@@ -161,7 +194,7 @@ export default function AdminPanel({ data, onSave, onLogout, allowedTabs, limite
     const result = await uploadFile(file);
     if (result.url) {
       callback(result.url);
-      setMessage(`✅ ${result.message || "Immagine inserita"} — clicca Salva Tutto`);
+      setMessage(`✅ ${result.message || "Immagine caricata"} — pubblicazione automatica`);
     } else {
       setMessage(`❌ ${result.message || "Errore upload immagine"}`);
     }
@@ -170,7 +203,12 @@ export default function AdminPanel({ data, onSave, onLogout, allowedTabs, limite
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-black sm:text-3xl">{title}</h1>
+        <div>
+          <h1 className="text-2xl font-black sm:text-3xl">{title}</h1>
+          <p className="mt-1 text-xs opacity-60">
+            Ogni modifica si pubblica da sola su mizzlifc.it in pochi secondi.
+          </p>
+        </div>
         <div className="hidden flex-wrap gap-2 md:flex">
           {saveButton}
           <button
@@ -268,7 +306,14 @@ export default function AdminPanel({ data, onSave, onLogout, allowedTabs, limite
         {tab === "classifica" && (
           <StandingsTab draft={draft} setDraft={setDraft} />
         )}
-        {tab === "club" && <ClubTab draft={draft} setDraft={setDraft} limited={limitedClubTab} />}
+        {tab === "club" && (
+          <ClubTab
+            draft={draft}
+            setDraft={setDraft}
+            limited={limitedClubTab}
+            onUpload={handleImageUpload}
+          />
+        )}
         {tab === "eventi" && <EventsTab draft={draft} setDraft={setDraft} />}
         {tab === "documenti" && <DocumentsTab draft={draft} setDraft={setDraft} />}
         {tab === "multe" && <FinesTab draft={draft} setDraft={setDraft} />}
@@ -2169,25 +2214,60 @@ function ImageUpload({
 }) {
   const [urlDraft, setUrlDraft] = useState("");
   const [loading, setLoading] = useState(false);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (current && !current.startsWith("blob:")) {
+      setLocalPreview((prev) => {
+        if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
+        return null;
+      });
+    }
+  }, [current]);
+
+  useEffect(() => {
+    return () => {
+      if (localPreview?.startsWith("blob:")) URL.revokeObjectURL(localPreview);
+    };
+  }, [localPreview]);
 
   const pickFromCamera = async () => {
     setLoading(true);
     try {
       const file = await pickNativeImage();
-      if (file) onUpload(file);
+      if (file) handleFile(file);
     } finally {
       setLoading(false);
     }
   };
 
   const handleFile = (file?: File) => {
-    if (file) onUpload(file);
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setLocalPreview((prev) => {
+      if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
+      return url;
+    });
+    onUpload(file);
   };
+
+  const preview = localPreview || current;
 
   return (
     <div className="space-y-3 rounded-xl border border-white/10 bg-black/20 p-3">
-      {current && (
-        <img src={current} alt="Preview" className="h-24 w-24 rounded-lg object-cover ring-2 ring-[var(--team-accent)]" />
+      {preview ? (
+        <img
+          src={preview}
+          alt="Anteprima"
+          className="h-24 w-24 rounded-lg object-cover ring-2 ring-[var(--team-accent)]"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+        />
+      ) : (
+        <div className="flex h-24 w-24 items-center justify-center rounded-lg border border-dashed border-white/20 text-2xl opacity-50">
+          🖼️
+        </div>
       )}
 
       <div className="grid grid-cols-2 gap-2">
@@ -2221,7 +2301,7 @@ function ImageUpload({
       </div>
 
       <button type="button" onClick={pickFromCamera} disabled={loading} className="w-full rounded-lg bg-[var(--team-primary)] py-2 text-sm font-semibold disabled:opacity-50">
-        Apri Camera / Galleria nativa
+        {loading ? "Apertura camera..." : "Apri Camera / Galleria nativa"}
       </button>
 
       {onUrlApply && (

@@ -1,4 +1,4 @@
-const CACHE = "mizzli-fc-v3";
+const CACHE = "mizzli-fc-v4";
 const PRECACHE = ["/", "/scarica", "/manifest.json", "/icon-192.png", "/icon-512.png", "/brand/mizzli-crest.png"];
 
 self.addEventListener("install", (event) => {
@@ -24,12 +24,12 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.includes("hot-update") || url.pathname.startsWith("/_next/webpack-hmr")) return;
-  if (url.pathname.startsWith("/api/auth") || url.pathname.startsWith("/api/whatsapp")) return;
+  if (url.pathname.startsWith("/api/")) return;
 
   event.respondWith(
     fetch(req)
       .then((res) => {
-        if (res.ok && (url.pathname.startsWith("/api/team") || url.pathname === "/" || url.pathname.startsWith("/_next/static") || url.pathname.match(/\.(png|svg|jpg|jpeg|webp|ico)$/))) {
+        if (res.ok && (url.pathname === "/" || url.pathname.startsWith("/_next/static") || url.pathname.match(/\.(png|svg|jpg|jpeg|webp|ico)$/))) {
           const copy = res.clone();
           caches.open(CACHE).then((cache) => cache.put(req, copy));
         }

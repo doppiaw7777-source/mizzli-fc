@@ -1,10 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { requireTeamManagerUser } from "@/lib/user-auth";
 import { saveUploadedImage } from "@/lib/storage";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+async function requireUploader() {
+  try {
+    await requireAdmin();
+  } catch {
+    await requireTeamManagerUser();
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
-    await requireAdmin();
+    await requireUploader();
     const contentType = request.headers.get("content-type") || "";
 
     if (contentType.includes("application/json")) {
@@ -39,12 +51,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Non autorizzato";
-    if (message === "Unauthorized") {
+    if (
+      message === "Unauthorized" ||
+      /non autenticato|non autorizzato|sessione/i.test(message)
+    ) {
       return NextResponse.json(
         { error: "Sessione scaduta. Esci e rientra in Admin." },
         { status: 401 }
       );
     }
-    return NextResponse.json({ error: "Errore upload" }, { status: 500 });
+    console.error("upload failed", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Errore upload" },
+      { status: 500 }
+    );
   }
 }

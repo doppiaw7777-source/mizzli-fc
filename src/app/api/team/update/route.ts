@@ -5,6 +5,8 @@ import type { TeamData } from "@/lib/types";
 import { compactTeamData, staffWritableSubset } from "@/lib/roles";
 import { requireTeamManagerUser } from "@/lib/user-auth";
 
+export const dynamic = "force-dynamic";
+
 async function authorizeAndSanitize(request: NextRequest, body: Partial<TeamData>) {
   try {
     await requireAdmin();

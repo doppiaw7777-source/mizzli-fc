@@ -7,3 +7,11 @@ CREATE TABLE IF NOT EXISTS app_kv (
 );
 
 CREATE INDEX IF NOT EXISTS app_kv_updated_at_idx ON app_kv (updated_at DESC);
+
+CREATE TABLE IF NOT EXISTS app_media (
+  id TEXT PRIMARY KEY,
+  filename TEXT NOT NULL,
+  content_type TEXT NOT NULL,
+  bytes BYTEA NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

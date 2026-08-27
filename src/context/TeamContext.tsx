@@ -72,6 +72,22 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
     checkAuth().catch(() => {});
   }, [refresh, checkAuth]);
 
+  useEffect(() => {
+    const tick = () => {
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+      void refresh();
+    };
+    const id = window.setInterval(tick, 6000);
+    const onVis = () => tick();
+    document.addEventListener("visibilitychange", onVis);
+    window.addEventListener("focus", onVis);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("focus", onVis);
+    };
+  }, [refresh]);
+
   return (
     <TeamContext.Provider
       value={{ data, loading, isAdmin, refresh, checkAuth, updateData }}

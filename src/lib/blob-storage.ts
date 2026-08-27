@@ -2,6 +2,8 @@ import { promises as fs } from "fs";
 import path from "path";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { isDatabaseEnabled } from "./db/pool";
+import { saveMedia } from "./media-store";
 
 function safeFilename(filename: string): string {
   return `${Date.now()}-${filename.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
@@ -97,13 +99,18 @@ async function saveToLocal(buffer: Buffer, filename: string): Promise<string> {
   return `/uploads/${safeName}`;
 }
 
-export type StorageBackend = "supabase" | "s3" | "local";
+async function saveToDatabase(buffer: Buffer, filename: string): Promise<string> {
+  return saveMedia(buffer, filename, contentTypeFromName(filename));
+}
+
+export type StorageBackend = "supabase" | "s3" | "database" | "local";
 
 export function getStorageBackend(): StorageBackend {
   if (getSupabase()) return "supabase";
   if (process.env.S3_BUCKET?.trim() && process.env.S3_ACCESS_KEY_ID?.trim()) {
     return "s3";
   }
+  if (isDatabaseEnabled()) return "database";
   return "local";
 }
 
@@ -117,6 +124,8 @@ export async function saveUploadedImage(
       return saveToSupabase(buffer, filename);
     case "s3":
       return saveToS3(buffer, filename);
+    case "database":
+      return saveToDatabase(buffer, filename);
     default:
       return saveToLocal(buffer, filename);
   }

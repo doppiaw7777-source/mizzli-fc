@@ -1,20 +1,30 @@
 "use client";
 
-import type { ClubInfo, TeamData } from "@/lib/types";
+import type { ClubInfo, GalleryItem, TeamData } from "@/lib/types";
 import { CALLUP_VISIBLE_DAYS, publishCallups } from "@/lib/club";
 
 export default function ClubTab({
   draft,
   setDraft,
   limited = false,
+  onUpload,
 }: {
   draft: TeamData;
   setDraft: (d: TeamData) => void;
   limited?: boolean;
+  onUpload?: (file: File, callback: (url: string) => void) => void;
 }) {
   const info = draft.club.info;
   const patchInfo = (patch: Partial<ClubInfo>) =>
     setDraft({ ...draft, club: { ...draft.club, info: { ...info, ...patch } } });
+  const patchGallery = (index: number, patch: Partial<GalleryItem>) =>
+    setDraft({
+      ...draft,
+      club: {
+        ...draft.club,
+        gallery: draft.club.gallery.map((item, i) => (i === index ? { ...item, ...patch } : item)),
+      },
+    });
 
   const fields: Array<[keyof ClubInfo, string]> = [
     ["founded", "Anno fondazione"],
@@ -125,6 +135,88 @@ export default function ClubTab({
           })}
         </div>
       </div>
+      {!limited && (
+        <div>
+          <h3 className="mb-2 font-semibold">Galleria foto</h3>
+          <p className="mb-3 text-sm opacity-60">
+            Le foto si pubblicano da sole sul sito. Album e didascalia si possono scrivere dopo.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {draft.club.gallery.map((item, i) => (
+              <div key={item.id} className="rounded-xl border border-white/10 bg-black/20 p-3">
+                {item.url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.url} alt="" className="mb-2 h-28 w-full rounded-lg object-cover" />
+                ) : (
+                  <div className="mb-2 flex h-28 items-center justify-center rounded-lg bg-white/5 text-3xl">
+                    📷
+                  </div>
+                )}
+                <input
+                  value={item.album}
+                  onChange={(e) => patchGallery(i, { album: e.target.value })}
+                  className="input-field mb-2"
+                  placeholder="Album"
+                />
+                <input
+                  value={item.caption}
+                  onChange={(e) => patchGallery(i, { caption: e.target.value })}
+                  className="input-field mb-2"
+                  placeholder="Didascalia"
+                />
+                {onUpload && (
+                  <label className="mb-2 flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-white/25 py-2 text-sm">
+                    Carica foto
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) onUpload(file, (url) => patchGallery(i, { url }));
+                        e.currentTarget.value = "";
+                      }}
+                    />
+                  </label>
+                )}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDraft({
+                      ...draft,
+                      club: {
+                        ...draft.club,
+                        gallery: draft.club.gallery.filter((_, idx) => idx !== i),
+                      },
+                    })
+                  }
+                  className="text-xs text-red-400"
+                >
+                  Rimuovi
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const next: GalleryItem = {
+                id: `g${Date.now()}`,
+                url: "",
+                caption: "",
+                album: "Generale",
+              };
+              setDraft({
+                ...draft,
+                club: { ...draft.club, gallery: [...draft.club.gallery, next] },
+              });
+            }}
+            className="mt-3 rounded-xl border border-white/20 px-4 py-2 text-sm"
+          >
+            + Aggiungi foto
+          </button>
+        </div>
+      )}
     </div>
   );
 }

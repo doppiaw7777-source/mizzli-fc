@@ -5,6 +5,7 @@ import {
   googleOAuthOrigin,
   getRequestOrigin,
 } from "@/lib/google-oauth";
+import { oauthStateCookieOptions } from "@/lib/auth-cookies";
 
 export async function GET(request: NextRequest) {
   const origin = googleOAuthOrigin(request);
@@ -21,12 +22,10 @@ export async function GET(request: NextRequest) {
   }
   const state = crypto.randomUUID();
   const res = NextResponse.redirect(googleAuthUrl(origin, state));
-  res.cookies.set("google_oauth_state", state, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 600,
-    secure: origin.startsWith("https://"),
-  });
+  res.cookies.set(
+    "google_oauth_state",
+    state,
+    oauthStateCookieOptions(origin.startsWith("https://"), request)
+  );
   return res;
 }

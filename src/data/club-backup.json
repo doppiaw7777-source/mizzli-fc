@@ -23,225 +23,815 @@
       "admin": ""
     },
     "fontFamily": "Inter, system-ui, sans-serif",
-    "navStyle": "glass"
+    "navStyle": "glass",
+    "branding": {
+      "stadiumName": "",
+      "leagueName": "Campionato",
+      "seasonLabel": "2025/26",
+      "welcomeMessage": "",
+      "footerText": "",
+      "nextMatchLabel": "Prossima Partita",
+      "aboutText": "",
+      "contactEmail": "",
+      "contactPhone": "",
+      "rosaTitle": "Rosa Squadra",
+      "calendarioTitle": "Calendario",
+      "formazioneTitle": "Formazione Ufficiale",
+      "newsTitle": "News squadra",
+      "trainingsTitle": "Prossimi allenamenti",
+      "sponsorsTitle": "Sponsor",
+      "homeLabel": "Home",
+      "rosaLabel": "Rosa",
+      "calendarioLabel": "Calendario",
+      "formazioneLabel": "Formazione"
+    },
+    "ui": {
+      "cardRadius": 23,
+      "showHomeStats": true,
+      "showNextMatchCard": true,
+      "showSponsors": true,
+      "showSocialLinks": true,
+      "enableMatchShare": true,
+      "showNews": true,
+      "showTrainings": true,
+      "showStandings": true,
+      "showHomeAdminCard": false,
+      "showMotto": true,
+      "showBottomNav": true,
+      "showAbout": true,
+      "cardGlow": true,
+      "compactMode": false,
+      "backgroundOverlay": 62,
+      "graphicIntensity": 70,
+      "titleSize": "large",
+      "buttonStyle": "rounded",
+      "heroStyle": "center",
+      "homeLayout": "magazine",
+      "calendarModelId": "griglia-classica",
+      "calendarSize": "md",
+      "playerGraphicId": "medal"
+    }
   },
   "players": [
     {
       "id": "p1",
-      "name": "Marco Rossi",
+      "name": "Nicolas Lanseni",
       "number": 1,
       "position": "Portiere",
       "role": "POR",
-      "birthDate": "1995-03-12",
+      "birthDate": "1999-11-02",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 0, "assists": 0, "appearances": 28 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p2",
-      "name": "Luca Bianchi",
-      "number": 2,
-      "position": "Terzino destro",
-      "role": "DIF",
-      "birthDate": "1998-07-22",
+      "name": "Simone Abate Panarese",
+      "number": 0,
+      "position": "Esterno",
+      "role": "CEN",
+      "birthDate": "1993-01-21",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 2, "assists": 5, "appearances": 30 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p3",
-      "name": "Andrea Verdi",
-      "number": 4,
-      "position": "Difensore centrale",
-      "role": "DIF",
-      "birthDate": "1996-11-05",
+      "name": "Cristiano Borsese",
+      "number": 10,
+      "position": "Ala",
+      "role": "ATT",
+      "birthDate": "1999-05-23",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 3, "assists": 1, "appearances": 32 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p4",
-      "name": "Giuseppe Neri",
-      "number": 5,
-      "position": "Difensore centrale",
-      "role": "DIF",
-      "birthDate": "1997-01-18",
+      "name": "Luca Andres Cedeno Aguirre",
+      "number": 0,
+      "position": "Portiere",
+      "role": "POR",
+      "birthDate": "1998-06-12",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 1, "assists": 0, "appearances": 29 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p5",
-      "name": "Francesco Blu",
-      "number": 3,
-      "position": "Terzino sinistro",
-      "role": "DIF",
-      "birthDate": "1999-09-30",
+      "name": "Giampietro Cevasco",
+      "number": 21,
+      "position": "Ala",
+      "role": "ATT",
+      "birthDate": "1994-07-04",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 1, "assists": 4, "appearances": 27 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "injured",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p6",
-      "name": "Davide Gialli",
-      "number": 6,
-      "position": "Mediano",
+      "name": "Domenico Della Torre",
+      "number": 0,
+      "position": "Trequartista",
       "role": "CEN",
-      "birthDate": "1994-05-14",
+      "birthDate": "1982-10-27",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 4, "assists": 7, "appearances": 31 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p7",
-      "name": "Simone Viola",
-      "number": 8,
-      "position": "Centrocampista",
-      "role": "CEN",
-      "birthDate": "1997-12-08",
+      "name": "Kleand Doku",
+      "number": 0,
+      "position": "Centravanti",
+      "role": "ATT",
+      "birthDate": "2000-08-16",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 6, "assists": 9, "appearances": 30 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p8",
-      "name": "Matteo Arancio",
-      "number": 10,
-      "position": "Trequartista",
-      "role": "CEN",
-      "birthDate": "1996-04-25",
+      "name": "Arnold Doku",
+      "number": 11,
+      "position": "Centrale",
+      "role": "DIF",
+      "birthDate": "1999-10-19",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 12, "assists": 11, "appearances": 32 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "ambidestro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p9",
-      "name": "Alessandro Rosa",
-      "number": 7,
-      "position": "Ala destra",
+      "name": "Egli Doku",
+      "number": 0,
+      "position": "Centravanti",
       "role": "ATT",
-      "birthDate": "1998-08-17",
+      "birthDate": "2006-11-21",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 9, "assists": 6, "appearances": 28 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p10",
-      "name": "Roberto Grigio",
+      "name": "Luca Ferrari",
       "number": 9,
       "position": "Centravanti",
       "role": "ATT",
-      "birthDate": "1995-02-03",
+      "birthDate": "1996-11-26",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 18, "assists": 3, "appearances": 32 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "sinistro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p11",
-      "name": "Filippo Celeste",
-      "number": 11,
-      "position": "Ala sinistra",
-      "role": "ATT",
-      "birthDate": "1999-06-21",
-      "nationality": "Italia",
-      "photoUrl": "",
-      "stats": { "goals": 7, "assists": 8, "appearances": 26 }
-    },
-    {
-      "id": "p12",
-      "name": "Paolo Marrone",
+      "name": "Matteo Gardi",
       "number": 12,
       "position": "Portiere",
       "role": "POR",
-      "birthDate": "2000-10-11",
+      "birthDate": "1997-06-20",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 0, "assists": 0, "appearances": 4 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p12",
+      "name": "Kristjan Kola",
+      "number": 5,
+      "position": "Centrale",
+      "role": "DIF",
+      "birthDate": "1999-05-03",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p13",
-      "name": "Emanuele Bianco",
-      "number": 13,
-      "position": "Difensore",
+      "name": "Renato Kola",
+      "number": 0,
+      "position": "Terzino",
       "role": "DIF",
-      "birthDate": "2001-01-29",
+      "birthDate": "1994-08-23",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 0, "assists": 1, "appearances": 12 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p14",
-      "name": "Christian Rosso",
-      "number": 14,
-      "position": "Centrocampista",
-      "role": "CEN",
-      "birthDate": "2000-07-07",
+      "name": "Carlos Alexis Moreira Cantos",
+      "number": 0,
+      "position": "Centravanti",
+      "role": "ATT",
+      "birthDate": "2000-02-22",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 2, "assists": 3, "appearances": 15 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     },
     {
       "id": "p15",
-      "name": "Nicola Verde",
-      "number": 15,
-      "position": "Attaccante",
+      "name": "Rudiger Isaac Moreira Saltos",
+      "number": 0,
+      "position": "Centravanti",
       "role": "ATT",
-      "birthDate": "2002-03-19",
+      "birthDate": "1994-05-25",
       "nationality": "Italia",
       "photoUrl": "",
-      "stats": { "goals": 3, "assists": 2, "appearances": 10 }
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "unavailable",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p1787765025401",
+      "name": "Riccardo Parodi",
+      "number": 33,
+      "position": "Mezzala",
+      "role": "CEN",
+      "birthDate": "2004-03-07",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p1787765029981",
+      "name": "Lorenzo Pinto",
+      "number": 99,
+      "position": "Mezzala",
+      "role": "CEN",
+      "birthDate": "2000-01-18",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p1787765031248",
+      "name": "Marco Puntorieri",
+      "number": 28,
+      "position": "Terzino",
+      "role": "DIF",
+      "birthDate": "1998-08-28",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p1787765031954",
+      "name": "Gabriele Recalchi",
+      "number": 0,
+      "position": "Regista",
+      "role": "CEN",
+      "birthDate": "1994-04-19",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p1787765032570",
+      "name": "Daniele Rivieccio",
+      "number": 0,
+      "position": "Centrale",
+      "role": "DIF",
+      "birthDate": "2001-06-22",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "injured",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p1787765033139",
+      "name": "Luca Rossi",
+      "number": 0,
+      "position": "Ala",
+      "role": "ATT",
+      "birthDate": "2000-07-03",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p1787765033613",
+      "name": "Matteo Russo",
+      "number": 0,
+      "position": "Terzino",
+      "role": "DIF",
+      "birthDate": "2001-05-20",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p1787765034086",
+      "name": "Andrea Scaduto",
+      "number": 7,
+      "position": "Terzino",
+      "role": "DIF",
+      "birthDate": "1999-09-07",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "bio": "Capitano",
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p1787765034542",
+      "name": "Gabriele Sotta",
+      "number": 8,
+      "position": "Mediano",
+      "role": "CEN",
+      "birthDate": "1998-09-06",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p1787765035201",
+      "name": "Paolo Tasselli",
+      "number": 4,
+      "position": "Centrale",
+      "role": "DIF",
+      "birthDate": "1987-02-13",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p1787765035906",
+      "name": "Luis Antonio Tejena Merelo",
+      "number": 0,
+      "position": "Mezzala",
+      "role": "CEN",
+      "birthDate": "1998-02-12",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
+    },
+    {
+      "id": "p1787765036680",
+      "name": "Nicolò Trignano",
+      "number": 0,
+      "position": "Centravanti",
+      "role": "ATT",
+      "birthDate": "1987-04-24",
+      "nationality": "Italia",
+      "photoUrl": "",
+      "stats": {
+        "goals": 0,
+        "assists": 0,
+        "appearances": 0
+      },
+      "status": "available",
+      "height": "",
+      "weight": "",
+      "foot": "destro",
+      "bio": "",
+      "previousClubs": "",
+      "yellowCards": 0,
+      "redCards": 0,
+      "minutes": 0,
+      "motm": 0,
+      "instagram": ""
     }
   ],
   "staff": [
     {
       "id": "s1",
-      "name": "Noldi",
+      "name": "Stefano Muschetti",
       "role": "Allenatore",
       "photoUrl": ""
     },
     {
       "id": "s2",
-      "name": "Carlo Mister",
+      "name": "Davide Anselmo",
       "role": "Vice Allenatore",
-      "photoUrl": ""
-    },
-    {
-      "id": "s3",
-      "name": "Dr. Salvatore Medico",
-      "role": "Medico Sociale",
-      "photoUrl": ""
-    },
-    {
-      "id": "s4",
-      "name": "Gianni Preparatore",
-      "role": "Preparatore Atletico",
       "photoUrl": ""
     }
   ],
   "matches": [
     {
       "id": "m1",
-      "date": "2026-08-24",
-      "time": "18:00",
-      "opponent": "ASD Rivale",
+      "date": "2026-09-25",
+      "time": "21:30",
+      "opponent": "Amatori",
       "location": "Stadio Comunale",
       "isHome": true,
-      "competition": "Campionato",
-      "kind": "partita",
+      "competition": "Amichevole",
       "result": "",
-      "color": "#3b82f6"
+      "color": "#22c55e",
+      "referee": "",
+      "attendance": "",
+      "tv": "",
+      "ticketUrl": "",
+      "preview": "",
+      "report": "",
+      "motmId": "",
+      "weather": "",
+      "kind": "amichevole",
+      "opponentLogoUrl": ""
     },
     {
       "id": "m2",
-      "date": "2026-08-31",
-      "time": "16:30",
-      "opponent": "FC Ospite",
-      "location": "Campo Ospiti",
-      "isHome": false,
-      "competition": "Campionato",
-      "kind": "partita",
+      "date": "2026-09-02",
+      "time": "20:00",
+      "opponent": "Allenamento",
+      "location": "Campo G.Piccardo",
+      "isHome": true,
+      "competition": "Allenamento",
       "result": "",
-      "color": "#22c55e"
+      "color": "#ffd700",
+      "referee": "",
+      "attendance": "",
+      "tv": "",
+      "ticketUrl": "",
+      "preview": "",
+      "report": "",
+      "motmId": "",
+      "weather": "",
+      "kind": "allenamento",
+      "opponentLogoUrl": ""
     },
     {
       "id": "m3",
@@ -251,9 +841,18 @@
       "location": "Stadio Comunale",
       "isHome": true,
       "competition": "Coppa Regionale",
+      "result": "0-1",
+      "color": "#f97316",
+      "referee": "",
+      "attendance": "",
+      "tv": "",
+      "ticketUrl": "",
+      "preview": "",
+      "report": "",
+      "motmId": "",
+      "weather": "",
       "kind": "partita",
-      "result": "",
-      "color": "#f97316"
+      "opponentLogoUrl": ""
     },
     {
       "id": "m4",
@@ -263,26 +862,564 @@
       "location": "Stadio Real",
       "isHome": false,
       "competition": "Campionato",
-      "kind": "partita",
       "result": "",
-      "color": "#3b82f6"
+      "color": "#3b82f6",
+      "referee": "",
+      "attendance": "",
+      "tv": "",
+      "ticketUrl": "",
+      "preview": "",
+      "report": "",
+      "motmId": "",
+      "weather": "",
+      "kind": "partita",
+      "opponentLogoUrl": ""
+    },
+    {
+      "id": "m1787775920571-par",
+      "date": "2026-09-25",
+      "time": "21:00",
+      "opponent": "Amatori",
+      "location": "",
+      "isHome": true,
+      "competition": "Amichevole",
+      "result": "",
+      "note": "",
+      "priority": "media",
+      "color": "#f97316",
+      "kind": "partita",
+      "referee": "",
+      "attendance": "",
+      "tv": "",
+      "ticketUrl": "",
+      "preview": "",
+      "report": "",
+      "motmId": "",
+      "weather": "",
+      "opponentLogoUrl": ""
     }
   ],
   "formation": {
     "scheme": "4-3-3",
     "starters": [
-      { "playerId": "p1", "x": 50, "y": 88 },
-      { "playerId": "p2", "x": 82, "y": 68 },
-      { "playerId": "p3", "x": 62, "y": 72 },
-      { "playerId": "p4", "x": 38, "y": 72 },
-      { "playerId": "p5", "x": 18, "y": 68 },
-      { "playerId": "p6", "x": 50, "y": 52 },
-      { "playerId": "p7", "x": 72, "y": 48 },
-      { "playerId": "p8", "x": 28, "y": 48 },
-      { "playerId": "p9", "x": 82, "y": 22 },
-      { "playerId": "p10", "x": 50, "y": 15 },
-      { "playerId": "p11", "x": 18, "y": 22 }
+      {
+        "playerId": "p1",
+        "x": 50,
+        "y": 88
+      },
+      {
+        "playerId": "p2",
+        "x": 82,
+        "y": 68
+      },
+      {
+        "playerId": "p3",
+        "x": 62,
+        "y": 72
+      },
+      {
+        "playerId": "p4",
+        "x": 38,
+        "y": 72
+      },
+      {
+        "playerId": "p5",
+        "x": 18,
+        "y": 68
+      },
+      {
+        "playerId": "p6",
+        "x": 50,
+        "y": 52
+      },
+      {
+        "playerId": "p7",
+        "x": 72,
+        "y": 48
+      },
+      {
+        "playerId": "p8",
+        "x": 28,
+        "y": 48
+      },
+      {
+        "playerId": "p9",
+        "x": 82,
+        "y": 22
+      },
+      {
+        "playerId": "p10",
+        "x": 50,
+        "y": 15
+      },
+      {
+        "playerId": "p11",
+        "x": 18,
+        "y": 22
+      }
     ],
-    "bench": ["p12", "p13", "p14", "p15"]
-  }
+    "bench": [
+      "p12",
+      "p13",
+      "p14",
+      "p15"
+    ],
+    "pitchColor": "#2f7a3a",
+    "pitchColor2": "#145528",
+    "captainId": "",
+    "note": ""
+  },
+  "announcements": [
+    {
+      "id": "a1",
+      "title": "Benvenuti nella nuova stagione",
+      "description": "Forza MIZZLI FC! Aggiorna qui news, risultati e obiettivi.",
+      "pinned": true
+    }
+  ],
+  "trainings": [
+    {
+      "id": "t1",
+      "day": "Martedì",
+      "time": "19:00",
+      "location": "Campo A",
+      "focus": "Tattica offensiva"
+    },
+    {
+      "id": "t2",
+      "day": "Giovedì",
+      "time": "19:00",
+      "location": "Campo B",
+      "focus": "Palle inattive"
+    }
+  ],
+  "sponsors": [
+    {
+      "id": "sp1",
+      "name": "Noldi Sport",
+      "logoUrl": "",
+      "website": ""
+    }
+  ],
+  "socialLinks": [
+    {
+      "id": "so1",
+      "label": "@mizzlifc",
+      "url": "https://www.instagram.com/mizzlifc/"
+    }
+  ],
+  "standings": {
+    "title": "Classifica Campionato",
+    "season": "2025/26",
+    "rows": [
+      {
+        "id": "st4",
+        "name": "ASD Rivale",
+        "played": 0,
+        "won": 0,
+        "drawn": 0,
+        "lost": 0,
+        "goalsFor": 0,
+        "goalsAgainst": 0,
+        "isUs": false,
+        "logoUrl": ""
+      },
+      {
+        "id": "st7",
+        "name": "Atletico Sud",
+        "played": 0,
+        "won": 0,
+        "drawn": 0,
+        "lost": 0,
+        "goalsFor": 0,
+        "goalsAgainst": 0,
+        "isUs": false,
+        "logoUrl": ""
+      },
+      {
+        "id": "st5",
+        "name": "FC Ospite",
+        "played": 0,
+        "won": 0,
+        "drawn": 0,
+        "lost": 0,
+        "goalsFor": 0,
+        "goalsAgainst": 0,
+        "isUs": false,
+        "logoUrl": ""
+      },
+      {
+        "id": "st2",
+        "name": "MIZZLI FC",
+        "played": 0,
+        "won": 0,
+        "drawn": 0,
+        "lost": 0,
+        "goalsFor": 0,
+        "goalsAgainst": 0,
+        "isUs": true,
+        "logoUrl": "/brand/mizzli-crest.png"
+      },
+      {
+        "id": "st1",
+        "name": "Real Calcio",
+        "played": 0,
+        "won": 0,
+        "drawn": 0,
+        "lost": 0,
+        "goalsFor": 0,
+        "goalsAgainst": 0,
+        "isUs": false,
+        "logoUrl": ""
+      },
+      {
+        "id": "st3",
+        "name": "United City",
+        "played": 0,
+        "won": 0,
+        "drawn": 0,
+        "lost": 0,
+        "goalsFor": 0,
+        "goalsAgainst": 0,
+        "isUs": false,
+        "logoUrl": ""
+      },
+      {
+        "id": "st6",
+        "name": "Virtus Nord",
+        "played": 0,
+        "won": 0,
+        "drawn": 0,
+        "lost": 0,
+        "goalsFor": 0,
+        "goalsAgainst": 0,
+        "isUs": false,
+        "logoUrl": ""
+      }
+    ],
+    "live": false
+  },
+  "club": {
+    "info": {
+      "founded": "2018",
+      "city": "Milano",
+      "address": "Via dello Stadio 1",
+      "stadiumCapacity": "800",
+      "president": "Presidente Mizzli",
+      "sportingDirector": "DS Mizzli",
+      "whatsapp": "",
+      "mapsUrl": "https://maps.google.com/?q=Milano",
+      "ticketUrl": "",
+      "liveStreamUrl": "",
+      "radioUrl": "",
+      "youtubeUrl": "",
+      "facebookUrl": "",
+      "tiktokUrl": "",
+      "shopUrl": "",
+      "anthem": "Forza Mizzli, dalla curva al campo!",
+      "mascot": "Mizzo",
+      "history": "La società nasce dalla passione di un gruppo di amici. Oggi MIZZLI FC è una famiglia: rosa, staff, tifosi e sponsor nello stesso progetto.",
+      "values": "Rispetto, lavoro, coraggio, comunità.",
+      "fairPlay": "Zero razzismo, rispetto dell'arbitro e dell'avversario.",
+      "parking": "Parcheggio gratuito accanto al campo.",
+      "transport": "Autobus di linea + 8 minuti a piedi.",
+      "hospitality": "Tribuna coperta e bar interno nei giorni di gara.",
+      "disabledAccess": "Accesso e tribuna dedicata su richiesta.",
+      "ticketPrices": "Intero 8€ · Ridotto 5€ · Under 12 gratis",
+      "openingHours": "Segreteria: lun-ven 18:00-20:00",
+      "pressEmail": "",
+      "alertBanner": "",
+      "liveStatus": "ft",
+      "liveScore": "0-1",
+      "liveMinute": "90",
+      "liveMatchId": "m3",
+      "viceCaptainId": "",
+      "penaltyTakerId": "",
+      "freeKickTakerId": "",
+      "cornerTakerId": ""
+    },
+    "gallery": [
+      {
+        "id": "g1",
+        "url": "",
+        "caption": "Ultimo allenamento",
+        "album": "Allenamenti"
+      },
+      {
+        "id": "g2",
+        "url": "",
+        "caption": "Curva Mizzli",
+        "album": "Tifosi"
+      }
+    ],
+    "videos": [
+      {
+        "id": "v1",
+        "title": "Highlights ultima gara",
+        "url": ""
+      }
+    ],
+    "documents": [
+      {
+        "id": "d1787786636343",
+        "title": "Nuovo documento",
+        "url": ""
+      }
+    ],
+    "honours": [
+      {
+        "id": "h1",
+        "year": "2024",
+        "title": "Coppa di Lega"
+      },
+      {
+        "id": "h2",
+        "year": "2023",
+        "title": "Promozione"
+      }
+    ],
+    "timeline": [
+      {
+        "id": "tl1",
+        "year": "2018",
+        "title": "Fondazione",
+        "text": "Nasce MIZZLI FC."
+      },
+      {
+        "id": "tl2",
+        "year": "2023",
+        "title": "Promozione",
+        "text": "Salto di categoria e nuovo ciclo."
+      },
+      {
+        "id": "tl3",
+        "year": "2026",
+        "title": "App ufficiale",
+        "text": "Rosa, calendario e tifosi in un'unica app."
+      }
+    ],
+    "faqs": [
+      {
+        "id": "f1",
+        "q": "Come si entra in rosa?",
+        "a": "Contatta lo staff da Contatti o presentati in segreteria."
+      },
+      {
+        "id": "f2",
+        "q": "Dove si gioca?",
+        "a": "Vedi Stadio e Come arrivare nella sezione Contatti."
+      },
+      {
+        "id": "f3",
+        "q": "Come compro il biglietto?",
+        "a": "Prezzi in Contatti. Link biglietti se inserito dall'admin."
+      },
+      {
+        "id": "f4",
+        "q": "Posso allenarmi con la prima squadra?",
+        "a": "Le prove si comunicano nelle News."
+      }
+    ],
+    "chants": [
+      {
+        "id": "c1",
+        "title": "Forza Mizzli",
+        "lyrics": "Forza Mizzli dalla curva stiamo qui\nNon molliamo mai, questa è la nostra città"
+      }
+    ],
+    "records": [
+      {
+        "id": "r1",
+        "label": "Record gol in una stagione",
+        "value": "—"
+      },
+      {
+        "id": "r2",
+        "label": "Vittoria più larga",
+        "value": "—"
+      },
+      {
+        "id": "r3",
+        "label": "Presenze club",
+        "value": "—"
+      }
+    ],
+    "merch": [
+      {
+        "id": "me1",
+        "name": "Maglia home",
+        "price": "59€",
+        "category": "Kit",
+        "url": ""
+      },
+      {
+        "id": "me2",
+        "name": "Sciarpa ufficiale",
+        "price": "18€",
+        "category": "Tifo",
+        "url": ""
+      },
+      {
+        "id": "me3",
+        "name": "Cappellino",
+        "price": "15€",
+        "category": "Lifestyle",
+        "url": ""
+      }
+    ],
+    "polls": [
+      {
+        "id": "po1",
+        "question": "Chi sarà il migliore in campo nella prossima?",
+        "options": [
+          {
+            "id": "o1",
+            "label": "Un titolare",
+            "votes": 12
+          },
+          {
+            "id": "o2",
+            "label": "Un giovane",
+            "votes": 8
+          },
+          {
+            "id": "o3",
+            "label": "Il portiere",
+            "votes": 4
+          }
+        ]
+      }
+    ],
+    "quotes": [
+      {
+        "id": "q1",
+        "text": "La maglia si onora correndo.",
+        "author": "Mister"
+      }
+    ],
+    "legends": [
+      {
+        "id": "l1",
+        "name": "Capitano storico",
+        "years": "2018-2024",
+        "text": "Simbolo della fondazione."
+      }
+    ],
+    "youth": [
+      {
+        "id": "y1",
+        "name": "Juniores",
+        "coach": "Mister Juniores",
+        "age": "U19"
+      },
+      {
+        "id": "y2",
+        "name": "Allievi",
+        "coach": "Mister Allievi",
+        "age": "U17"
+      },
+      {
+        "id": "y3",
+        "name": "Giovanissimi",
+        "coach": "Mister Giovanissimi",
+        "age": "U15"
+      }
+    ],
+    "events": [
+      {
+        "id": "e1",
+        "date": "2026-09-20",
+        "title": "Open day",
+        "place": "Campo",
+        "text": "Prove aperte e iscrizioni settore giovanile.",
+        "color": "#8b5cf6"
+      }
+    ],
+    "fines": [],
+    "kits": [
+      {
+        "id": "k1",
+        "name": "Home",
+        "season": "2025/26",
+        "colors": "Viola / Bianco"
+      },
+      {
+        "id": "k2",
+        "name": "Away",
+        "season": "2025/26",
+        "colors": "Bianco / Viola"
+      },
+      {
+        "id": "k3",
+        "name": "Portiere",
+        "season": "2025/26",
+        "colors": "Oro / Viola"
+      }
+    ],
+    "callupPlayerIds": [
+      "p1",
+      "p2",
+      "p4",
+      "p6",
+      "p8",
+      "p11",
+      "p12",
+      "p13"
+    ],
+    "callupNote": "Convocati per MIZZLI FC vs ASD Rivale. Raduno al campo 90 minuti prima del fischio.",
+    "callupMeeting": "Raduno 90 minuti prima al Stadio Comunale.",
+    "callupPublishedAt": "2026-08-26T17:45:56.412Z",
+    "matchLives": [
+      {
+        "matchId": "m3",
+        "status": "ft",
+        "scoreUs": 0,
+        "scoreOpp": 1,
+        "minute": 90,
+        "extra": 0,
+        "events": [
+          {
+            "id": "beba23bf-ee07-4395-987a-9e21af08a87d",
+            "matchId": "m3",
+            "minute": 0,
+            "type": "kickoff",
+            "team": "us",
+            "playerId": "",
+            "assistId": "",
+            "playerOutId": "",
+            "playerInId": "",
+            "oppName": "",
+            "text": "Calcio d'inizio",
+            "createdAt": "2026-08-26T20:58:12.247Z",
+            "statsApplied": true
+          },
+          {
+            "id": "e3551ce1-a328-4ff4-8654-32d9e01b7824",
+            "matchId": "m3",
+            "minute": 90,
+            "type": "period",
+            "team": "us",
+            "playerId": "",
+            "assistId": "",
+            "playerOutId": "",
+            "playerInId": "",
+            "oppName": "",
+            "text": "Fine partita",
+            "createdAt": "2026-08-26T21:18:09.950Z",
+            "statsApplied": true
+          }
+        ],
+        "clockBaseMinute": 90,
+        "clockStartedAt": null,
+        "updatedAt": "2026-08-26T21:18:29.796Z"
+      }
+    ]
+  },
+  "teams": [
+    {
+      "id": "tm-real",
+      "name": "Real Calcio",
+      "logoUrl": ""
+    }
+  ]
 }

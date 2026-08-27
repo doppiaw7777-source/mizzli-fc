@@ -9,7 +9,12 @@ import { syncStandings } from "./standings";
 import { saveUploadedImage as saveBlob } from "./blob-storage";
 import { atomicWrite, DATA_DIR, readJson, writeJson } from "./store";
 import { overlayLiveOnTeam, stripMatchLives } from "./match-live";
-import { getMatchLivesStore, seedMatchLivesFromTeam } from "./match-lives-store";
+import {
+  getMatchLivesStore,
+  livesStoreFromTeam,
+  saveMatchLivesStore,
+  seedMatchLivesFromTeam,
+} from "./match-lives-store";
 import { inferMatchKind } from "./match-kind";
 
 const TEAM_FILE = path.join(DATA_DIR, "team.json");
@@ -65,13 +70,53 @@ async function withMatchLives(data: TeamData): Promise<TeamData> {
   return overlayLiveOnTeam(data, store);
 }
 
+function looksLikePlaceholderRoster(data: TeamData | null | undefined) {
+  const names = new Set((data?.players || []).map((p) => p.name));
+  return names.has("Marco Rossi") && names.has("Luca Bianchi");
+}
+
+function keepLiveMediaUrls(fromLive: TeamData, adopted: TeamData): TeamData {
+  const logo = fromLive.settings?.logoUrl || "";
+  const icon = fromLive.settings?.appIconUrl || "";
+  if (!logo.startsWith("/api/media/") && !icon.startsWith("/api/media/")) {
+    return adopted;
+  }
+  return {
+    ...adopted,
+    settings: {
+      ...adopted.settings,
+      logoUrl: logo.startsWith("/api/media/") ? logo : adopted.settings.logoUrl,
+      appIconUrl: icon.startsWith("/api/media/") ? icon : adopted.settings.appIconUrl,
+    },
+  };
+}
+
+async function adoptRealClubBackup(current: TeamData): Promise<TeamData | null> {
+  if (!looksLikePlaceholderRoster(current)) return null;
+  const backup = await readTeamJson(CLUB_BACKUP);
+  if (!backup || looksLikePlaceholderRoster(backup)) return null;
+  const adopted = keepLiveMediaUrls(current, migrateTeamData(backup));
+  if (canPersistTeamFiles()) {
+    try {
+      await saveTeamData(adopted);
+    } catch {
+      // Serve the real club in memory even if persist fails this request.
+    }
+  }
+  return adopted;
+}
+
 export async function getTeamData(): Promise<TeamData> {
   if (!process.env.DATABASE_URL) {
     await ensureDataDir();
   }
   try {
     const live = await readTeamFromStore();
-    if (live) return withMatchLives(migrateTeamData(live));
+    if (live) {
+      const migrated = migrateTeamData(live);
+      const adopted = await adoptRealClubBackup(migrated);
+      return withMatchLives(adopted || migrated);
+    }
     const backup = await readTeamJson(CLUB_BACKUP);
     const migrated = migrateTeamData((backup || defaultTeam) as TeamData);
     if (canPersistTeamFiles()) {
@@ -100,6 +145,9 @@ export async function getTeamData(): Promise<TeamData> {
 export async function saveTeamData(data: TeamData): Promise<void> {
   if (!process.env.DATABASE_URL) {
     await ensureDataDir();
+  }
+  if (data.club?.matchLives?.length) {
+    await saveMatchLivesStore(livesStoreFromTeam(data));
   }
   const store = await getMatchLivesStore();
   const synced = syncStandings(overlayLiveOnTeam(data, store));

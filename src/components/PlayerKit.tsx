@@ -28,6 +28,7 @@ export function PlayerKit({
   animate = true,
   photoHead = false,
   graphicId,
+  showNumber = true,
 }: {
   player: Player;
   size?: keyof typeof PX;
@@ -36,6 +37,7 @@ export function PlayerKit({
   animate?: boolean;
   photoHead?: boolean;
   graphicId?: string;
+  showNumber?: boolean;
 }) {
   const { data } = useTeam();
   const graphic = getPlayerGraphic(
@@ -86,7 +88,7 @@ export function PlayerKit({
         {graphic.id === "crest" && (
           <img src={MIZZLI_CREST} alt="" className="player-mark-crest" />
         )}
-        <span className="player-mark-num">{player.number}</span>
+        {showNumber && <span className="player-mark-num">{player.number}</span>}
         {graphic.id === "stack" && (
           <span className="player-mark-role">{ROLE_LETTER[player.role] || player.role}</span>
         )}
@@ -104,6 +106,7 @@ export function PlayerToken({
   photoHead = false,
   graphicId,
   siblings,
+  showNumber = false,
 }: {
   player: Player;
   captain?: boolean;
@@ -112,6 +115,7 @@ export function PlayerToken({
   photoHead?: boolean;
   graphicId?: string;
   siblings?: Player[];
+  showNumber?: boolean;
 }) {
   return (
     <div
@@ -123,6 +127,7 @@ export function PlayerToken({
         captain={captain}
         photoHead={photoHead}
         graphicId={graphicId}
+        showNumber={showNumber}
       />
       <span className="player-token-name mt-0.5 max-w-[88px] truncate rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold backdrop-blur-sm">
         {shortPlayerLabel(player, siblings)}
@@ -163,6 +168,7 @@ export function PlayerCardArt({
           captain={false}
           animate={false}
           graphicId={graphic.id}
+          showNumber={false}
         />
       </div>
       {captain && <span className="player-kit-c">C</span>}

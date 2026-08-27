@@ -4,6 +4,7 @@ import { getTeamData, saveTeamData } from "@/lib/storage";
 import type { TeamData } from "@/lib/types";
 import { compactTeamData, staffWritableSubset } from "@/lib/roles";
 import { requireStaffUser } from "@/lib/user-auth";
+import { addNotice } from "@/lib/notices";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,19 @@ async function authorizeAndSanitize(request: NextRequest, body: Partial<TeamData
   }
 }
 
+async function notifyCallupIfPublished(before: TeamData, after: TeamData) {
+  const prev = before.club?.callupPublishedAt || "";
+  const next = after.club?.callupPublishedAt || "";
+  const ids = after.club?.callupPlayerIds || [];
+  if (!next || next === prev || ids.length === 0) return;
+  await addNotice({
+    title: "Convocati pubblicati",
+    body: `${ids.length} giocatori in lista per la prossima gara`,
+    href: "/convocati",
+    kind: "callup",
+  });
+}
+
 function isAuthError(err: unknown) {
   const msg = err instanceof Error ? err.message.toLowerCase() : "";
   return (
@@ -36,13 +50,16 @@ export async function PUT(request: NextRequest) {
   try {
     const body = (await request.json()) as TeamData;
     const { mode, payload } = await authorizeAndSanitize(request, body);
+    const current = await getTeamData();
     if (mode === "admin") {
       await saveTeamData(payload as TeamData);
-      return NextResponse.json(await getTeamData());
+      const saved = await getTeamData();
+      await notifyCallupIfPublished(current, saved);
+      return NextResponse.json(saved);
     }
-    const current = await getTeamData();
     const updated = deepMerge(current, payload) as TeamData;
     await saveTeamData(updated);
+    await notifyCallupIfPublished(current, updated);
     return NextResponse.json(updated);
   } catch (err) {
     if (isAuthError(err)) {
@@ -60,6 +77,7 @@ export async function PATCH(request: NextRequest) {
     const current = await getTeamData();
     const updated = deepMerge(current, payload) as TeamData;
     await saveTeamData(updated);
+    await notifyCallupIfPublished(current, updated);
     return NextResponse.json(updated);
   } catch (err) {
     if (isAuthError(err)) {

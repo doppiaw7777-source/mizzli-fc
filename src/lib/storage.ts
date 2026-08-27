@@ -16,6 +16,7 @@ import {
   seedMatchLivesFromTeam,
 } from "./match-lives-store";
 import { inferMatchKind } from "./match-kind";
+import { clampSponsors } from "./sponsors";
 
 const TEAM_FILE = path.join(DATA_DIR, "team.json");
 const CLUB_BACKUP = path.join(process.cwd(), "src/data/club-backup.json");
@@ -151,8 +152,9 @@ export async function saveTeamData(data: TeamData): Promise<void> {
   }
   const store = await getMatchLivesStore();
   const synced = syncStandings(overlayLiveOnTeam(data, store));
-  await writeTeamToStore(synced);
-  await writeClubBackup(synced);
+  const next = { ...synced, sponsors: clampSponsors(synced.sponsors) };
+  await writeTeamToStore(next);
+  await writeClubBackup(next);
 }
 
 export async function getAuthData(): Promise<AuthData | null> {
@@ -303,14 +305,16 @@ function migrateTeamData(data: TeamData): TeamData {
         focus: "Palle inattive",
       },
     ],
-    sponsors: data.sponsors ?? [
-      {
-        id: "sp1",
-        name: "Noldi Sport",
-        logoUrl: "",
-        website: "",
-      },
-    ],
+    sponsors: clampSponsors(
+      data.sponsors ?? [
+        {
+          id: "sp1",
+          name: "Noldi Sport",
+          logoUrl: "",
+          website: "",
+        },
+      ]
+    ),
     socialLinks: data.socialLinks ?? [
       {
         id: "so1",

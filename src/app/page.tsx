@@ -17,6 +17,7 @@ import { defaultEventColor, hexAlpha } from "@/lib/event-color";
 import LiveBoard from "@/components/LiveBoard";
 import SponsorBanner from "@/components/SponsorBanner";
 import { useLiveRefresh } from "@/lib/use-live-refresh";
+import { visibleSponsors } from "@/lib/sponsors";
 import {
   ROLE_BLURBS,
   ROLE_LABELS,
@@ -104,6 +105,10 @@ export default function HomePage() {
   return (
     <AppShell page="home">
       <div className={minimal ? "space-y-6" : "space-y-10"}>
+        {ui.showSponsors && visibleSponsors(data.sponsors).length > 0 && (
+          <SponsorBanner sponsors={data.sponsors} title={b.sponsorsTitle || "Sponsor"} />
+        )}
+
         <section className={heroAlign}>
           <div className={heroAlign.includes("text-left") ? "mb-5" : "mb-5 flex justify-center"}>
             <ClubCrest settings={data.settings} size={112} glow />
@@ -135,10 +140,6 @@ export default function HomePage() {
             Scarica l&apos;app ufficiale
           </Link>
         </section>
-
-        {ui.showSponsors && data.sponsors.length > 0 && (
-          <SponsorBanner sponsors={data.sponsors} title={b.sponsorsTitle || "Sponsor"} />
-        )}
 
         {data.club.info.alertBanner && (
           <p className="rounded-2xl bg-[var(--team-accent)] px-4 py-3 text-center font-bold text-[var(--team-secondary)]">

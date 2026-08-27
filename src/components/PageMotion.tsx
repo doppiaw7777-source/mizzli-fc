@@ -94,7 +94,9 @@ export default function PageMotion({ children }: { children: React.ReactNode }) 
       );
     }
     const unique = [...new Set(nodes)].filter(
-      (node) => !node.closest(".kickoff-burst, nav, .match-minute")
+      (node) =>
+        !node.classList.contains("sponsor-marquee") &&
+        !node.closest(".kickoff-burst, nav, .match-minute, .sponsor-marquee")
     );
 
     unique.forEach((node, i) => {

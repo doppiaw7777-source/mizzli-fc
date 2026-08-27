@@ -974,14 +974,20 @@ input[type="range"] {
   }
 }
 
-/* Partner strip on home: logos in one quiet belt. */
+/* Partner strip: always scrolling, high-contrast plates. */
 .sponsor-marquee {
   position: relative;
   overflow: hidden;
-  border-radius: 1.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(8, 4, 14, 0.45);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border-radius: 1.4rem;
+  border: 1px solid color-mix(in srgb, var(--team-accent) 70%, #f5d76e);
+  background:
+    radial-gradient(120% 140% at 0% 50%, color-mix(in srgb, var(--team-accent) 38%, transparent), transparent 55%),
+    radial-gradient(120% 140% at 100% 50%, rgba(245, 215, 110, 0.22), transparent 55%),
+    rgba(10, 5, 18, 0.92);
+  box-shadow:
+    0 0 0 1px rgba(245, 215, 110, 0.22),
+    0 14px 40px color-mix(in srgb, var(--team-accent) 28%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 .sponsor-marquee-label {
   position: absolute;
@@ -989,69 +995,69 @@ input[type="range"] {
   top: 10px;
   z-index: 2;
   margin: 0;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--team-accent);
-  opacity: 0.7;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
 }
 .sponsor-marquee-viewport {
   overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-}
-.sponsor-marquee.is-static .sponsor-marquee-viewport {
-  mask-image: none;
-  -webkit-mask-image: none;
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
 }
 .sponsor-marquee-track {
   display: flex;
   width: max-content;
   align-items: center;
-  gap: 2.75rem;
+  animation: sponsor-marquee 22s linear infinite;
   will-change: transform;
-}
-.sponsor-marquee.is-static .sponsor-marquee-track {
-  width: 100%;
-  justify-content: center;
-  will-change: auto;
 }
 .sponsor-marquee-set {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
-  gap: 2.75rem;
-  padding: 2rem 0 1.35rem;
-}
-.sponsor-marquee.is-static .sponsor-marquee-set {
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 2rem 1.25rem 1.2rem;
+  gap: 1.35rem;
+  padding: 2.15rem 0.7rem 1.45rem;
 }
 .sponsor-chip-link {
   color: inherit;
   text-decoration: none;
+  flex-shrink: 0;
 }
 .sponsor-chip {
   display: inline-flex;
-  min-height: 48px;
-  min-width: 72px;
+  min-height: 68px;
+  min-width: 118px;
   align-items: center;
   justify-content: center;
+  padding: 0.55rem 1.05rem;
+  border-radius: 1.05rem;
+  background: #fff;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.32);
 }
 .sponsor-chip img {
   display: block;
-  height: 42px;
+  height: 52px;
   width: auto;
-  max-width: 148px;
+  max-width: 168px;
   object-fit: contain;
 }
 .sponsor-chip-name {
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-size: 0.92rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  opacity: 0.88;
+  color: #1a0b24;
+}
+@keyframes sponsor-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 .sponsor-editor {
   display: flex;
@@ -1137,11 +1143,6 @@ input[type="range"] {
     opacity: 0.22 !important;
   }
   .sponsor-marquee-track {
-    transform: none !important;
-    will-change: auto !important;
-  }
-  .sponsor-marquee-viewport {
-    mask-image: none;
-    -webkit-mask-image: none;
+    animation-duration: 40s;
   }
 }

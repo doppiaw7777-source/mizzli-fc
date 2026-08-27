@@ -27,6 +27,7 @@ import LogoPicker from "@/components/LogoPicker";
 import SponsorBanner from "@/components/SponsorBanner";
 import SponsorEditor from "@/components/admin/SponsorEditor";
 import StandingsTeamsTable from "@/components/admin/StandingsTeamsTable";
+import { MAX_SPONSORS } from "@/lib/sponsors";
 import { resolveTeamLogo, setTeamLogo } from "@/lib/club-teams";
 import { syncStandings } from "@/lib/standings";
 import type { MatchKind, PlayerStatus, TeamData } from "@/lib/types";
@@ -1964,26 +1965,33 @@ function ContentTab({
           <div>
             <h2 className="text-xl font-bold">Banner sponsor in home</h2>
             <p className="mt-1 text-sm opacity-70">
-              Carica il logo (PNG o foto). In home i loghi scorrono in un nastro
-              unico. Senza logo resta solo il nome, fermo.
+              Massimo 5 sponsor. In home i loghi scorrono sempre, in evidenza
+              in cima alla pagina.
             </p>
           </div>
           <button
             type="button"
-            onClick={() =>
+            disabled={draft.sponsors.length >= MAX_SPONSORS}
+            onClick={() => {
+              if (draft.sponsors.length >= MAX_SPONSORS) return;
               setDraft({
                 ...draft,
                 sponsors: [
                   ...draft.sponsors,
                   { id: `sp${Date.now()}`, name: "", logoUrl: "", website: "" },
                 ],
-              })
-            }
-            className="btn-add min-h-11"
+              });
+            }}
+            className="btn-add min-h-11 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            + Logo sponsor
+            {draft.sponsors.length >= MAX_SPONSORS
+              ? "Massimo 5"
+              : "+ Logo sponsor"}
           </button>
         </div>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider opacity-50">
+          {draft.sponsors.length}/{MAX_SPONSORS} sponsor
+        </p>
         {draft.sponsors.some((sp) => sp.logoUrl || sp.name.trim()) ? (
           <div className="mb-4">
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider opacity-50">

@@ -15,6 +15,8 @@ import {
   matchPublicTitle,
   matchShareText,
 } from "@/lib/match-kind";
+import { resolveTeamLogo } from "@/lib/club-teams";
+import TeamBadge from "@/components/TeamBadge";
 
 export default function MatchCard({
   match,
@@ -35,6 +37,10 @@ export default function MatchCard({
   const liveForThis = data ? liveForMatch(data, match.id) : null;
   const accent = match.color || defaultEventColor("match");
   const session = isSimpleCalendarEvent(match);
+  const usLogo = data ? resolveTeamLogo(data, us) : "";
+  const oppLogo = data ? resolveTeamLogo(data, oppName) : "";
+  const homeLogo = match.isHome ? usLogo : oppLogo;
+  const awayLogo = match.isHome ? oppLogo : usLogo;
   const share = matchShareText(match, us);
   const when = formatItDate(match.date, {
     weekday: "long",
@@ -92,9 +98,10 @@ export default function MatchCard({
             </p>
           </div>
         ) : (
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex-1 text-right">
-              <p className="text-lg font-bold tracking-tight">{homeName}</p>
+          <div className="flex items-center justify-between gap-3 sm:gap-4">
+            <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+              <p className="truncate text-lg font-bold tracking-tight">{homeName}</p>
+              <TeamBadge name={homeName} src={homeLogo} gold={match.isHome} size={48} />
             </div>
 
             <div className="flex flex-col items-center">
@@ -116,8 +123,9 @@ export default function MatchCard({
               </p>
             </div>
 
-            <div className="flex-1">
-              <p className="text-lg font-bold tracking-tight">{awayName}</p>
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <TeamBadge name={awayName} src={awayLogo} gold={!match.isHome} size={48} />
+              <p className="truncate text-lg font-bold tracking-tight">{awayName}</p>
             </div>
           </div>
         )}

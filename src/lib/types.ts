@@ -59,6 +59,7 @@ export interface Match {
   motmId?: string;
   weather?: string;
   color?: string;
+  opponentLogoUrl?: string;
 }
 
 export interface FormationSlot {
@@ -189,6 +190,13 @@ export interface StandingRow {
   goalsFor: number;
   goalsAgainst: number;
   isUs: boolean;
+  logoUrl?: string;
+}
+
+export interface ClubTeam {
+  id: string;
+  name: string;
+  logoUrl: string;
 }
 
 export interface Standings {
@@ -438,6 +446,7 @@ export interface TeamData {
   sponsors: Sponsor[];
   socialLinks: SocialLink[];
   standings: Standings;
+  teams?: ClubTeam[];
   club: ClubExtras;
 }
 

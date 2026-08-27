@@ -1,6 +1,7 @@
 "use client";
 
-import { teamCrest } from "@/lib/brand";
+import TeamBadge from "@/components/TeamBadge";
+import { clubLogo } from "@/lib/brand";
 import type { TeamSettings } from "@/lib/types";
 
 export default function ClubCrest({
@@ -17,19 +18,12 @@ export default function ClubCrest({
   className?: string;
 }) {
   return (
-    <img
-      src={teamCrest(settings)}
-      alt={alt}
-      width={size}
-      height={size}
-      className={`club-crest ${glow ? "club-crest-glow" : ""} ${className}`}
-      style={{ width: size, height: size }}
-      onError={(e) => {
-        const el = e.currentTarget;
-        if (!el.src.includes("mizzli-crest.svg") && !el.src.includes("/api/media/")) {
-          el.src = "/brand/mizzli-crest.svg";
-        }
-      }}
+    <TeamBadge
+      name={alt}
+      src={clubLogo(settings)}
+      gold
+      size={size}
+      className={`${glow ? "club-crest-glow" : ""} ${className}`}
     />
   );
 }

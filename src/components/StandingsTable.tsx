@@ -2,6 +2,8 @@
 
 import type { Standings } from "@/lib/types";
 import { standingGoalDiff, standingPoints, sortStandings } from "@/lib/standings";
+import TeamBadge from "@/components/TeamBadge";
+import { MIZZLI_CREST } from "@/lib/brand";
 
 export default function StandingsTable({ standings }: { standings: Standings }) {
   const rows = sortStandings(standings.rows);
@@ -79,6 +81,12 @@ export default function StandingsTable({ standings }: { standings: Standings }) 
                   </td>
                   <td className="px-2 py-3">
                     <div className="flex items-center gap-2">
+                      <TeamBadge
+                        name={row.name}
+                        src={row.logoUrl || (row.isUs ? MIZZLI_CREST : "")}
+                        gold={row.isUs}
+                        size={28}
+                      />
                       <span>{row.name}</span>
                       {row.isUs && (
                         <span className="rounded-full bg-[var(--team-accent)] px-2 py-0.5 text-[10px] font-black text-[var(--team-secondary)]">

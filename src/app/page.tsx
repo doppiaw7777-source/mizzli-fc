@@ -9,9 +9,13 @@ import { formGuide, lastResult, upcomingBirthdays, upcomingMatch } from "@/lib/c
 import { formatItDate } from "@/lib/dates";
 import { useTeam } from "@/context/TeamContext";
 import { useUser } from "@/context/UserContext";
-import { teamCrest } from "@/lib/brand";
+import { clubLogo } from "@/lib/brand";
+import ClubCrest from "@/components/ClubCrest";
+import TeamBadge from "@/components/TeamBadge";
+import { resolveTeamLogo } from "@/lib/club-teams";
 import { defaultEventColor, hexAlpha } from "@/lib/event-color";
 import LiveBoard from "@/components/LiveBoard";
+import SponsorBanner from "@/components/SponsorBanner";
 import { useLiveRefresh } from "@/lib/use-live-refresh";
 import {
   ROLE_BLURBS,
@@ -101,11 +105,9 @@ export default function HomePage() {
     <AppShell page="home">
       <div className={minimal ? "space-y-6" : "space-y-10"}>
         <section className={heroAlign}>
-          <img
-            src={teamCrest(data.settings)}
-            alt={data.settings.teamName}
-            className={`${heroAlign.includes("text-left") ? "" : "mx-auto "}club-crest club-crest-glow mb-5 h-28 w-28`}
-          />
+          <div className={heroAlign.includes("text-left") ? "mb-5" : "mb-5 flex justify-center"}>
+            <ClubCrest settings={data.settings} size={112} glow />
+          </div>
           {(b.leagueName || b.seasonLabel) && (
             <p className="page-kicker">
               {[b.leagueName, b.seasonLabel].filter(Boolean).join(" · ")}
@@ -133,6 +135,10 @@ export default function HomePage() {
             Scarica l&apos;app ufficiale
           </Link>
         </section>
+
+        {ui.showSponsors && data.sponsors.length > 0 && (
+          <SponsorBanner sponsors={data.sponsors} title={b.sponsorsTitle || "Sponsor"} />
+        )}
 
         {data.club.info.alertBanner && (
           <p className="rounded-2xl bg-[var(--team-accent)] px-4 py-3 text-center font-bold text-[var(--team-secondary)]">
@@ -175,6 +181,29 @@ export default function HomePage() {
             <p className="page-kicker">
               {b.nextMatchLabel || "Prossima Partita"}
             </p>
+            <div className="mt-4 flex items-center justify-center gap-3">
+              <TeamBadge
+                name={nextMatch.isHome ? data.settings.teamName : nextMatch.opponent}
+                src={
+                  nextMatch.isHome
+                    ? clubLogo(data.settings)
+                    : resolveTeamLogo(data, nextMatch.opponent)
+                }
+                gold={nextMatch.isHome}
+                size={56}
+              />
+              <span className="text-sm font-black tracking-[0.3em] text-[var(--team-accent)]">VS</span>
+              <TeamBadge
+                name={nextMatch.isHome ? nextMatch.opponent : data.settings.teamName}
+                src={
+                  nextMatch.isHome
+                    ? resolveTeamLogo(data, nextMatch.opponent)
+                    : clubLogo(data.settings)
+                }
+                gold={!nextMatch.isHome}
+                size={56}
+              />
+            </div>
             <p className="mt-3 text-2xl font-bold tracking-tight">
               {nextMatch.isHome ? data.settings.teamName : nextMatch.opponent}{" "}
               <span className="text-[var(--team-accent)]">VS</span>{" "}
@@ -336,26 +365,6 @@ export default function HomePage() {
           </div>
           )}
         </section>
-
-        {ui.showSponsors && data.sponsors.length > 0 && (
-          <section className="rounded-2xl border border-white/10 bg-[var(--team-card-bg)] p-5 backdrop-blur-md team-card">
-            <h3 className="mb-3 text-lg font-bold">🤝 {b.sponsorsTitle || "Sponsor"}</h3>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {data.sponsors.map((s) => (
-                <a
-                  key={s.id}
-                  href={s.website || "#"}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-xl border border-white/5 bg-white/5 p-3 transition hover:border-white/20"
-                >
-                  <p className="font-semibold">{s.name}</p>
-                  {s.website && <p className="text-xs opacity-70">{s.website}</p>}
-                </a>
-              ))}
-            </div>
-          </section>
-        )}
 
         {ui.showSocialLinks && data.socialLinks.length > 0 && (
           <SocialButtons links={data.socialLinks} />

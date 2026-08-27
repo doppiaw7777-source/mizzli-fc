@@ -16,7 +16,9 @@ import {
 } from "@/lib/match-live";
 import { PlayerToken } from "@/components/PlayerKit";
 import { SoftCard } from "@/components/SectionPage";
+import TeamBadge from "@/components/TeamBadge";
 import { MIZZLI_NAME } from "@/lib/brand";
+import { resolveTeamLogo } from "@/lib/club-teams";
 
 function useTickingMinute(live?: MatchLive | null) {
   const [, setTick] = useState(0);
@@ -88,11 +90,13 @@ export function LiveScoreboard({
   match,
   teamName,
   compact = false,
+  data,
 }: {
   live: MatchLive;
   match?: Match | null;
   teamName?: string;
   compact?: boolean;
+  data?: TeamData | null;
 }) {
   const minute = useTickingMinute(live);
   const us = teamName || MIZZLI_NAME;
@@ -101,6 +105,12 @@ export function LiveScoreboard({
   const away = match ? (match.isHome ? opp : us) : opp;
   const score = match ? boardScore(live, match.isHome) : `${live.scoreUs}–${live.scoreOpp}`;
   const active = isLiveActive(live);
+  const usLogo = data ? resolveTeamLogo(data, us) : "";
+  const oppLogo = data ? resolveTeamLogo(data, opp) : "";
+  const homeLogo = match ? (match.isHome ? usLogo : oppLogo) : usLogo;
+  const awayLogo = match ? (match.isHome ? oppLogo : usLogo) : oppLogo;
+  const homeGold = match ? match.isHome : true;
+  const awayGold = match ? !match.isHome : false;
 
   return (
     <div
@@ -117,15 +127,21 @@ export function LiveScoreboard({
         <span className="opacity-60">{minute}</span>
       </div>
       <div className={`mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3 ${compact ? "" : "sm:gap-6"}`}>
-        <p className={`text-right font-black leading-tight ${compact ? "text-base" : "text-lg sm:text-2xl"}`}>
-          {home}
-        </p>
+        <div className={`flex items-center justify-end gap-2 ${compact ? "" : "sm:gap-3"}`}>
+          <p className={`text-right font-black leading-tight ${compact ? "text-base" : "text-lg sm:text-2xl"}`}>
+            {home}
+          </p>
+          <TeamBadge name={home} src={homeLogo} gold={homeGold} size={compact ? 36 : 52} />
+        </div>
         <p className={`px-2 font-black tabular-nums text-[var(--team-accent)] ${compact ? "text-3xl" : "text-5xl sm:text-6xl"}`}>
           {score}
         </p>
-        <p className={`font-black leading-tight ${compact ? "text-base" : "text-lg sm:text-2xl"}`}>
-          {away}
-        </p>
+        <div className={`flex items-center gap-2 ${compact ? "" : "sm:gap-3"}`}>
+          <TeamBadge name={away} src={awayLogo} gold={awayGold} size={compact ? 36 : 52} />
+          <p className={`font-black leading-tight ${compact ? "text-base" : "text-lg sm:text-2xl"}`}>
+            {away}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -198,7 +214,7 @@ export default function LiveBoard({
   const match = data.matches.find((item) => item.id === live.matchId);
   const body = (
     <div className="space-y-4">
-      <LiveScoreboard live={live} match={match} teamName={data.settings.teamName} compact={compact} />
+      <LiveScoreboard live={live} match={match} teamName={data.settings.teamName} compact={compact} data={data} />
       {!compact && match && (
         <div className="grid grid-cols-2 gap-3 px-1">
           <ScorerList
@@ -228,7 +244,7 @@ export default function LiveBoard({
     return (
       <Link href={href || `/live`} className="block">
         {compact ? (
-          <LiveScoreboard live={live} match={match} teamName={data.settings.teamName} compact />
+          <LiveScoreboard live={live} match={match} teamName={data.settings.teamName} compact data={data} />
         ) : (
           body
         )}

@@ -23,6 +23,11 @@ import DeveloperGate from "@/components/DeveloperGate";
 import ColorSwatch from "@/components/ColorSwatch";
 import { todayKey } from "@/lib/dates";
 import { defaultEventColor, hexAlpha } from "@/lib/event-color";
+import LogoPicker from "@/components/LogoPicker";
+import SponsorBanner from "@/components/SponsorBanner";
+import SponsorEditor from "@/components/admin/SponsorEditor";
+import StandingsTeamsTable from "@/components/admin/StandingsTeamsTable";
+import { resolveTeamLogo, setTeamLogo } from "@/lib/club-teams";
 import { syncStandings } from "@/lib/standings";
 import type { MatchKind, PlayerStatus, TeamData } from "@/lib/types";
 import {
@@ -285,7 +290,7 @@ export default function AdminPanel({ data, onSave, onLogout, allowedTabs, limite
           <StaffTab draft={draft} setDraft={setDraft} onUpload={handleImageUpload} />
         )}
         {tab === "calendario" && (
-          <MatchesTab draft={draft} setDraft={setDraft} />
+          <MatchesTab draft={draft} setDraft={setDraft} onUpload={handleImageUpload} />
         )}
         {tab === "formazione" && (
           <FormationTab draft={draft} setDraft={setDraft} />
@@ -304,7 +309,7 @@ export default function AdminPanel({ data, onSave, onLogout, allowedTabs, limite
           <ContentTab draft={draft} setDraft={setDraft} onUpload={handleImageUpload} />
         )}
         {tab === "classifica" && (
-          <StandingsTab draft={draft} setDraft={setDraft} />
+          <StandingsTab draft={draft} setDraft={setDraft} onUpload={handleImageUpload} />
         )}
         {tab === "club" && (
           <ClubTab
@@ -761,13 +766,12 @@ function SettingsTab({
       </div>
 
       <Field label="Logo Squadra">
-        <ImageUpload
-          current={s.logoUrl}
-          onUpload={(f) =>
-            onUpload(f, (url) => updateSettings({ logoUrl: url }))
-          }
-          onUrlApply={(url) => updateSettings({ logoUrl: url })}
-          onClear={() => updateSettings({ logoUrl: "" })}
+        <LogoPicker
+          name={s.teamName}
+          url={resolveTeamLogo(draft, s.teamName)}
+          gold
+          onChange={(url) => setDraft(setTeamLogo(draft, s.teamName, url))}
+          onUpload={onUpload}
         />
       </Field>
 
@@ -1142,9 +1146,11 @@ function StaffTab({
 function MatchesTab({
   draft,
   setDraft,
+  onUpload,
 }: {
   draft: TeamData;
   setDraft: (d: TeamData) => void;
+  onUpload: (f: File, cb: (url: string) => void) => void;
 }) {
   const addMatch = (kind: MatchKind) => {
     setDraft({
@@ -1261,6 +1267,18 @@ function MatchesTab({
                     className="input-field"
                   />
                 </Field>
+                {m.opponent.trim() && (
+                  <div className="md:col-span-2">
+                    <Field label="Logo avversario">
+                      <LogoPicker
+                        name={m.opponent}
+                        url={resolveTeamLogo(draft, m.opponent)}
+                        onChange={(url) => setDraft(setTeamLogo(draft, m.opponent, url))}
+                        onUpload={onUpload}
+                      />
+                    </Field>
+                  </div>
+                )}
               </div>
             ) : kind === "allenamento" ? (
               <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -1330,6 +1348,18 @@ function MatchesTab({
                     className="input-field"
                   />
                 </Field>
+                {m.opponent.trim() && (
+                  <div className="md:col-span-3">
+                    <Field label="Logo avversario">
+                      <LogoPicker
+                        name={m.opponent}
+                        url={resolveTeamLogo(draft, m.opponent)}
+                        onChange={(url) => setDraft(setTeamLogo(draft, m.opponent, url))}
+                        onUpload={onUpload}
+                      />
+                    </Field>
+                  </div>
+                )}
                 <Field label="Luogo">
                   <input
                     value={m.location}
@@ -1930,92 +1960,96 @@ function ContentTab({
       </div>
 
       <div>
-        <h2 className="mb-3 text-xl font-bold">Sponsor & Social</h2>
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Sponsor</h3>
+        <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-bold">Banner sponsor in home</h2>
+            <p className="mt-1 text-sm opacity-70">
+              Carica il logo (PNG o foto). In home i loghi scorrono in un nastro
+              unico. Senza logo resta solo il nome, fermo.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() =>
+              setDraft({
+                ...draft,
+                sponsors: [
+                  ...draft.sponsors,
+                  { id: `sp${Date.now()}`, name: "", logoUrl: "", website: "" },
+                ],
+              })
+            }
+            className="btn-add min-h-11"
+          >
+            + Logo sponsor
+          </button>
+        </div>
+        {draft.sponsors.some((sp) => sp.logoUrl || sp.name.trim()) ? (
+          <div className="mb-4">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider opacity-50">
+              Anteprima banner
+            </p>
+            <SponsorBanner
+              sponsors={draft.sponsors}
+              title={draft.settings.branding.sponsorsTitle || "Sponsor"}
+            />
+          </div>
+        ) : null}
+        <div className="mb-8 grid gap-4">
+          {draft.sponsors.map((sp, i) => (
+            <SponsorEditor
+              key={sp.id}
+              sponsor={sp}
+              onChange={(patch) => updateSponsor(i, patch)}
+              onUpload={onUpload}
+              onRemove={() =>
+                setDraft({
+                  ...draft,
+                  sponsors: draft.sponsors.filter((_, idx) => idx !== i),
+                })
+              }
+            />
+          ))}
+        </div>
+        <h2 className="mb-3 text-xl font-bold">Social</h2>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold">Link social</h3>
+            <button
+              type="button"
+              onClick={() =>
+                setDraft({
+                  ...draft,
+                  socialLinks: [...draft.socialLinks, { id: `so${Date.now()}`, label: "Nuovo social", url: "" }],
+                })
+              }
+              className="btn-add"
+            >
+              + Social
+            </button>
+          </div>
+          {draft.socialLinks.map((sl, i) => (
+            <div key={sl.id} className="rounded-xl border border-white/10 p-3">
+              <Field label="Nome">
+                <input value={sl.label} onChange={(e) => updateSocial(i, { label: e.target.value })} className="input-field" />
+              </Field>
+              <Field label="URL">
+                <input value={sl.url} onChange={(e) => updateSocial(i, { url: e.target.value })} className="input-field" />
+              </Field>
               <button
+                type="button"
                 onClick={() =>
                   setDraft({
                     ...draft,
-                    sponsors: [...draft.sponsors, { id: `sp${Date.now()}`, name: "Nuovo sponsor", logoUrl: "", website: "" }],
+                    socialLinks: draft.socialLinks.filter((_, idx) => idx !== i),
                   })
                 }
-                className="btn-add"
+                className="mt-2 text-sm text-red-400 hover:underline"
               >
-                + Sponsor
+                Elimina social
               </button>
             </div>
-            {draft.sponsors.map((sp, i) => (
-              <div key={sp.id} className="rounded-xl border border-white/10 p-3">
-                <Field label="Nome">
-                  <input value={sp.name} onChange={(e) => updateSponsor(i, { name: e.target.value })} className="input-field" />
-                </Field>
-                <Field label="Sito web">
-                  <input value={sp.website} onChange={(e) => updateSponsor(i, { website: e.target.value })} className="input-field" />
-                </Field>
-                <Field label="Logo">
-                  <ImageUpload
-                    current={sp.logoUrl}
-                    onUpload={(f) => onUpload(f, (url) => updateSponsor(i, { logoUrl: url }))}
-                    onUrlApply={(url) => updateSponsor(i, { logoUrl: url })}
-                    onClear={() => updateSponsor(i, { logoUrl: "" })}
-                  />
-                </Field>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setDraft({
-                      ...draft,
-                      sponsors: draft.sponsors.filter((_, idx) => idx !== i),
-                    })
-                  }
-                  className="mt-2 text-sm text-red-400 hover:underline"
-                >
-                  Elimina sponsor
-                </button>
-              </div>
-            ))}
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Social</h3>
-              <button
-                onClick={() =>
-                  setDraft({
-                    ...draft,
-                    socialLinks: [...draft.socialLinks, { id: `so${Date.now()}`, label: "Nuovo social", url: "" }],
-                  })
-                }
-                className="btn-add"
-              >
-                + Social
-              </button>
-            </div>
-            {draft.socialLinks.map((sl, i) => (
-              <div key={sl.id} className="rounded-xl border border-white/10 p-3">
-                <Field label="Nome">
-                  <input value={sl.label} onChange={(e) => updateSocial(i, { label: e.target.value })} className="input-field" />
-                </Field>
-                <Field label="URL">
-                  <input value={sl.url} onChange={(e) => updateSocial(i, { url: e.target.value })} className="input-field" />
-                </Field>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setDraft({
-                      ...draft,
-                      socialLinks: draft.socialLinks.filter((_, idx) => idx !== i),
-                    })
-                  }
-                  className="mt-2 text-sm text-red-400 hover:underline"
-                >
-                  Elimina social
-                </button>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
     </div>
@@ -2025,9 +2059,11 @@ function ContentTab({
 function StandingsTab({
   draft,
   setDraft,
+  onUpload,
 }: {
   draft: TeamData;
   setDraft: (d: TeamData) => void;
+  onUpload: (f: File, cb: (url: string) => void) => void;
 }) {
   const s = draft.standings;
 
@@ -2035,44 +2071,9 @@ function StandingsTab({
     setDraft({ ...draft, standings: { ...s, ...patch } });
   };
 
-  const addRow = () => {
-    setDraft({
-      ...draft,
-      standings: {
-        ...s,
-        rows: [
-          ...s.rows,
-          {
-            id: `st${Date.now()}`,
-            name: "Nuova squadra",
-            played: 0,
-            won: 0,
-            drawn: 0,
-            lost: 0,
-            goalsFor: 0,
-            goalsAgainst: 0,
-            isUs: false,
-          },
-        ],
-      },
-    });
-  };
-
-  const removeRow = (idx: number) => {
-    setDraft({
-      ...draft,
-      standings: { ...s, rows: s.rows.filter((_, i) => i !== idx) },
-    });
-  };
-
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-bold">Classifica stagione</h2>
-        <button type="button" onClick={addRow} className="btn-add">
-          + Aggiungi squadra
-        </button>
-      </div>
+      <h2 className="text-xl font-bold">Classifica stagione</h2>
       <p className="text-sm opacity-70">
         Punti, reti e posizioni si calcolano da soli dai risultati del calendario
         (formato noi-loro, es. 2-1). Coppe e amichevoli restano fuori. In diretta vale
@@ -2094,39 +2095,7 @@ function StandingsTab({
           />
         </Field>
       </div>
-      <div className="space-y-3">
-        {s.rows.map((row, i) => (
-          <div key={row.id} className="rounded-xl border border-white/10 p-4">
-            <div className="grid gap-3 md:grid-cols-4">
-              <Field label="Squadra">
-                <input
-                  value={row.name}
-                  onChange={(e) => {
-                    const rows = [...s.rows];
-                    rows[i] = { ...rows[i], name: e.target.value };
-                    setDraft({ ...draft, standings: { ...s, rows } });
-                  }}
-                  className="input-field"
-                />
-              </Field>
-              <div className="flex items-end md:col-span-2">
-                <p className="text-sm opacity-80">
-                  {i + 1}° · PG {row.played} · {row.won}V {row.drawn}N {row.lost}P ·{" "}
-                  {row.goalsFor}-{row.goalsAgainst} · Pt {row.won * 3 + row.drawn}
-                  {row.isUs ? " · NOI" : ""}
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => removeRow(i)}
-              className="mt-2 text-sm text-red-400 hover:underline"
-            >
-              Elimina squadra
-            </button>
-          </div>
-        ))}
-      </div>
+      <StandingsTeamsTable draft={draft} setDraft={setDraft} onUpload={onUpload} />
     </div>
   );
 }

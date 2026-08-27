@@ -7,3 +7,10 @@ export function teamCrest(settings?: {
 } | null) {
   return settings?.appIconUrl || settings?.logoUrl || MIZZLI_CREST;
 }
+
+export function clubLogo(settings?: {
+  logoUrl?: string;
+  appIconUrl?: string;
+} | null) {
+  return settings?.logoUrl || settings?.appIconUrl || MIZZLI_CREST;
+}

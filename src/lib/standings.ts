@@ -1,3 +1,4 @@
+import { clubNameKey } from "@/lib/club-teams";
 import { dateKey, todayKey } from "@/lib/dates";
 import { getMatchKind } from "@/lib/match-kind";
 import type { Match, StandingRow, Standings, TeamData } from "@/lib/types";
@@ -31,12 +32,7 @@ export function sortStandings(rows: StandingRow[]) {
 }
 
 function clubKey(name: string) {
-  return name
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .replace(/\b(fc|asd|us|ss|ac|calcio|united|club)\b/g, "")
-    .replace(/[^a-z0-9]/g, "");
+  return clubNameKey(name);
 }
 
 export function isLeagueMatch(match: Match) {
@@ -48,7 +44,7 @@ export function isLeagueMatch(match: Match) {
   return true;
 }
 
-function blankRow(id: string, name: string, isUs: boolean): StandingRow {
+function blankRow(id: string, name: string, isUs: boolean, logoUrl = ""): StandingRow {
   return {
     id,
     name,
@@ -59,6 +55,7 @@ function blankRow(id: string, name: string, isUs: boolean): StandingRow {
     goalsFor: 0,
     goalsAgainst: 0,
     isUs,
+    logoUrl,
   };
 }
 
@@ -112,18 +109,32 @@ export function syncStandings(data: TeamData): TeamData {
     let row = byKey.get(key);
     if (!row) {
       const old = prev.rows.find((r) => clubKey(r.name) === key);
-      row = blankRow(old?.id || `st-${key || "x"}`, isUs ? teamName : old?.name || name, isUs);
+      const fromCatalog = (data.teams || []).find((t) => clubKey(t.name) === key);
+      row = blankRow(
+        old?.id || `st-${key || "x"}`,
+        isUs ? teamName : old?.name || name,
+        isUs,
+        old?.logoUrl || fromCatalog?.logoUrl || ""
+      );
       byKey.set(key, row);
     }
     if (isUs) {
       row.isUs = true;
       row.name = teamName;
+      row.logoUrl = data.settings?.logoUrl || row.logoUrl;
     }
     return row;
   };
 
   for (const row of prev.rows) {
-    ensure(row.name, row.isUs);
+    const trimmed = (row.name || "").trim();
+    if (/^allenamento$/i.test(trimmed)) continue;
+    if (!trimmed && !row.isUs) {
+      const key = `new:${row.id || Math.random().toString(36).slice(2)}`;
+      byKey.set(key, blankRow(row.id || key, "", false, row.logoUrl || ""));
+      continue;
+    }
+    ensure(trimmed || teamName, row.isUs);
   }
   ensure(teamName, true);
 
@@ -148,11 +159,18 @@ export function syncStandings(data: TeamData): TeamData {
   }
 
   const rows = sortStandings(
-    [...byKey.values()].map((row) => ({
-      ...row,
-      isUs: clubKey(row.name) === clubKey(teamName),
-      name: clubKey(row.name) === clubKey(teamName) ? teamName : row.name,
-    }))
+    [...byKey.values()].map((row) => {
+      const ours = clubKey(row.name) === clubKey(teamName);
+      const fromCatalog = (data.teams || []).find((t) => clubKey(t.name) === clubKey(row.name));
+      return {
+        ...row,
+        isUs: ours,
+        name: ours ? teamName : row.name,
+        logoUrl: ours
+          ? data.settings?.logoUrl || row.logoUrl || fromCatalog?.logoUrl || ""
+          : row.logoUrl || fromCatalog?.logoUrl || "",
+      };
+    })
   );
 
   return {

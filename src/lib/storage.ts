@@ -223,8 +223,14 @@ function migrateTeamData(data: TeamData): TeamData {
         motmId: m.motmId ?? "",
         weather: m.weather ?? "",
         color: m.color || (kind === "allenamento" ? "#22c55e" : kind === "amichevole" ? "#f97316" : "#3b82f6"),
+        opponentLogoUrl: m.opponentLogoUrl ?? "",
       };
     }),
+    teams: (data.teams ?? []).map((t) => ({
+      id: t.id || `tm-${t.name || "x"}`,
+      name: t.name || "",
+      logoUrl: t.logoUrl || "",
+    })),
     announcements: data.announcements ?? [
       {
         id: "a1",

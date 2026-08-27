@@ -120,6 +120,7 @@ export interface TeamSettings {
     showHomeStats: boolean;
     showNextMatchCard: boolean;
     showSponsors: boolean;
+    showPartnerBanner: boolean;
     showSocialLinks: boolean;
     enableMatchShare: boolean;
     showNews: boolean;

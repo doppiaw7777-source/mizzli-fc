@@ -69,6 +69,7 @@ export function CallupStrip({ players, captainId }: { players: Player[]; captain
             player={p}
             captain={captainId === p.id}
             size="sm"
+            siblings={players}
           />
         </Link>
       ))}
@@ -296,7 +297,7 @@ export default function CallupBoard() {
         </div>
       ) : (
         <p className="text-sm opacity-50">
-          Solo l&apos;allenatore può selezionare i convocati dalla rosa.
+          Solo l'allenatore può selezionare i convocati dalla rosa.
         </p>
       )}
     </div>
@@ -321,7 +322,7 @@ export function HomeCallupCard() {
           className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--team-accent)]"
         >
           <ClubCrest settings={data.settings} size={28} alt="" />
-          Convocati
+          Convocati{show ? ` · ${called.length}` : ""}
         </Link>
         {live ? (
           <p className="text-xs opacity-60">

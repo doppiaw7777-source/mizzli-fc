@@ -1,6 +1,5 @@
 "use client";
 
-import TeamBadge from "@/components/TeamBadge";
 import { clubLogo } from "@/lib/brand";
 import type { TeamSettings } from "@/lib/types";
 
@@ -18,12 +17,13 @@ export default function ClubCrest({
   className?: string;
 }) {
   return (
-    <TeamBadge
-      name={alt}
+    <img
       src={clubLogo(settings)}
-      gold
-      size={size}
-      className={`${glow ? "club-crest-glow" : ""} ${className}`}
+      alt={alt}
+      width={size}
+      height={size}
+      className={`club-crest club-crest-plain ${glow ? "club-crest-glow" : ""} ${className}`.trim()}
+      style={{ width: size, height: size }}
     />
   );
 }

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   exchangeGoogleCode,
-  getRequestOrigin,
   googleConfigured,
+  googleOAuthOrigin,
   googleRedirectUri,
   loginOrRegisterGoogle,
 } from "@/lib/google-oauth";
@@ -12,7 +12,7 @@ import { applyUserSessionCookie } from "@/lib/user-auth";
 import { postLoginPath } from "@/lib/roles";
 
 export async function GET(request: NextRequest) {
-  const origin = getRequestOrigin(request);
+  const origin = googleOAuthOrigin(request);
   const fail = (msg: string) =>
     NextResponse.redirect(`${origin}/accedi?error=${encodeURIComponent(msg)}`);
 

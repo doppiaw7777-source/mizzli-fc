@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { googleAuthUrl, googleConfigured, getRequestOrigin } from "@/lib/google-oauth";
+import {
+  googleAuthUrl,
+  googleConfigured,
+  googleOAuthOrigin,
+  getRequestOrigin,
+} from "@/lib/google-oauth";
 
 export async function GET(request: NextRequest) {
-  const origin = getRequestOrigin(request);
+  const origin = googleOAuthOrigin(request);
+  const requestOrigin = getRequestOrigin(request);
+  if (origin !== requestOrigin) {
+    return NextResponse.redirect(`${origin}/api/auth/google`);
+  }
   if (!googleConfigured()) {
     return NextResponse.redirect(
       `${origin}/accedi?error=${encodeURIComponent(

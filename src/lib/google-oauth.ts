@@ -12,8 +12,17 @@ export function googleConfigured() {
   );
 }
 
+/** Prefer the public club URL so Google always sees one redirect URI. */
+export function googleOAuthOrigin(request: Request) {
+  const configured = (process.env.NEXT_PUBLIC_APP_URL || "").trim().replace(/\/$/, "");
+  if (configured.startsWith("https://") || configured.startsWith("http://")) {
+    return configured;
+  }
+  return getRequestOrigin(request);
+}
+
 export function googleRedirectUri(origin: string) {
-  return `${origin}/api/auth/google/callback`;
+  return `${origin.replace(/\/$/, "")}/api/auth/google/callback`;
 }
 
 const GOOGLE_BASE_SCOPES = [
@@ -105,9 +114,18 @@ async function fetchGooglePhone(accessToken: string) {
   }
 }
 
+function isReservedClubIdentity(email: string, name?: string) {
+  const local = email.split("@")[0]?.toLowerCase() || "";
+  const n = (name || "").trim().toLowerCase();
+  return local === "noldi" || n === "noldi";
+}
+
 export async function loginOrRegisterGoogle(profile: GoogleProfile, phone = "") {
   if (!profile.email) throw new Error("Google non ha fornito un'email");
   const email = profile.email.toLowerCase();
+  if (isReservedClubIdentity(email, profile.name)) {
+    throw new Error("Questo utente è riservato. Usa un altro account Google.");
+  }
 
   let user =
     (await findUserByGoogleId(profile.sub)) || (await findUserByEmail(email));
@@ -121,6 +139,7 @@ export async function loginOrRegisterGoogle(profile: GoogleProfile, phone = "") 
       provider: user.passwordHash ? "both" : "google",
       phone: user.phone || phone || "",
       phoneVerified: user.phoneVerified || Boolean(phone),
+      role: user.role || "fan",
     };
   } else {
     user = {

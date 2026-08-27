@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { createHmac, randomUUID } from "crypto";
 import { findUserByEmail, findUserByGoogleId, upsertUser } from "./users";
 import { createUserSession } from "./user-auth";
 import { getRequestOrigin } from "./public-origin";
@@ -12,7 +12,35 @@ export function googleConfigured() {
   );
 }
 
-/** Prefer the public club URL so Google always sees one redirect URI. */
+function stateSecret() {
+  return (
+    process.env.JWT_SECRET ||
+    process.env.GOOGLE_CLIENT_SECRET ||
+    "mizzli-google-state"
+  );
+}
+
+export function signGoogleState() {
+  const body = Buffer.from(
+    JSON.stringify({ n: randomUUID(), exp: Date.now() + 10 * 60 * 1000 })
+  ).toString("base64url");
+  const sig = createHmac("sha256", stateSecret()).update(body).digest("base64url");
+  return `${body}.${sig}`;
+}
+
+export function verifyGoogleState(state: string) {
+  const [body, sig] = String(state || "").split(".");
+  if (!body || !sig) return false;
+  const expected = createHmac("sha256", stateSecret()).update(body).digest("base64url");
+  if (expected !== sig) return false;
+  try {
+    const data = JSON.parse(Buffer.from(body, "base64url").toString()) as { exp?: number };
+    return typeof data.exp === "number" && Date.now() < data.exp;
+  } catch {
+    return false;
+  }
+}
+
 export function googleOAuthOrigin(request: Request) {
   const configured = (process.env.NEXT_PUBLIC_APP_URL || "").trim().replace(/\/$/, "");
   if (configured.startsWith("https://") || configured.startsWith("http://")) {
@@ -25,13 +53,7 @@ export function googleRedirectUri(origin: string) {
   return `${origin.replace(/\/$/, "")}/api/auth/google/callback`;
 }
 
-const GOOGLE_BASE_SCOPES = [
-  "openid",
-  "email",
-  "profile",
-  "https://www.googleapis.com/auth/userinfo.email",
-  "https://www.googleapis.com/auth/userinfo.profile",
-];
+const GOOGLE_BASE_SCOPES = ["openid", "email", "profile"];
 
 export function googleScopes() {
   const extras = (process.env.GOOGLE_EXTRA_SCOPES || "")
@@ -47,8 +69,6 @@ export function googleAuthUrl(origin: string, state: string) {
     redirect_uri: googleRedirectUri(origin),
     response_type: "code",
     scope: googleScopes().join(" "),
-    access_type: "offline",
-    include_granted_scopes: "true",
     prompt: "select_account",
     state,
   });

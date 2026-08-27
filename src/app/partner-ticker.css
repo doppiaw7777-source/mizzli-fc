@@ -1,0 +1,92 @@
+.partner-ticker {
+  overflow: hidden;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 4, 16, 0.72);
+}
+.partner-ticker-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+  padding: 0.7rem 1rem 0.15rem;
+}
+.partner-ticker-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--team-accent);
+}
+.partner-ticker-hint {
+  margin: 0;
+  font-size: 11px;
+  opacity: 0.55;
+}
+.partner-row {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.partner-track {
+  display: flex;
+  width: max-content;
+  animation: partner-scroll 38s linear infinite;
+  will-change: transform;
+}
+.partner-row.is-reverse .partner-track {
+  animation-name: partner-scroll-rev;
+  animation-duration: 46s;
+}
+.partner-set {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.4rem 0.7rem;
+}
+.partner-chip-link {
+  flex-shrink: 0;
+  color: inherit;
+  text-decoration: none;
+}
+.partner-chip {
+  display: inline-flex;
+  min-height: 38px;
+  min-width: 78px;
+  max-width: 140px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.28rem 0.55rem;
+  border-radius: 0.7rem;
+  background: #fff;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28);
+}
+.partner-chip img {
+  display: block;
+  height: 26px;
+  width: auto;
+  max-width: 112px;
+  object-fit: contain;
+}
+.partner-chip-name {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1a0b24;
+  white-space: nowrap;
+}
+@keyframes partner-scroll {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes partner-scroll-rev {
+  from { transform: translate3d(-50%, 0, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .partner-track { animation-duration: 80s; }
+}

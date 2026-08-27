@@ -24,18 +24,20 @@ const UserContext = createContext<UserContextValue | null>(null);
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<PublicUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [googleEnabled, setGoogleEnabled] = useState(false);
+  const [googleEnabled, setGoogleEnabled] = useState(true);
 
   const refreshUser = useCallback(async () => {
     try {
-      const [me, google] = await Promise.all([
-        apiFetch("/api/auth/user").then((r) => r.json()),
-        apiFetch("/api/auth/google/status").then((r) => r.json()),
-      ]);
+      const me = await apiFetch("/api/auth/user").then((r) => r.json()).catch(() => ({ user: null }));
       setUser(me.user || null);
-      setGoogleEnabled(!!google.enabled);
     } catch {
       setUser(null);
+    }
+    try {
+      const google = await apiFetch("/api/auth/google/status").then((r) => r.json());
+      setGoogleEnabled(google.enabled !== false);
+    } catch {
+      setGoogleEnabled(true);
     } finally {
       setLoading(false);
     }
@@ -48,7 +50,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial user fetch
     refreshUser().catch(() => {});
   }, [refreshUser]);
 

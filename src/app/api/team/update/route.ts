@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { getTeamData, saveTeamData } from "@/lib/storage";
 import type { TeamData } from "@/lib/types";
 import { compactTeamData, staffWritableSubset } from "@/lib/roles";
-import { requireTeamManagerUser } from "@/lib/user-auth";
+import { requireStaffUser } from "@/lib/user-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ async function authorizeAndSanitize(request: NextRequest, body: Partial<TeamData
     await requireAdmin();
     return { mode: "admin" as const, payload: body };
   } catch {
-    const staff = await requireTeamManagerUser();
+    const staff = await requireStaffUser();
     return {
       mode: "staff" as const,
       role: staff.role,

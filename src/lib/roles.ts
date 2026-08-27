@@ -5,23 +5,36 @@ export type { UserRole };
 export type RoleUser = Pick<AppUser, "role"> | Pick<PublicUser, "role"> | null | undefined;
 
 export const ROLE_LABELS: Record<UserRole, string> = {
-  fan: "Tifoso",
-  coach: "Mister",
-  assistant_coach: "Vice mister",
+  fan: "Ospite / tifoso",
+  player: "Giocatore",
+  coach: "Allenatore",
+  assistant_coach: "Vice allenatore",
   team_manager: "Team Manager",
 };
 
 export const ROLE_BLURBS: Record<UserRole, string> = {
-  fan: "Voti i giocatori, partecipi ai sondaggi e leggi il club.",
-  coach: "Gestisci formazione, convocati e diretta partita.",
-  assistant_coach: "Stessi strumenti del mister: formazione, convocati e live.",
-  team_manager: "Gestisci multe, documenti ed eventi del club.",
+  fan: "Guarda il sito, vota e legge le news. Non modifica la squadra.",
+  player: "Account giocatore: vede convocati, formazione e calendario.",
+  coach: "Convocazioni, formazione e calendario partite.",
+  assistant_coach: "Come l'allenatore: convocazioni, formazione e calendario.",
+  team_manager: "Multe, documenti ed eventi del club.",
 };
 
-export type StaffPanelTab = "live" | "formazione" | "convocati" | "eventi" | "documenti" | "multe";
+export type StaffPanelTab =
+  | "live"
+  | "formazione"
+  | "convocati"
+  | "calendario"
+  | "eventi"
+  | "documenti"
+  | "multe";
 
 export function isFanRole(role?: UserRole | null) {
   return !role || role === "fan";
+}
+
+export function isPlayerRole(role?: UserRole | null) {
+  return role === "player";
 }
 
 export function isCoachRole(role?: UserRole | null) {
@@ -40,7 +53,6 @@ export function canAccessStaff(user: RoleUser) {
   return isStaffRole(user?.role);
 }
 
-/** @deprecated Use canAccessStaff / canEditCallups. Kept so old staff checks keep compiling. */
 export function canManageTeam(user: RoleUser) {
   return canAccessStaff(user);
 }
@@ -66,7 +78,11 @@ export function canEditDocuments(user: RoleUser) {
 }
 
 export function canEditEvents(user: RoleUser) {
-  return isTeamManagerRole(user?.role);
+  return isCoachRole(user?.role) || isTeamManagerRole(user?.role);
+}
+
+export function canEditCalendar(user: RoleUser) {
+  return isCoachRole(user?.role);
 }
 
 export function canVote(user: RoleUser) {
@@ -81,7 +97,7 @@ export function postLoginPath(user: RoleUser) {
 
 export function staffPanelTabs(role: UserRole): StaffPanelTab[] {
   if (isTeamManagerRole(role)) return ["eventi", "documenti", "multe"];
-  if (isCoachRole(role)) return ["live", "formazione", "convocati"];
+  if (isCoachRole(role)) return ["calendario", "formazione", "convocati", "live"];
   return [];
 }
 
@@ -101,12 +117,14 @@ function formationSubset(formation: TeamData["formation"] | undefined) {
 export function coachWritableSubset(input: Partial<TeamData>): Partial<TeamData> {
   return compactTeamData({
     formation: formationSubset(input.formation),
+    matches: input.matches,
     club: input.club
       ? {
           callupPlayerIds: input.club.callupPlayerIds,
           callupNote: input.club.callupNote,
           callupMeeting: input.club.callupMeeting,
           callupPublishedAt: input.club.callupPublishedAt,
+          events: input.club.events,
         }
       : undefined,
   }) as Partial<TeamData>;

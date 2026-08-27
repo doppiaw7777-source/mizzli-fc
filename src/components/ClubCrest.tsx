@@ -1,10 +1,10 @@
 "use client";
 
-import { MIZZLI_CREST } from "@/lib/brand";
+import { clubLogo } from "@/lib/brand";
 import type { TeamSettings } from "@/lib/types";
 
-// rebuild 2026-08-27T16:33Z — live still served 15:14 bundle
 export default function ClubCrest({
+  settings,
   size = 40,
   alt = "MIZZLI FC",
   glow = false,
@@ -18,7 +18,7 @@ export default function ClubCrest({
 }) {
   return (
     <img
-      src={MIZZLI_CREST}
+      src={clubLogo(settings)}
       alt={alt}
       width={size}
       height={size}

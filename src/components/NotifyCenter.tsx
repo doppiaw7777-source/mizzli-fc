@@ -36,6 +36,19 @@ async function showOnDevice(n: Notice) {
   }
 }
 
+async function loadNotices(attempt = 0): Promise<Notice[]> {
+  try {
+    const res = await apiFetch("/api/notices");
+    if (!res.ok) throw new Error("bad");
+    const data = await res.json().catch(() => ({ notices: [] }));
+    return data.notices || [];
+  } catch {
+    if (attempt >= 3) return [];
+    await new Promise((r) => setTimeout(r, 400 * 2 ** attempt));
+    return loadNotices(attempt + 1);
+  }
+}
+
 export async function enableClubNotifications() {
   if (typeof Notification === "undefined") return false;
   const perm = await Notification.requestPermission();
@@ -51,18 +64,12 @@ export function NotifyCenter() {
       if (stop) return;
       if (localStorage.getItem(ENABLED_KEY) !== "1") return;
       if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
-      try {
-        const res = await apiFetch("/api/notices");
-        const data = await res.json().catch(() => ({ notices: [] }));
-        const list: Notice[] = data.notices || [];
-        const seen = localStorage.getItem(SEEN_KEY) || "";
-        const fresh = seen ? list.filter((n) => n.id !== seen).slice(0, 3) : [];
-        if (list[0]) localStorage.setItem(SEEN_KEY, list[0].id);
-        if (!seen) return;
-        for (const n of fresh.reverse()) await showOnDevice(n);
-      } catch {
-        /* ignore */
-      }
+      const list = await loadNotices();
+      const seen = localStorage.getItem(SEEN_KEY) || "";
+      const fresh = seen ? list.filter((n) => n.id !== seen).slice(0, 3) : [];
+      if (list[0]) localStorage.setItem(SEEN_KEY, list[0].id);
+      if (!seen) return;
+      for (const n of fresh.reverse()) await showOnDevice(n);
     };
     void tick();
     const id = setInterval(() => void tick(), 25000);

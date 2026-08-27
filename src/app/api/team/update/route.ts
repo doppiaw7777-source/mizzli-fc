@@ -27,11 +27,17 @@ async function notifyCallupIfPublished(before: TeamData, after: TeamData) {
   const next = after.club?.callupPublishedAt || "";
   const ids = after.club?.callupPlayerIds || [];
   if (!next || next === prev || ids.length === 0) return;
+  const names = after.players
+    .filter((p) => ids.includes(p.id))
+    .map((p) => p.name);
   await addNotice({
-    title: "Convocati pubblicati",
-    body: `${ids.length} giocatori in lista per la prossima gara`,
+    title: `Convocati · ${ids.length}`,
+    body: names.join(", "),
     href: "/convocati",
     kind: "callup",
+    idempotencyKey: `callup-${next}`,
+    playerIds: ids,
+    playerNames: names,
   });
 }
 

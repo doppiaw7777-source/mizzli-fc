@@ -5,6 +5,7 @@ import type { Player } from "@/lib/types";
 import { useTeam } from "@/context/TeamContext";
 import { MIZZLI_CREST } from "@/lib/brand";
 import { playerThumb } from "@/lib/player-art";
+import { shortPlayerLabel } from "@/lib/player-name";
 import {
   DEFAULT_PLAYER_GRAPHIC,
   getPlayerGraphic,
@@ -102,6 +103,7 @@ export function PlayerToken({
   size = "sm",
   photoHead = false,
   graphicId,
+  siblings,
 }: {
   player: Player;
   captain?: boolean;
@@ -109,6 +111,7 @@ export function PlayerToken({
   size?: keyof typeof PX;
   photoHead?: boolean;
   graphicId?: string;
+  siblings?: Player[];
 }) {
   return (
     <div
@@ -121,8 +124,8 @@ export function PlayerToken({
         photoHead={photoHead}
         graphicId={graphicId}
       />
-      <span className="player-token-name mt-0.5 max-w-[76px] truncate rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold backdrop-blur-sm">
-        {player.name.split(" ").pop()}
+      <span className="player-token-name mt-0.5 max-w-[88px] truncate rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold backdrop-blur-sm">
+        {shortPlayerLabel(player, siblings)}
       </span>
     </div>
   );

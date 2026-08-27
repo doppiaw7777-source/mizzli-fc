@@ -49,6 +49,20 @@ export default function MoreMenu() {
 
   const groups = menuGroupsForUser(user, { isAdmin });
 
+  const togglePartners = () => {
+    if (!data) return;
+    hapticLight();
+    void updateData({
+      settings: {
+        ...data.settings,
+        ui: {
+          ...data.settings.ui,
+          showPartnerBanner: !showPartners,
+        },
+      },
+    });
+  };
+
   return (
     <>
       <button
@@ -98,6 +112,27 @@ export default function MoreMenu() {
               </button>
             </div>
             <div className="max-h-[min(70vh,32rem)] space-y-5 overflow-y-auto p-4">
+              {isAdmin && data ? (
+                <button
+                  type="button"
+                  onClick={togglePartners}
+                  className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left ${
+                    showPartners
+                      ? "border-[var(--team-accent)] bg-[var(--team-accent)]/10"
+                      : "border-white/10 hover:bg-white/10"
+                  }`}
+                >
+                  <span>
+                    <span className="block text-sm font-bold leading-tight">Fascia 100 partner</span>
+                    <span className="block text-xs opacity-60">
+                      {showPartners ? "Accesa: visibile in questo menu" : "Spenta: nascosta dal menu"}
+                    </span>
+                  </span>
+                  <span className="text-xs font-black uppercase tracking-wide opacity-70">
+                    {showPartners ? "On" : "Off"}
+                  </span>
+                </button>
+              ) : null}
               {showPartners && data ? (
                 <PartnerTicker
                   sponsors={data.sponsors}
@@ -135,38 +170,6 @@ export default function MoreMenu() {
                 </section>
               ))}
               <SoundToggle />
-              {isAdmin && data ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    hapticLight();
-                    void updateData({
-                      settings: {
-                        ...data.settings,
-                        ui: {
-                          ...data.settings.ui,
-                          showPartnerBanner: !showPartners,
-                        },
-                      },
-                    });
-                  }}
-                  className={`flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-left ${
-                    showPartners
-                      ? "border-[var(--team-accent)] bg-[var(--team-accent)]/10"
-                      : "border-white/10 hover:bg-white/10"
-                  }`}
-                >
-                  <span>
-                    <span className="block text-sm font-bold leading-tight">Fascia 100 partner</span>
-                    <span className="block text-xs opacity-60">
-                      {showPartners ? "Visibile in questo menu" : "Nascosta dal menu"}
-                    </span>
-                  </span>
-                  <span className="text-xs font-black uppercase tracking-wide opacity-70">
-                    {showPartners ? "On" : "Off"}
-                  </span>
-                </button>
-              ) : null}
             </div>
           </div>
         </div>,

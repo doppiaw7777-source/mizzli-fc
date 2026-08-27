@@ -18,13 +18,18 @@ function friendlyAuthError(raw: string) {
     t.includes("mismatch") ||
     t.includes("invalid_client")
   ) {
-    return "Google non accetta questo link. Usa email e password qui sotto.";
+    return "Google non accetta questo link. Aggiungi in Google Cloud l'URI https://mizzlifc.it/api/auth/google/callback";
   }
   return raw;
 }
 
 function isAdminUsername(value: string) {
   return value.trim().toLowerCase() === "noldi";
+}
+
+function googleStartHref() {
+  const base = (process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
+  return `${base || ""}/api/auth/google`;
 }
 
 async function snapshotForLogin() {
@@ -172,7 +177,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         )}
 
         {googleEnabled ? (
-          <a href="/api/auth/google" className={googleButtonClass}>
+          <a href={googleStartHref()} className={googleButtonClass}>
             {googleLabel}
           </a>
         ) : (
@@ -193,7 +198,6 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             Per ora usa email e password qui sotto. Google si accende quando inserisci Client ID e Secret.
           </p>
         )}
-
 
         <div className="my-5 flex items-center gap-3 text-xs opacity-50">
           <span className="h-px flex-1 bg-white/20" />

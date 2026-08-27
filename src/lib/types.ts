@@ -109,6 +109,7 @@ export interface TeamSettings {
     newsTitle: string;
     trainingsTitle: string;
     sponsorsTitle: string;
+    partnersTitle?: string;
     homeLabel: string;
     rosaLabel: string;
     calendarioLabel: string;
@@ -157,11 +158,14 @@ export interface TrainingItem {
   focus: string;
 }
 
+export type SponsorTier = "main" | "partner";
+
 export interface Sponsor {
   id: string;
   name: string;
   logoUrl: string;
   website: string;
+  tier?: SponsorTier;
 }
 
 export interface SocialLink {

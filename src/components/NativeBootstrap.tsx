@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { initNativeShell, isNativeApp } from "@/lib/native";
 import { installClickSounds } from "@/lib/sound";
+import { NotifyCenter } from "@/components/NotifyCenter";
 
 export default function NativeBootstrap() {
   const [offline, setOffline] = useState(false);
@@ -51,11 +52,14 @@ export default function NativeBootstrap() {
     };
   }, []);
 
-  if (!offline) return null;
-
   return (
-    <div className="fixed left-0 right-0 top-[env(safe-area-inset-top)] z-[80] bg-red-700 px-4 py-2 text-center text-sm font-semibold">
-      Sei offline. Alcune funzioni non sono disponibili.
-    </div>
+    <>
+      <NotifyCenter />
+      {offline ? (
+        <div className="fixed left-0 right-0 top-[env(safe-area-inset-top)] z-[80] bg-red-700 px-4 py-2 text-center text-sm font-semibold">
+          Sei offline. Alcune funzioni non sono disponibili.
+        </div>
+      ) : null}
+    </>
   );
 }

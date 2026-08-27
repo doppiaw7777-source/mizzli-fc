@@ -149,7 +149,7 @@ export default function HomePage() {
           {b.stadiumName && (
             <p className="mt-2 text-sm opacity-50">🏟️ {b.stadiumName}</p>
           )}
-          {ui.showSocialLinks && data.socialLinks.length > 0 && (
+          {ui.showSocialLinks && (
             <SocialButtons links={data.socialLinks} className="mt-5" />
           )}
           <Link
@@ -382,7 +382,7 @@ export default function HomePage() {
           )}
         </section>
 
-        {ui.showSocialLinks && data.socialLinks.length > 0 && (
+        {ui.showSocialLinks && (
           <SocialButtons links={data.socialLinks} />
         )}
 

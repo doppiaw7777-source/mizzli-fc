@@ -8,6 +8,7 @@ import { getTeamData } from "@/lib/storage";
 import "./globals.css";
 import "./crest-plain.css";
 import "./partner-ticker.css";
+import "./sponsor-fit.css";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

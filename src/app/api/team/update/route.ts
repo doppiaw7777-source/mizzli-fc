@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { getTeamData, saveTeamData } from "@/lib/storage";
-import type { TeamData } from "@/lib/types";
+import type { ClubEvent, Match, TeamData } from "@/lib/types";
 import { compactTeamData, staffWritableSubset } from "@/lib/roles";
 import { requireStaffUser } from "@/lib/user-auth";
 import { addNotice } from "@/lib/notices";
+import { matchPublicDetail, matchPublicTitle } from "@/lib/match-kind";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,72 @@ async function authorizeAndSanitize(request: NextRequest, body: Partial<TeamData
       role: staff.role,
       payload: compactTeamData(staffWritableSubset(body, staff.role)) as Partial<TeamData>,
     };
+  }
+}
+
+function stamp(m: Match) {
+  return `${m.date}|${m.time || ""}|${m.opponent || ""}|${m.venue || ""}|${m.kickoffNote || ""}`;
+}
+
+async function notifyCalendarChanges(before: TeamData, after: TeamData) {
+  const prevMatches = new Map((before.matches || []).map((m) => [m.id, m]));
+  const nextMatches = after.matches || [];
+  let sent = 0;
+  for (const match of nextMatches) {
+    if (sent >= 6) break;
+    const old = prevMatches.get(match.id);
+    const title = matchPublicTitle(match);
+    const detail = matchPublicDetail(match);
+    if (!old) {
+      await addNotice({
+        title,
+        body: detail,
+        href: `/partita/${match.id}`,
+        kind: "news",
+        idempotencyKey: `match-new-${match.id}`,
+      });
+      sent += 1;
+      continue;
+    }
+    if (stamp(old) !== stamp(match)) {
+      await addNotice({
+        title: `Aggiornato: ${title}`,
+        body: detail,
+        href: `/partita/${match.id}`,
+        kind: "news",
+        idempotencyKey: `match-upd-${match.id}-${stamp(match)}`,
+      });
+      sent += 1;
+    }
+  }
+
+  const prevEvents = new Map(((before.club?.events || []) as ClubEvent[]).map((e) => [e.id, e]));
+  const nextEvents = (after.club?.events || []) as ClubEvent[];
+  for (const event of nextEvents) {
+    if (sent >= 8) break;
+    const old = prevEvents.get(event.id);
+    const when = [event.date, event.place].filter(Boolean).join(" · ");
+    if (!old) {
+      await addNotice({
+        title: event.title || "Nuovo evento",
+        body: when,
+        href: "/calendario",
+        kind: "news",
+        idempotencyKey: `event-new-${event.id}`,
+      });
+      sent += 1;
+      continue;
+    }
+    if (old.date !== event.date || old.place !== event.place || old.title !== event.title) {
+      await addNotice({
+        title: `Aggiornato: ${event.title}`,
+        body: when,
+        href: "/calendario",
+        kind: "news",
+        idempotencyKey: `event-upd-${event.id}-${event.date}-${event.place || ""}`,
+      });
+      sent += 1;
+    }
   }
 }
 
@@ -41,6 +108,11 @@ async function notifyCallupIfPublished(before: TeamData, after: TeamData) {
   });
 }
 
+async function notifyChanges(before: TeamData, after: TeamData) {
+  await notifyCallupIfPublished(before, after);
+  await notifyCalendarChanges(before, after);
+}
+
 function isAuthError(err: unknown) {
   const msg = err instanceof Error ? err.message.toLowerCase() : "";
   return (
@@ -60,12 +132,12 @@ export async function PUT(request: NextRequest) {
     if (mode === "admin") {
       await saveTeamData(payload as TeamData);
       const saved = await getTeamData();
-      await notifyCallupIfPublished(current, saved);
+      await notifyChanges(current, saved);
       return NextResponse.json(saved);
     }
     const updated = deepMerge(current, payload) as TeamData;
     await saveTeamData(updated);
-    await notifyCallupIfPublished(current, updated);
+    await notifyChanges(current, updated);
     return NextResponse.json(updated);
   } catch (err) {
     if (isAuthError(err)) {
@@ -83,7 +155,7 @@ export async function PATCH(request: NextRequest) {
     const current = await getTeamData();
     const updated = deepMerge(current, payload) as TeamData;
     await saveTeamData(updated);
-    await notifyCallupIfPublished(current, updated);
+    await notifyChanges(current, updated);
     return NextResponse.json(updated);
   } catch (err) {
     if (isAuthError(err)) {

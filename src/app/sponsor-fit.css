@@ -1,0 +1,11 @@
+.sponsor-chip {
+  min-height: 88px;
+  min-width: 156px;
+  padding: 0.32rem 0.45rem;
+}
+.sponsor-chip img {
+  height: 76px;
+  max-width: 230px;
+  width: auto;
+  object-fit: contain;
+}

@@ -1,4 +1,4 @@
-const CACHE = "mizzli-fc-v6";
+const CACHE = "mizzli-fc-v7";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
@@ -16,7 +16,14 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
-  event.respondWith(fetch(req, { cache: "no-store" }));
+  if (req.mode === "navigate") return;
+  event.respondWith(
+    fetch(req).catch(async () => {
+      const cached = await caches.match(req);
+      if (cached) return cached;
+      return new Response("", { status: 504, statusText: "Offline" });
+    })
+  );
 });
 
 self.addEventListener("push", (event) => {

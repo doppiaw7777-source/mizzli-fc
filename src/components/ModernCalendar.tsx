@@ -139,7 +139,6 @@ function CalendarGrid({
         })
         .map((m) => m.id)
     );
-    // Keep club events (Open Day, etc.) when filtering by competition.
     return items.filter((it) => it.kind !== "match" || allowed.has(it.id));
   }, [competition, items, competitions]);
 
@@ -230,6 +229,48 @@ function CalendarGrid({
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="mb-4 rounded-2xl border border-white/10 bg-black/25 p-4">
+        <h4 className="mb-3 text-xs font-bold uppercase tracking-[0.2em] opacity-70">
+          Agenda del giorno{" "}
+          {selectedDate ? formatItDate(selectedDate) : "(seleziona una data)"}
+        </h4>
+        {selectedDate && selectedItems.length > 0 ? (
+          <div className="space-y-2">
+            {selectedItems.map((item) => {
+              const body = (
+                <>
+                  <p className="font-bold">{item.title}</p>
+                  <p className="text-sm opacity-70">
+                    {item.detail}
+                    {item.time ? ` · ${item.time}` : ""}
+                  </p>
+                </>
+              );
+              const box = {
+                borderLeft: `4px solid ${item.color}`,
+                background: hexAlpha(item.color, 0.12),
+              };
+              return item.href ? (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="block rounded-xl border border-white/10 p-3 transition hover:brightness-110"
+                  style={box}
+                >
+                  {body}
+                </Link>
+              ) : (
+                <div key={item.id} className="rounded-xl border border-white/10 p-3" style={box}>
+                  {body}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-sm opacity-60">Nessun evento in questa giornata.</p>
+        )}
       </div>
 
       <div className="overflow-x-auto">
@@ -363,48 +404,6 @@ function CalendarGrid({
           ))}
         </div>
       )}
-
-      <div className="mt-6 rounded-2xl border border-white/10 bg-black/25 p-4">
-        <h4 className="mb-3 text-xs font-bold uppercase tracking-[0.2em] opacity-70">
-          Agenda del giorno{" "}
-          {selectedDate ? formatItDate(selectedDate) : "(seleziona una data)"}
-        </h4>
-        {selectedDate && selectedItems.length > 0 ? (
-          <div className="space-y-2">
-            {selectedItems.map((item) => {
-              const body = (
-                <>
-                  <p className="font-bold">{item.title}</p>
-                  <p className="text-sm opacity-70">
-                    {item.detail}
-                    {item.time ? ` · ${item.time}` : ""}
-                  </p>
-                </>
-              );
-              const box = {
-                borderLeft: `4px solid ${item.color}`,
-                background: hexAlpha(item.color, 0.12),
-              };
-              return item.href ? (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className="block rounded-xl border border-white/10 p-3 transition hover:brightness-110"
-                  style={box}
-                >
-                  {body}
-                </Link>
-              ) : (
-                <div key={item.id} className="rounded-xl border border-white/10 p-3" style={box}>
-                  {body}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="text-sm opacity-60">Nessun evento in questa giornata.</p>
-        )}
-      </div>
     </section>
   );
 }

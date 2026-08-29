@@ -15,7 +15,7 @@ export default function NativeBootstrap() {
       navigator.serviceWorker
         .getRegistrations()
         .then(async (regs) => {
-          await navigator.serviceWorker.register("/sw.js?v=7", { updateViaCache: "none" });
+          await navigator.serviceWorker.register("/sw.js?v=8", { updateViaCache: "none" });
           await Promise.all(regs.map((reg) => reg.update()));
         })
         .catch(() => {});

@@ -1,4 +1,4 @@
-const CACHE = "mizzli-fc-v7";
+const CACHE = "mizzli-fc-v8";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
@@ -10,19 +10,6 @@ self.addEventListener("activate", (event) => {
       .keys()
       .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener("fetch", (event) => {
-  const req = event.request;
-  if (req.method !== "GET") return;
-  if (req.mode === "navigate") return;
-  event.respondWith(
-    fetch(req).catch(async () => {
-      const cached = await caches.match(req);
-      if (cached) return cached;
-      return new Response("", { status: 504, statusText: "Offline" });
-    })
   );
 });
 
@@ -56,19 +43,6 @@ self.addEventListener("notificationclick", (event) => {
         }
       }
       if (self.clients.openWindow) return self.clients.openWindow(url);
-    })
-  );
-});
-
-self.addEventListener("message", (event) => {
-  const msg = event.data || {};
-  if (msg.type !== "SHOW_NOTICE") return;
-  event.waitUntil(
-    self.registration.showNotification(msg.title || "MIZZLI FC", {
-      body: msg.body || "",
-      icon: "/icon-192.png",
-      badge: "/icon-192.png",
-      data: { url: msg.url || "/" },
     })
   );
 });

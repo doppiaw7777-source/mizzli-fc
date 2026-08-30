@@ -7,6 +7,9 @@ import { useEffect } from "react";
 
 type PageKey = "home" | "rosa" | "calendario" | "formazione" | "admin" | "altro";
 
+const THEME_VIDEO = "/brand/theme-serpent.mp4";
+const THEME_POSTER = "/brand/theme-serpent.jpg";
+
 export function getPageBackground(
   settings: TeamSettings,
   page: PageKey
@@ -62,6 +65,15 @@ export function ThemeStyles({ settings }: { settings: TeamSettings }) {
       a.rounded-xl {
         border-radius: var(--team-btn-radius) !important;
       }
+      .theme-video {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none;
+      }
     `}</style>
   );
 }
@@ -77,26 +89,35 @@ export function PageBackground({
   children: React.ReactNode;
   className?: string;
 }) {
-  const bg = getPageBackground(settings, page);
-  const overlay = settings.ui.backgroundOverlay ?? 55;
+  const overlay = Math.max(settings.ui.backgroundOverlay ?? 55, 42);
   const theme = getTheme(settings.themeId);
-  const base = settings.themeGradient || theme.gradient;
   const compact = settings.ui.compactMode;
 
   return (
     <div
-      className={`relative min-h-dvh ${className}`}
+      className={`relative min-h-dvh overflow-hidden bg-[#07030c] ${className}`}
       data-theme={settings.themeId}
       data-graphic={settings.graphicStyle || theme.graphicStyle}
-      style={{
-        background: bg
-          ? `linear-gradient(rgba(0,0,0,${overlay / 100}), rgba(0,0,0,${overlay / 100})), url(${bg}) center/cover fixed`
-          : base ||
-            `linear-gradient(135deg, ${settings.colors.secondary} 0%, ${settings.colors.primary} 100%)`,
-      }}
     >
+      <video
+        className="theme-video"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster={THEME_POSTER}
+        aria-hidden
+      >
+        <source src={THEME_VIDEO} type="video/mp4" />
+      </video>
+      <div
+        className="pointer-events-none fixed inset-0 z-[1]"
+        style={{ background: `rgba(7,3,12,${overlay / 100})` }}
+        aria-hidden
+      />
       <PitchParallax />
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+      <div className="pointer-events-none fixed inset-0 z-[1] overflow-hidden" aria-hidden>
         <div
           className="pitch-grain absolute inset-0"
           style={{
@@ -106,7 +127,7 @@ export function PageBackground({
           }}
         />
       </div>
-      <div className={`relative ${compact ? "[&_.space-y-10]:space-y-6 [&_.p-6]:p-4" : ""}`}>
+      <div className={`relative z-[2] ${compact ? "[&_.space-y-10]:space-y-6 [&_.p-6]:p-4" : ""}`}>
         {children}
       </div>
     </div>

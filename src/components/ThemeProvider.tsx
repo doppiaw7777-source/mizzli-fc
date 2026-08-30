@@ -7,8 +7,10 @@ import { useEffect } from "react";
 
 type PageKey = "home" | "rosa" | "calendario" | "formazione" | "admin" | "altro";
 
-const THEME_VIDEO =
+const THEME_VIDEO_LOCAL =
   "/brand/_users_71ddbb17-0bd5-421b-a9ed-8ccf3e0d9822_generated_4e4683f0-4dd0-4c87-8c41-2ee1da3db17b_generated_video.mp4";
+const THEME_VIDEO_REMOTE =
+  "https://raw.githubusercontent.com/doppiaw7777-source/mizzli-fc/main/public/brand/_users_71ddbb17-0bd5-421b-a9ed-8ccf3e0d9822_generated_4e4683f0-4dd0-4c87-8c41-2ee1da3db17b_generated_video.mp4";
 
 export function getPageBackground(
   settings: TeamSettings,
@@ -89,7 +91,7 @@ export function PageBackground({
   children: React.ReactNode;
   className?: string;
 }) {
-  const overlay = Math.min(settings.ui.backgroundOverlay ?? 38, 45);
+  const overlay = Math.min(settings.ui.backgroundOverlay ?? 32, 40);
   const theme = getTheme(settings.themeId);
   const compact = settings.ui.compactMode;
 
@@ -108,7 +110,8 @@ export function PageBackground({
         preload="auto"
         aria-hidden
       >
-        <source src={THEME_VIDEO} type="video/mp4" />
+        <source src={THEME_VIDEO_LOCAL} type="video/mp4" />
+        <source src={THEME_VIDEO_REMOTE} type="video/mp4" />
       </video>
       <div
         className="pointer-events-none fixed inset-0 z-[1]"
@@ -122,7 +125,7 @@ export function PageBackground({
           style={{
             backgroundImage: "var(--team-graphic)",
             backgroundSize: "var(--team-graphic-size)",
-            opacity: "calc(var(--team-graphic-opacity) * 0.25)",
+            opacity: "calc(var(--team-graphic-opacity) * 0.18)",
           }}
         />
       </div>

@@ -7,8 +7,8 @@ import { useEffect } from "react";
 
 type PageKey = "home" | "rosa" | "calendario" | "formazione" | "admin" | "altro";
 
-const THEME_VIDEO = "/brand/theme-serpent.mp4";
-const THEME_POSTER = "/brand/theme-serpent.jpg";
+const THEME_VIDEO =
+  "/brand/_users_71ddbb17-0bd5-421b-a9ed-8ccf3e0d9822_generated_4e4683f0-4dd0-4c87-8c41-2ee1da3db17b_generated_video.mp4";
 
 export function getPageBackground(
   settings: TeamSettings,
@@ -89,7 +89,7 @@ export function PageBackground({
   children: React.ReactNode;
   className?: string;
 }) {
-  const overlay = Math.max(settings.ui.backgroundOverlay ?? 55, 42);
+  const overlay = Math.min(settings.ui.backgroundOverlay ?? 38, 45);
   const theme = getTheme(settings.themeId);
   const compact = settings.ui.compactMode;
 
@@ -106,7 +106,6 @@ export function PageBackground({
         loop
         playsInline
         preload="auto"
-        poster={THEME_POSTER}
         aria-hidden
       >
         <source src={THEME_VIDEO} type="video/mp4" />
@@ -123,7 +122,7 @@ export function PageBackground({
           style={{
             backgroundImage: "var(--team-graphic)",
             backgroundSize: "var(--team-graphic-size)",
-            opacity: "var(--team-graphic-opacity)",
+            opacity: "calc(var(--team-graphic-opacity) * 0.25)",
           }}
         />
       </div>

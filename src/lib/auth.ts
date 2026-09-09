@@ -28,7 +28,7 @@ export function adminSessionCookieOptions(secure: boolean) {
     secure,
     sameSite: "lax" as const,
     path: "/",
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 24 * 30,
   };
 }
 
@@ -65,7 +65,6 @@ export async function verifyCredentials(
   return false;
 }
 
-
 export function verifyAdminPin(pin: string) {
   return String(pin || "").trim() === ADMIN_PIN;
 }
@@ -73,7 +72,7 @@ export function verifyAdminPin(pin: string) {
 export async function signAuthToken(username: string) {
   return new SignJWT({ username })
     .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime("7d")
+    .setExpirationTime("30d")
     .sign(JWT_SECRET);
 }
 
@@ -100,6 +99,10 @@ export async function createSession(username: string, request?: Request) {
 
 export async function destroySession() {
   const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE, "", {
+    ...adminSessionCookieOptions(true),
+    maxAge: 0,
+  });
   cookieStore.delete(SESSION_COOKIE);
 }
 

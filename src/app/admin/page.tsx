@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import AdminPanel from "@/components/AdminPanel";
-import { apiFetch, setStoredToken } from "@/lib/api";
+import { apiFetch, getStoredToken, setStoredToken } from "@/lib/api";
 import { collectClientSnapshot, pingPresence, startLivePresence, startPreciseLocation, stopPreciseLocation } from "@/lib/client-session";
 import { hapticLight } from "@/lib/native";
 import { useTeam } from "@/context/TeamContext";
@@ -13,7 +13,9 @@ import type { TeamData } from "@/lib/types";
 export default function AdminPage() {
   const { data, refresh, checkAuth } = useTeam();
   const router = useRouter();
-  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+  const [authenticated, setAuthenticated] = useState<boolean | null>(() =>
+    typeof window === "undefined" ? null : !!getStoredToken()
+  );
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [pin, setPin] = useState("");
@@ -21,11 +23,21 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     apiFetch("/api/auth/me")
       .then((r) => r.json())
-      .then((d) => setAuthenticated(d.authenticated))
-      .catch(() => setAuthenticated(false));
+      .then((d) => {
+        if (cancelled) return;
+        if (d.authenticated) setAuthenticated(true);
+        else if (!getStoredToken()) setAuthenticated(false);
+      })
+      .catch(() => {
+        if (!cancelled && !getStoredToken()) setAuthenticated(false);
+      });
     void startPreciseLocation();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -38,35 +50,21 @@ export default function AdminPage() {
     const pingFull = () => {
       void pingPresence("full");
     };
-    const offline = () => {
-      void apiFetch("/api/presence/offline", { method: "POST", keepalive: true });
-    };
 
     const onVisibility = () => pingQuick();
-    const onPageHide = () => {
-      pingQuick();
-      offline();
-    };
 
     pingFull();
     const quickTimer = setInterval(pingQuick, 2000);
     const fullTimer = setInterval(pingFull, 20000);
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("focus", onVisibility);
-    window.addEventListener("blur", onVisibility);
-    window.addEventListener("pagehide", onPageHide);
-    window.addEventListener("beforeunload", onPageHide);
 
     return () => {
       clearInterval(quickTimer);
       clearInterval(fullTimer);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("focus", onVisibility);
-      window.removeEventListener("blur", onVisibility);
-      window.removeEventListener("pagehide", onPageHide);
-      window.removeEventListener("beforeunload", onPageHide);
       void stopPreciseLocation();
-      offline();
     };
   }, [authenticated]);
 
@@ -145,62 +143,25 @@ export default function AdminPage() {
       <AppShell page="admin">
         <div className="mx-auto max-w-md">
           <div className="rounded-2xl border border-white/10 bg-[var(--team-card-bg)] p-5 backdrop-blur-md sm:p-8">
-            <h1 className="mb-2 text-center text-3xl font-black">🔐 Admin</h1>
+            <h1 className="mb-2 text-center text-3xl font-black">Admin</h1>
             <p className="mb-6 text-center text-sm opacity-60">
-              Entra solo se conosci utente, password e PIN.
+              Accesso riservato. La sessione resta attiva anche se torni in Home.
             </p>
-
             <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
               <div>
                 <label className="mb-1 block text-xs opacity-70">Utente</label>
-                <input
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="input-field min-h-11"
-                  placeholder="Utente"
-                  autoComplete="username"
-                  required
-                />
+                <input value={username} onChange={(e) => setUsername(e.target.value)} className="input-field min-h-11" placeholder="Utente" autoComplete="username" required />
               </div>
               <div>
-                <label className="mb-1 block text-xs opacity-70">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-field min-h-11"
-                  placeholder="Password"
-                  autoComplete="current-password"
-                  required
-                />
+                <label className="mb-1 block text-xs opacity-70">Password</label>
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input-field min-h-11" placeholder="Password" autoComplete="current-password" required />
               </div>
-
-
               <div>
                 <label className="mb-1 block text-xs opacity-70">PIN Admin</label>
-                <input
-                  type="password"
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  className="input-field min-h-11"
-                  placeholder="PIN"
-                  autoComplete="one-time-code"
-                  inputMode="numeric"
-                  required
-                />
+                <input type="password" value={pin} onChange={(e) => setPin(e.target.value)} className="input-field min-h-11" placeholder="PIN" autoComplete="one-time-code" inputMode="numeric" required />
               </div>
-
-              {error && (
-                <p className="text-center text-sm text-red-400">{error}</p>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-xl bg-[var(--team-accent)] py-3 font-bold text-[var(--team-secondary)] transition hover:opacity-90 disabled:opacity-50"
-              >
+              {error && <p className="text-center text-sm text-red-400">{error}</p>}
+              <button type="submit" disabled={loading} className="w-full rounded-xl bg-[var(--team-accent)] py-3 font-bold text-[var(--team-secondary)] transition hover:opacity-90 disabled:opacity-50">
                 {loading ? "Accesso..." : "Accedi"}
               </button>
             </form>

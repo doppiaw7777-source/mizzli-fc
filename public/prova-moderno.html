@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>MIZZLI FC — Preview moderna</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #07040c;
+      --card: rgba(255,255,255,.06);
+      --line: rgba(255,255,255,.1);
+      --text: #f6f1ff;
+      --muted: rgba(246,241,255,.62);
+      --violet: #b56bff;
+      --gold: #e8c98a;
+      --safe-b: env(safe-area-inset-bottom);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "Instrument Sans", system-ui, sans-serif; }
+    body { min-height: 100dvh; }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; border: 0; background: none; }
+    img { max-width: 100%; display: block; }
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(120% 70% at 50% -10%, rgba(155,60,255,.35), transparent 55%),
+        radial-gradient(80% 40% at 100% 20%, rgba(232,201,138,.08), transparent 40%),
+        #07040c;
+    }
+    .preview-flag {
+      position: sticky; top: 0; z-index: 40;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 8px 16px;
+      background: #e8c98a; color: #2a1a05; font-size: 12px; font-weight: 700;
+    }
+    header.top { display: flex; align-items: center; gap: 10px; padding: 14px 16px 8px; }
+    .crest { width: 42px; height: 42px; border-radius: 14px; object-fit: cover; background: #2a0d44; }
+    .brand { flex: 1; min-width: 0; }
+    .brand h1 { margin: 0; font-size: 16px; letter-spacing: .04em; }
+    .brand p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+    .socials { display: flex; gap: 8px; }
+    .orb { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.08); border: 1px solid var(--line); color: inherit; text-decoration: none; font-size: 11px; font-weight: 800; }
+    main { padding: 8px 16px 118px; }
+    .view { display: none; animation: rise .35s ease; }
+    .view.on { display: block; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: none;} }
+    .hero { margin: 10px 0 18px; text-align: center; }
+    .hero .big-crest { width: 92px; height: 92px; margin: 8px auto 14px; border-radius: 28px; box-shadow: 0 20px 50px rgba(155,60,255,.28); }
+    .kicker { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+    .hero h2 { margin: 8px 0 4px; font-size: 34px; line-height: .95; letter-spacing: -.03em; }
+    .hero .motto { margin: 0 0 16px; color: var(--muted); }
+    .match { text-align: left; background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.04)); border: 1px solid var(--line); border-radius: 24px; padding: 16px; }
+    .match .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .pill { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
+    .kick { font-size: 12px; color: var(--muted); }
+    .teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin: 14px 0 12px; }
+    .team { font-weight: 800; font-size: 15px; }
+    .team.r { text-align: right; }
+    .vs { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: rgba(181,107,255,.18); font-size: 11px; font-weight: 800; color: var(--violet); }
+    .meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { font-size: 12px; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--line); color: var(--muted); }
+    .cta { width: 100%; margin-top: 14px; border-radius: 16px; padding: 13px; background: #f4ecff; color: #16081f; font-weight: 800; }
+    .block { margin-top: 16px; }
+    .block h3 { margin: 0 0 10px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+    .sponsors, .partners { display: flex; gap: 10px; overflow: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .sponsor { min-width: 168px; height: 74px; border-radius: 18px; background: #fff; display: grid; place-items: center; padding: 10px; color: #222; font-weight: 800; font-size: 13px; text-align: center; }
+    .partner { min-width: 132px; height: 48px; border-radius: 14px; background: rgba(255,255,255,.92); color: #222; display: grid; place-items: center; font-size: 11px; font-weight: 700; padding: 0 10px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 14px; }
+    .card h4 { margin: 0 0 6px; font-size: 15px; }
+    .card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .list { display: grid; gap: 8px; }
+    .player { display: grid; grid-template-columns: 42px 1fr auto; gap: 10px; align-items: center; padding: 10px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+    .num { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; background: rgba(181,107,255,.16); font-weight: 800; }
+    .player b { display: block; font-size: 14px; }
+    .player span { font-size: 12px; color: var(--muted); }
+    .role { font-size: 11px; color: var(--gold); font-weight: 700; }
+    .day { display: grid; grid-template-columns: 54px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .date { font-size: 12px; color: var(--muted); }
+    .date b { display: block; color: var(--text); font-size: 18px; }
+    .login { display: grid; gap: 10px; }
+    .login input { width: 100%; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.06); padding: 13px 14px; outline: none; }
+    .login .ghost { background: transparent; border: 1px solid var(--line); color: var(--text); border-radius: 16px; padding: 13px; font-weight: 700; }
+    nav.bottom { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: min(430px, 100%); display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px 8px calc(10px + env(safe-area-inset-bottom)); background: rgba(7,4,12,.88); backdrop-filter: blur(18px); border-top: 1px solid var(--line); }
+    nav.bottom button { padding: 6px 0; color: var(--muted); font-size: 10px; font-weight: 700; }
+    nav.bottom button.on { color: #fff; }
+    nav.bottom .ic { display: block; font-size: 18px; margin-bottom: 2px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="preview-flag">VERSIONE DI PROVA · l’originale non è stato modificato</div>
+    <header class="top">
+      <img class="crest" alt="MIZZLI FC" src="https://mizzlifc.it/brand/mizzli-crest.png" />
+      <div class="brand"><h1>MIZZLI FC</h1><p>Rispetto, lavoro, coraggio</p></div>
+      <div class="socials">
+        <a class="orb" href="https://www.instagram.com" target="_blank" rel="noreferrer">IG</a>
+        <a class="orb" href="https://www.tiktok.com/@mizzlitv" target="_blank" rel="noreferrer">TT</a>
+      </div>
+    </header>
+    <main>
+      <section id="home" class="view on">
+        <div class="hero">
+          <p class="kicker">UISP A2 · 2026/2027</p>
+          <img class="big-crest" alt="" src="https://mizzlifc.it/brand/mizzli-crest.png" />
+          <h2>MIZZLI FC</h2>
+          <p class="motto">Una squadra. Un solo standard.</p>
+          <article class="match">
+            <div class="row"><span class="pill">Prossima gara</span><span class="kick">Dom · 16:00</span></div>
+            <div class="teams"><div class="team">MIZZLI FC</div><div class="vs">VS</div><div class="team r">ASD Rivale</div></div>
+            <div class="meta"><span class="chip">Stadio Comunale</span><span class="chip">Raduno −90 min</span><span class="chip">Campionato</span></div>
+            <button class="cta" type="button" data-go="lista">Vedi convocati</button>
+          </article>
+        </div>
+        <div class="block"><h3>Main sponsor</h3><div class="sponsors"><div class="sponsor">Los Colores de Papel</div><div class="sponsor">Caffetteria Taps</div></div></div>
+        <div class="block"><h3>Partner</h3><div class="partners"><div class="partner">Diventa partner</div><div class="partner">Sostieni Mizzli</div><div class="partner">Spazio disponibile</div></div></div>
+        <div class="block"><h3>Oggi in club</h3><div class="card"><h4>Convocati pubblicati</h4><p>Lista aperta per MIZZLI FC vs ASD Rivale. Raduno 90 minuti prima al Comunale.</p></div></div>
+      </section>
+      <section id="rosa" class="view">
+        <p class="kicker">Rosa</p><h2 style="margin:6px 0 14px;font-size:28px;">Prima squadra</h2>
+        <div class="list">
+          <div class="player"><div class="num">1</div><div><b>Portiere</b><span>Estremo difensore</span></div><div class="role">POR</div></div>
+          <div class="player"><div class="num">5</div><div><b>Stopper</b><span>Difesa</span></div><div class="role">DIF</div></div>
+          <div class="player"><div class="num">8</div><div><b>Mediano</b><span>Centrocampo</span></div><div class="role">CEN</div></div>
+          <div class="player"><div class="num">10</div><div><b>Trequartista</b><span>Fantasia</span></div><div class="role">CEN</div></div>
+          <div class="player"><div class="num">9</div><div><b>Punta</b><span>Attacco</span></div><div class="role">ATT</div></div>
+        </div>
+      </section>
+      <section id="calendario" class="view">
+        <p class="kicker">Calendario</p><h2 style="margin:6px 0 14px;font-size:28px;">Agenda</h2>
+        <div class="card">
+          <div class="day"><div class="date">DOM<b>14</b></div><div><b>MIZZLI vs Rivale</b><p>16:00 · Comunale · Campionato</p></div></div>
+          <div class="day"><div class="date">MER<b>17</b></div><div><b>Allenamento</b><p>21:00 · Campo sociale</p></div></div>
+          <div class="day"><div class="date">SAB<b>20</b></div><div><b>Ritiro pre-gara</b><p>18:30 · Spogliatoi</p></div></div>
+        </div>
+      </section>
+      <section id="lista" class="view">
+        <p class="kicker">Lista</p><h2 style="margin:6px 0 8px;font-size:28px;">Convocati</h2>
+        <p class="motto" style="margin-bottom:14px;">Raduno 90 minuti prima</p>
+        <div class="list">
+          <div class="player"><div class="num">1</div><div><b>Portiere</b><span>Convocato</span></div><div class="role">SÌ</div></div>
+          <div class="player"><div class="num">8</div><div><b>Mediano</b><span>Convocato</span></div><div class="role">SÌ</div></div>
+          <div class="player"><div class="num">10</div><div><b>Trequartista</b><span>Convocato</span></div><div class="role">SÌ</div></div>
+          <div class="player"><div class="num">9</div><div><b>Punta</b><span>Convocato</span></div><div class="role">SÌ</div></div>
+        </div>
+      </section>
+      <section id="accedi" class="view">
+        <p class="kicker">Account</p><h2 style="margin:6px 0 14px;font-size:28px;">Entra nel club</h2>
+        <div class="card login">
+          <input placeholder="Email o telefono" />
+          <input type="password" placeholder="Password" />
+          <button class="cta" type="button">Accedi</button>
+          <button class="ghost" type="button">Continua con Google</button>
+        </div>
+      </section>
+    </main>
+    <nav class="bottom">
+      <button class="on" data-go="home"><span class="ic">⌂</span>Home</button>
+      <button data-go="rosa"><span class="ic">👥</span>Rosa</button>
+      <button data-go="calendario"><span class="ic">📅</span>Calendario</button>
+      <button data-go="lista"><span class="ic">📋</span>Lista</button>
+      <button data-go="accedi"><span class="ic">👤</span>Accedi</button>
+    </nav>
+  </div>
+  <script>
+    const views = [...document.querySelectorAll(".view")];
+    const tabs = [...document.querySelectorAll("nav.bottom button")];
+    function go(id) {
+      views.forEach((v) => v.classList.toggle("on", v.id === id));
+      tabs.forEach((t) => t.classList.toggle("on", t.dataset.go === id));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    document.querySelectorAll("[data-go]").forEach((el) => el.addEventListener("click", () => go(el.dataset.go)));
+  </script>
+</body>
+</html>

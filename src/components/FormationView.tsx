@@ -5,8 +5,10 @@ import Link from "next/link";
 import type { Formation, Player, StaffMember, TeamSettings } from "@/lib/types";
 import PlayerRatingControl from "@/components/PlayerRatingControl";
 import { PlayerCardArt, PlayerKit, PlayerToken } from "@/components/PlayerKit";
-import PitchBoard from "@/components/PitchBoard";
+import LineupPerspective, { slotToPerspective } from "@/components/LineupPerspective";
 import ClubCrest from "@/components/ClubCrest";
+import { shortPlayerLabel } from "@/lib/player-name";
+import { photoFitStyle, playerThumb } from "@/lib/player-art";
 
 interface FormationViewProps {
   formation: Formation;
@@ -59,48 +61,58 @@ export default function FormationView({
             )}
           </div>
 
-          <PitchBoard c1={c1} c2={c2} settings={settings}>
+          <LineupPerspective c1={c1} c2={c2} settings={settings}>
             {formation.starters.map((slot) => {
               const player = playerMap.get(slot.playerId);
               if (!player) return null;
               const isSelected = selectedPlayerId === player.id;
+              const pos = slotToPerspective(slot.x, slot.y);
+              const photo = player.photoUrl || playerThumb(player);
               return (
                 <div
                   key={slot.playerId}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 ${
-                    isSelected ? "z-20" : "z-10"
-                  }`}
-                  style={{ left: `${slot.x}%`, top: `${slot.y}%` }}
+                  className={`absolute ${isSelected ? "z-20" : "z-10"}`}
+                  style={{
+                    left: `${pos.left}%`,
+                    top: `${pos.top}%`,
+                    transform: `translate(-50%, -50%) scale(${pos.scale})`,
+                  }}
                 >
-                  <div className="relative">
-                    {ratingsOn && (
-                      <div className="absolute -top-3 left-1/2 z-20 -translate-x-1/2">
-                        <PlayerRatingControl
-                          matchId={matchId!}
-                          playerId={player.id}
-                          compact
-                        />
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setSelectedPlayerId(isSelected ? null : player.id)
-                      }
-                      className="pressable cursor-pointer"
+                  {ratingsOn && (
+                    <div className="absolute -top-4 left-1/2 z-20 -translate-x-1/2">
+                      <PlayerRatingControl matchId={matchId!} playerId={player.id} compact />
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlayerId(isSelected ? null : player.id)}
+                    className="flex flex-col items-center"
+                  >
+                    <span
+                      className={`block overflow-hidden rounded-md border-2 shadow-lg ${
+                        isSelected ? "border-[var(--team-accent)]" : "border-white/80"
+                      }`}
+                      style={{ width: 72, height: 86 }}
                     >
-                      <PlayerToken
-                        player={player}
-                        captain={formation.captainId === player.id}
-                        selected={isSelected}
-                        size="sm"
-                      />
-                    </button>
-                  </div>
+                      {photo ? (
+                        <img
+                          src={photo}
+                          alt={player.name}
+                          className="h-full w-full object-cover object-top"
+                          style={photoFitStyle(player)}
+                        />
+                      ) : (
+                        <PlayerKit player={player} size="md" showNumber={false} animate={false} />
+                      )}
+                    </span>
+                    <span className="mt-[-8px] max-w-[92px] truncate rounded-sm bg-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-black shadow">
+                      {shortPlayerLabel(player, players)}
+                    </span>
+                  </button>
                 </div>
               );
             })}
-          </PitchBoard>
+          </LineupPerspective>
         </>
       )}
 
@@ -117,24 +129,15 @@ export default function FormationView({
               <p className="text-sm opacity-60">
                 {selected.number} · {selected.position}
               </p>
-              <Link
-                href={`/giocatore/${selected.id}`}
-                className="text-sm text-[var(--team-accent)] underline"
-              >
+              <Link href={`/giocatore/${selected.id}`} className="text-sm text-[var(--team-accent)] underline">
                 Scheda giocatore
               </Link>
             </div>
-            <button
-              type="button"
-              className="ml-auto text-sm opacity-60 hover:opacity-100"
-              onClick={() => setSelectedPlayerId(null)}
-            >
+            <button type="button" className="ml-auto text-sm opacity-60 hover:opacity-100" onClick={() => setSelectedPlayerId(null)}>
               Chiudi
             </button>
           </div>
-          {ratingsOn && matchId && (
-            <PlayerRatingControl matchId={matchId} playerId={selected.id} />
-          )}
+          {ratingsOn && matchId && <PlayerRatingControl matchId={matchId} playerId={selected.id} />}
         </div>
       )}
 
@@ -144,9 +147,7 @@ export default function FormationView({
         </h3>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {benchPlayers.length === 0 ? (
-            <p className="col-span-full text-center opacity-60">
-              Nessun giocatore in panchina
-            </p>
+            <p className="col-span-full text-center opacity-60">Nessun giocatore in panchina</p>
           ) : (
             benchPlayers.map((player, i) => {
               const isSelected = selectedPlayerId === player.id;
@@ -161,9 +162,7 @@ export default function FormationView({
                 >
                   <button
                     type="button"
-                    onClick={() =>
-                      setSelectedPlayerId(isSelected ? null : player.id)
-                    }
+                    onClick={() => setSelectedPlayerId(isSelected ? null : player.id)}
                     className="flex min-w-0 flex-1 items-center gap-3 text-left"
                   >
                     <PlayerKit player={player} size="sm" animate={i < 8} />
@@ -193,18 +192,10 @@ export default function FormationView({
               className="flex flex-col items-center rounded-2xl border border-white/10 bg-[var(--team-card-bg)] p-5 text-center backdrop-blur-md team-card"
             >
               {member.photoUrl ? (
-                <img
-                  src={member.photoUrl}
-                  alt={member.name}
-                  className="mb-3 h-16 w-16 rounded-full object-cover ring-2 ring-[var(--team-accent)]"
-                />
+                <img src={member.photoUrl} alt={member.name} className="mb-3 h-16 w-16 rounded-full object-cover ring-2 ring-[var(--team-accent)]" />
               ) : (
                 <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--team-primary)] text-lg font-black ring-2 ring-white/20">
-                  {member.name
-                    .split(" ")
-                    .map((w) => w[0])
-                    .join("")
-                    .slice(0, 2)}
+                  {member.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
                 </div>
               )}
               <p className="font-bold">{member.name}</p>

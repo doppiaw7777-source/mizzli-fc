@@ -4,12 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import type { Formation, Player, StaffMember, TeamSettings } from "@/lib/types";
 import PlayerRatingControl from "@/components/PlayerRatingControl";
-import { PlayerCardArt, PlayerKit } from "@/components/PlayerKit";
-import LineupPerspective from "@/components/LineupPerspective";
+import { PlayerCardArt, PlayerKit, PlayerToken } from "@/components/PlayerKit";
+import PitchBoard from "@/components/PitchBoard";
 import ClubCrest from "@/components/ClubCrest";
-import { shortPlayerLabel } from "@/lib/player-name";
-import { photoFitStyle, playerThumb } from "@/lib/player-art";
-import { lineupSpots } from "@/lib/lineup-layout";
 
 interface FormationViewProps {
   formation: Formation;
@@ -39,7 +36,6 @@ export default function FormationView({
   const c1 = formation.pitchColor || "#2f7a3a";
   const c2 = formation.pitchColor2 || "#145528";
   const selected = selectedPlayerId ? playerMap.get(selectedPlayerId) : undefined;
-  const spots = lineupSpots(formation.scheme, formation.starters, players);
 
   return (
     <div className="space-y-8">
@@ -58,61 +54,53 @@ export default function FormationView({
               <ClubCrest settings={settings} size={28} alt="" />
               Modulo {formation.scheme}
             </span>
-            {formation.note && <p className="mt-3 text-sm opacity-80">{formation.note}</p>}
+            {formation.note && (
+              <p className="mt-3 text-sm opacity-80">{formation.note}</p>
+            )}
           </div>
 
-          <LineupPerspective c1={c1} c2={c2} settings={settings}>
-            {spots.map((spot) => {
-              const player = playerMap.get(spot.playerId);
+          <PitchBoard c1={c1} c2={c2} settings={settings}>
+            {formation.starters.map((slot) => {
+              const player = playerMap.get(slot.playerId);
               if (!player) return null;
               const isSelected = selectedPlayerId === player.id;
-              const photo = player.photoUrl || playerThumb(player);
               return (
                 <div
-                  key={spot.playerId}
-                  className={`absolute ${isSelected ? "z-20" : "z-10"}`}
-                  style={{
-                    left: `${spot.left}%`,
-                    top: `${spot.top}%`,
-                    transform: `translate(-50%, -50%) scale(${spot.scale})`,
-                  }}
+                  key={slot.playerId}
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 ${
+                    isSelected ? "z-20" : "z-10"
+                  }`}
+                  style={{ left: `${slot.x}%`, top: `${slot.y}%` }}
                 >
-                  {ratingsOn && (
-                    <div className="absolute -top-4 left-1/2 z-20 -translate-x-1/2">
-                      <PlayerRatingControl matchId={matchId!} playerId={player.id} compact />
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPlayerId(isSelected ? null : player.id)}
-                    className="flex w-[4.6rem] flex-col items-center"
-                  >
-                    <span
-                      className={`block h-[4.4rem] w-[3.6rem] overflow-hidden rounded-md border-2 bg-[#1a1020] shadow-lg ${
-                        isSelected ? "border-[var(--team-accent)]" : "border-white"
-                      }`}
-                    >
-                      {photo ? (
-                        <img
-                          src={photo}
-                          alt={player.name}
-                          className="h-full w-full object-cover object-top"
-                          style={photoFitStyle(player)}
+                  <div className="relative">
+                    {ratingsOn && (
+                      <div className="absolute -top-3 left-1/2 z-20 -translate-x-1/2">
+                        <PlayerRatingControl
+                          matchId={matchId!}
+                          playerId={player.id}
+                          compact
                         />
-                      ) : (
-                        <span className="flex h-full items-center justify-center text-lg font-black">
-                          {player.number}
-                        </span>
-                      )}
-                    </span>
-                    <span className="relative z-10 mt-[-7px] max-w-full truncate rounded-[3px] bg-white px-1.5 py-[2px] text-[9px] font-black uppercase tracking-wide text-black">
-                      {shortPlayerLabel(player, players)}
-                    </span>
-                  </button>
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedPlayerId(isSelected ? null : player.id)
+                      }
+                      className="pressable cursor-pointer"
+                    >
+                      <PlayerToken
+                        player={player}
+                        captain={formation.captainId === player.id}
+                        selected={isSelected}
+                        size="sm"
+                      />
+                    </button>
+                  </div>
                 </div>
               );
             })}
-          </LineupPerspective>
+          </PitchBoard>
         </>
       )}
 
@@ -129,15 +117,24 @@ export default function FormationView({
               <p className="text-sm opacity-60">
                 {selected.number} · {selected.position}
               </p>
-              <Link href={`/giocatore/${selected.id}`} className="text-sm text-[var(--team-accent)] underline">
+              <Link
+                href={`/giocatore/${selected.id}`}
+                className="text-sm text-[var(--team-accent)] underline"
+              >
                 Scheda giocatore
               </Link>
             </div>
-            <button type="button" className="ml-auto text-sm opacity-60 hover:opacity-100" onClick={() => setSelectedPlayerId(null)}>
+            <button
+              type="button"
+              className="ml-auto text-sm opacity-60 hover:opacity-100"
+              onClick={() => setSelectedPlayerId(null)}
+            >
               Chiudi
             </button>
           </div>
-          {ratingsOn && matchId && <PlayerRatingControl matchId={matchId} playerId={selected.id} />}
+          {ratingsOn && matchId && (
+            <PlayerRatingControl matchId={matchId} playerId={selected.id} />
+          )}
         </div>
       )}
 
@@ -147,7 +144,9 @@ export default function FormationView({
         </h3>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {benchPlayers.length === 0 ? (
-            <p className="col-span-full text-center opacity-60">Nessun giocatore in panchina</p>
+            <p className="col-span-full text-center opacity-60">
+              Nessun giocatore in panchina
+            </p>
           ) : (
             benchPlayers.map((player, i) => {
               const isSelected = selectedPlayerId === player.id;
@@ -162,7 +161,9 @@ export default function FormationView({
                 >
                   <button
                     type="button"
-                    onClick={() => setSelectedPlayerId(isSelected ? null : player.id)}
+                    onClick={() =>
+                      setSelectedPlayerId(isSelected ? null : player.id)
+                    }
                     className="flex min-w-0 flex-1 items-center gap-3 text-left"
                   >
                     <PlayerKit player={player} size="sm" animate={i < 8} />
@@ -192,10 +193,18 @@ export default function FormationView({
               className="flex flex-col items-center rounded-2xl border border-white/10 bg-[var(--team-card-bg)] p-5 text-center backdrop-blur-md team-card"
             >
               {member.photoUrl ? (
-                <img src={member.photoUrl} alt={member.name} className="mb-3 h-16 w-16 rounded-full object-cover ring-2 ring-[var(--team-accent)]" />
+                <img
+                  src={member.photoUrl}
+                  alt={member.name}
+                  className="mb-3 h-16 w-16 rounded-full object-cover ring-2 ring-[var(--team-accent)]"
+                />
               ) : (
                 <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--team-primary)] text-lg font-black ring-2 ring-white/20">
-                  {member.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                  {member.name
+                    .split(" ")
+                    .map((w) => w[0])
+                    .join("")
+                    .slice(0, 2)}
                 </div>
               )}
               <p className="font-bold">{member.name}</p>

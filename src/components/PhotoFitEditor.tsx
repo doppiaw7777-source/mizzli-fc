@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { Player } from "@/lib/types";
 import { clampPhoto, photoFitStyle, photoFocus } from "@/lib/player-art";
+import { autoPhotoFit } from "@/lib/auto-photo-fit";
 
 export default function PhotoFitEditor({
   src,
@@ -15,6 +16,7 @@ export default function PhotoFitEditor({
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; y: number; fx: number; fy: number } | null>(null);
+  const [autoBusy, setAutoBusy] = useState(false);
   const { x, y, zoom } = photoFocus(player);
 
   const move = (clientX: number, clientY: number) => {
@@ -29,6 +31,15 @@ export default function PhotoFitEditor({
       photoFocusY: Math.round(clampPhoto(start.fy - dy, 0, 100)),
       photoZoom: zoom,
     });
+  };
+
+  const runAuto = async () => {
+    setAutoBusy(true);
+    try {
+      onChange(await autoPhotoFit(src));
+    } finally {
+      setAutoBusy(false);
+    }
   };
 
   return (
@@ -119,15 +130,25 @@ export default function PhotoFitEditor({
           />
         </label>
       </div>
-      <button
-        type="button"
-        className="text-xs text-[var(--team-accent)] hover:underline"
-        onClick={() =>
-          onChange({ photoFocusX: 50, photoFocusY: 18, photoZoom: 100 })
-        }
-      >
-        Reimposta inquadratura
-      </button>
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          className="text-xs font-semibold text-[var(--team-accent)] hover:underline"
+          disabled={autoBusy}
+          onClick={() => void runAuto()}
+        >
+          {autoBusy ? "Ritaglio…" : "Ritaglio automatico"}
+        </button>
+        <button
+          type="button"
+          className="text-xs text-white/60 hover:underline"
+          onClick={() =>
+            onChange({ photoFocusX: 50, photoFocusY: 18, photoZoom: 100 })
+          }
+        >
+          Reimposta
+        </button>
+      </div>
     </div>
   );
 }

@@ -3,31 +3,29 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import AppShell from "@/components/AppShell";
-import RosaShieldCard from "@/components/RosaShieldCard";
+import PlayerCard, { groupPlayersByRole, roleLabels } from "@/components/PlayerCard";
 import PhotoFitEditor from "@/components/PhotoFitEditor";
 import { useTeam } from "@/context/TeamContext";
 import type { Player } from "@/lib/types";
 import { uploadImageWithFallback } from "@/lib/images";
 import { autoPhotoFit } from "@/lib/auto-photo-fit";
 import { getStoredToken } from "@/lib/api";
-import { ROSA_FILTERS, matchesRosaFilter, type RosaFilter } from "@/lib/rosa-filters";
-import "../rosa-card.css";
+
+const ROLES = ["POR", "DIF", "CEN", "ATT"] as const;
 
 export default function RosaPage() {
   const { data, isAdmin, updateData } = useTeam();
   const [q, setQ] = useState("");
-  const [role, setRole] = useState<RosaFilter>("ALL");
+  const [role, setRole] = useState<(typeof ROLES)[number] | "ALL">("ALL");
   const [editing, setEditing] = useState<Player | null>(null);
   const [busy, setBusy] = useState(false);
-  const [frameBusy, setFrameBusy] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const canEdit = isAdmin || !!getStoredToken();
 
   const players = data?.players ?? [];
   const query = q.trim().toLowerCase();
-  const frameUrl = data?.settings.branding.playerCardFrameUrl || "";
   const filtered = players.filter((p) => {
-    if (!matchesRosaFilter(p, role)) return false;
+    if (role !== "ALL" && p.role !== role) return false;
     if (!query) return true;
     return (
       p.name.toLowerCase().includes(query) ||
@@ -43,6 +41,9 @@ export default function RosaPage() {
       </AppShell>
     );
   }
+
+  const groups = groupPlayersByRole(filtered);
+  const rolesToShow = role === "ALL" ? ROLES : [role];
 
   const savePlayer = async (next: Player, immediate = false) => {
     setEditing(next);
@@ -62,46 +63,42 @@ export default function RosaPage() {
     }, 350);
   };
 
-  const saveFrame = async (file: File) => {
-    setFrameBusy(true);
-    const result = await uploadImageWithFallback(file);
-    if (result.url) {
-      await updateData({
-        settings: {
-          ...data.settings,
-          branding: { ...data.settings.branding, playerCardFrameUrl: result.url },
-        },
-      });
+  const autoAll = async () => {
+    setBusy(true);
+    const nextPlayers = [...data.players];
+    for (let i = 0; i < nextPlayers.length; i++) {
+      const p = nextPlayers[i];
+      if (!p.photoUrl) continue;
+      nextPlayers[i] = { ...p, ...(await autoPhotoFit(p.photoUrl)) };
     }
-    setFrameBusy(false);
+    await updateData({ players: nextPlayers });
+    setBusy(false);
   };
 
   return (
     <AppShell page="rosa">
       <div className="space-y-8">
-        <div className="text-center">
-          <p className="page-kicker">MIZZLI FC</p>
-          <h1 className="mt-2 text-4xl font-black tracking-tight md:text-5xl">ROSA 2026/27</h1>
-          <p className="mt-2 opacity-70">{filtered.length} giocatori</p>
+        <div>
+          <p className="page-kicker">{data.settings.branding.seasonLabel || "Stagione"}</p>
+          <h1 className="mt-2 text-4xl font-black tracking-tight">
+            {data.settings.branding.rosaTitle || "Rosa Squadra"}
+          </h1>
+          <p className="mt-2 opacity-70">
+            {filtered.length} di {data.players.length} giocatori
+          </p>
           {canEdit && (
-            <div className="mt-3 flex flex-col items-center gap-2">
+            <div className="mt-3 flex flex-wrap items-center gap-3">
               <p className="text-sm text-[var(--team-accent)]">
-                Tocca «Foto» sulla card per la foto giocatore.
+                Tocca «Foto» sulla card per caricare e inquadrare.
               </p>
-              <label className="cursor-pointer rounded-full bg-[var(--team-accent)] px-4 py-2 text-xs font-bold text-[var(--team-secondary)]">
-                {frameBusy ? "Carico cornice…" : frameUrl ? "Cambia cornice card" : "Carica cornice card"}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  disabled={frameBusy}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    e.target.value = "";
-                    if (file) void saveFrame(file);
-                  }}
-                />
-              </label>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void autoAll()}
+                className="rounded-full bg-[var(--team-accent)] px-3 py-1.5 text-xs font-bold text-[var(--team-secondary)] disabled:opacity-50"
+              >
+                {busy ? "Ritaglio…" : "Ritaglia tutte in automatico"}
+              </button>
             </div>
           )}
         </div>
@@ -110,28 +107,36 @@ export default function RosaPage() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Cerca nome o numero…"
+            placeholder="Cerca nome, numero o ruolo…"
             className="input-field"
             type="search"
             inputMode="search"
             autoComplete="off"
-            aria-label="Cerca giocatore"
           />
-          <div className="flex flex-wrap justify-center gap-2" role="tablist" aria-label="Filtra per ruolo">
-            {ROSA_FILTERS.map((f) => (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setRole("ALL")}
+              className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
+                role === "ALL"
+                  ? "bg-[var(--team-accent)] text-[var(--team-secondary)]"
+                  : "bg-white/10"
+              }`}
+            >
+              Tutti
+            </button>
+            {ROLES.map((r) => (
               <button
-                key={f.id}
+                key={r}
                 type="button"
-                role="tab"
-                aria-selected={role === f.id}
-                onClick={() => setRole(f.id)}
+                onClick={() => setRole(r)}
                 className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
-                  role === f.id
+                  role === r
                     ? "bg-[var(--team-accent)] text-[var(--team-secondary)]"
                     : "bg-white/10"
                 }`}
               >
-                {f.label}
+                {roleLabels[r]}
               </button>
             ))}
           </div>
@@ -142,24 +147,36 @@ export default function RosaPage() {
             Nessun giocatore corrisponde alla ricerca.
           </p>
         ) : (
-          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-4 gap-y-8 min-[420px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((player) => (
-              <div key={player.id} className="relative">
-                <Link href={`/giocatore/${player.id}`} className="block rosa-card-lift">
-                  <RosaShieldCard player={player} frameUrl={frameUrl} />
-                </Link>
-                {canEdit && (
-                  <button
-                    type="button"
-                    onClick={() => setEditing(player)}
-                    className="absolute right-2 top-2 z-10 rounded-full bg-black/70 px-2 py-1 text-[11px] font-bold uppercase tracking-wide"
-                  >
-                    Foto
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
+          rolesToShow.map((r) => {
+            const list = groups[r];
+            if (!list?.length) return null;
+            return (
+              <section key={r}>
+                <h2 className="mb-4 text-2xl font-bold">
+                  <span className="mr-2 text-[var(--team-accent)]">●</span>
+                  {roleLabels[r]}
+                </h2>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {list.map((player) => (
+                    <div key={player.id} className="relative">
+                      <Link href={`/giocatore/${player.id}`}>
+                        <PlayerCard player={player} />
+                      </Link>
+                      {canEdit && (
+                        <button
+                          type="button"
+                          onClick={() => setEditing(player)}
+                          className="absolute right-2 top-2 z-10 rounded-full bg-black/70 px-2 py-1 text-[11px] font-bold uppercase tracking-wide"
+                        >
+                          Foto
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          })
         )}
       </div>
 
@@ -207,7 +224,7 @@ export default function RosaPage() {
                 }}
               />
             ) : (
-              <p className="text-sm opacity-60">Senza foto la card resta vuota.</p>
+              <p className="text-sm opacity-60">Carica una foto: il ritaglio parte da solo.</p>
             )}
           </div>
         </div>

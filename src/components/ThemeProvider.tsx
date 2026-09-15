@@ -4,13 +4,9 @@ import type { GraphicStyle } from "@/lib/themes";
 import type { TeamSettings } from "@/lib/types";
 import { graphicCss, graphicSize, getTheme } from "@/lib/themes";
 import { useEffect } from "react";
+import ThemeLoopVideo from "@/components/ThemeLoopVideo";
 
 type PageKey = "home" | "rosa" | "calendario" | "formazione" | "admin" | "altro";
-
-const THEME_VIDEO_LOCAL =
-  "/brand/_users_71ddbb17-0bd5-421b-a9ed-8ccf3e0d9822_generated_4e4683f0-4dd0-4c87-8c41-2ee1da3db17b_generated_video.mp4";
-const THEME_VIDEO_REMOTE =
-  "https://raw.githubusercontent.com/doppiaw7777-source/mizzli-fc/main/public/brand/_users_71ddbb17-0bd5-421b-a9ed-8ccf3e0d9822_generated_4e4683f0-4dd0-4c87-8c41-2ee1da3db17b_generated_video.mp4";
 
 export function getPageBackground(
   settings: TeamSettings,
@@ -101,18 +97,7 @@ export function PageBackground({
       data-theme={settings.themeId}
       data-graphic={settings.graphicStyle || theme.graphicStyle}
     >
-      <video
-        className="theme-video"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        aria-hidden
-      >
-        <source src={THEME_VIDEO_LOCAL} type="video/mp4" />
-        <source src={THEME_VIDEO_REMOTE} type="video/mp4" />
-      </video>
+      <ThemeLoopVideo />
       <div
         className="pointer-events-none fixed inset-0 z-[1]"
         style={{ background: `rgba(7,3,12,${overlay / 100})` }}

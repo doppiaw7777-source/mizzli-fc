@@ -4,11 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import type { Formation, Player, StaffMember, TeamSettings } from "@/lib/types";
 import PlayerRatingControl from "@/components/PlayerRatingControl";
-import { PlayerCardArt, PlayerKit, PlayerToken } from "@/components/PlayerKit";
-import LineupPerspective, { slotToPerspective } from "@/components/LineupPerspective";
+import { PlayerCardArt, PlayerKit } from "@/components/PlayerKit";
+import LineupPerspective from "@/components/LineupPerspective";
 import ClubCrest from "@/components/ClubCrest";
 import { shortPlayerLabel } from "@/lib/player-name";
 import { photoFitStyle, playerThumb } from "@/lib/player-art";
+import { lineupSpots } from "@/lib/lineup-layout";
 
 interface FormationViewProps {
   formation: Formation;
@@ -38,6 +39,7 @@ export default function FormationView({
   const c1 = formation.pitchColor || "#2f7a3a";
   const c2 = formation.pitchColor2 || "#145528";
   const selected = selectedPlayerId ? playerMap.get(selectedPlayerId) : undefined;
+  const spots = lineupSpots(formation.scheme, formation.starters, players);
 
   return (
     <div className="space-y-8">
@@ -56,26 +58,23 @@ export default function FormationView({
               <ClubCrest settings={settings} size={28} alt="" />
               Modulo {formation.scheme}
             </span>
-            {formation.note && (
-              <p className="mt-3 text-sm opacity-80">{formation.note}</p>
-            )}
+            {formation.note && <p className="mt-3 text-sm opacity-80">{formation.note}</p>}
           </div>
 
           <LineupPerspective c1={c1} c2={c2} settings={settings}>
-            {formation.starters.map((slot) => {
-              const player = playerMap.get(slot.playerId);
+            {spots.map((spot) => {
+              const player = playerMap.get(spot.playerId);
               if (!player) return null;
               const isSelected = selectedPlayerId === player.id;
-              const pos = slotToPerspective(slot.x, slot.y);
               const photo = player.photoUrl || playerThumb(player);
               return (
                 <div
-                  key={slot.playerId}
+                  key={spot.playerId}
                   className={`absolute ${isSelected ? "z-20" : "z-10"}`}
                   style={{
-                    left: `${pos.left}%`,
-                    top: `${pos.top}%`,
-                    transform: `translate(-50%, -50%) scale(${pos.scale})`,
+                    left: `${spot.left}%`,
+                    top: `${spot.top}%`,
+                    transform: `translate(-50%, -50%) scale(${spot.scale})`,
                   }}
                 >
                   {ratingsOn && (
@@ -86,13 +85,12 @@ export default function FormationView({
                   <button
                     type="button"
                     onClick={() => setSelectedPlayerId(isSelected ? null : player.id)}
-                    className="flex flex-col items-center"
+                    className="flex w-[4.6rem] flex-col items-center"
                   >
                     <span
-                      className={`block overflow-hidden rounded-md border-2 shadow-lg ${
-                        isSelected ? "border-[var(--team-accent)]" : "border-white/80"
+                      className={`block h-[4.4rem] w-[3.6rem] overflow-hidden rounded-md border-2 bg-[#1a1020] shadow-lg ${
+                        isSelected ? "border-[var(--team-accent)]" : "border-white"
                       }`}
-                      style={{ width: 72, height: 86 }}
                     >
                       {photo ? (
                         <img
@@ -102,10 +100,12 @@ export default function FormationView({
                           style={photoFitStyle(player)}
                         />
                       ) : (
-                        <PlayerKit player={player} size="md" showNumber={false} animate={false} />
+                        <span className="flex h-full items-center justify-center text-lg font-black">
+                          {player.number}
+                        </span>
                       )}
                     </span>
-                    <span className="mt-[-8px] max-w-[92px] truncate rounded-sm bg-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-black shadow">
+                    <span className="relative z-10 mt-[-7px] max-w-full truncate rounded-[3px] bg-white px-1.5 py-[2px] text-[9px] font-black uppercase tracking-wide text-black">
                       {shortPlayerLabel(player, players)}
                     </span>
                   </button>

@@ -1,0 +1,107 @@
+.rosa-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+}
+.rosa-shield {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  isolation: isolate;
+  background: transparent;
+}
+.rosa-shield__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  z-index: 0;
+  user-select: none;
+}
+.rosa-shield__frame--front {
+  z-index: 3;
+  mask-image: linear-gradient(#000 0 0),
+    linear-gradient(#000 0 0);
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%, 58% 48%;
+  mask-position: center, 50% 28%;
+  mask-composite: exclude;
+  -webkit-mask-image: linear-gradient(#000 0 0),
+    linear-gradient(#000 0 0);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%, 58% 48%;
+  -webkit-mask-position: center, 50% 28%;
+  -webkit-mask-composite: destination-out;
+}
+.rosa-shield__photo {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  clip-path: polygon(18% 16%, 50% 8%, 82% 16%, 89% 30%, 87% 58%, 70% 66%, 30% 66%, 13% 58%, 11% 30%);
+}
+.rosa-shield__face {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 128%;
+  height: 128%;
+  object-fit: cover;
+  object-position: center 20%;
+  transform-origin: center 30%;
+}
+.rosa-card__meta {
+  width: 100%;
+  text-align: center;
+  color: #f7f1ff;
+}
+.rosa-card__num {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #e8c76a;
+}
+.rosa-card__name {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+.rosa-card__name strong {
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+.rosa-card__role {
+  margin-top: 0.15rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(244, 232, 255, 0.62);
+}
+.rosa-card-lift {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.28s ease;
+}
+@media (hover: hover) {
+  a:hover .rosa-card-lift,
+  .rosa-card-lift:hover {
+    transform: translateY(-6px);
+    filter: drop-shadow(0 10px 22px rgba(145, 39, 142, 0.45));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rosa-card-lift {
+    transition: none;
+  }
+  a:hover .rosa-card-lift,
+  .rosa-card-lift:hover {
+    transform: none;
+    filter: none;
+  }
+}

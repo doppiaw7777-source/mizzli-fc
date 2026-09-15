@@ -1,7 +1,7 @@
 import { clubNameKey } from "@/lib/club-teams";
-import { dateKey, todayKey } from "@/lib/dates";
-import { getMatchKind } from "@/lib/match-kind";
-import type { Match, StandingRow, Standings, TeamData } from "@/lib/types";
+import { dateKey, todayKey } from "./dates";
+import { getMatchKind } from "./match-kind";
+import type { Match, StandingRow, Standings, TeamData } from "./types";
 
 export function parseScore(result?: string | null): [number, number] | null {
   const m = String(result || "")
@@ -177,7 +177,7 @@ export function syncStandings(data: TeamData): TeamData {
     ...data,
     standings: {
       title: prev.title || "Classifica Campionato",
-      season: prev.season || "",
+      season: data.settings?.branding?.seasonLabel || prev.season || "",
       rows,
       live,
     },

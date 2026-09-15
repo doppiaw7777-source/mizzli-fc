@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { appendAuthAudit } from "@/lib/auth-audit";
+import { destroySession } from "@/lib/auth";
 import { buildSessionInfo } from "@/lib/session-info";
 import { findUserByEmail } from "@/lib/users";
 import { applyUserSessionCookie, loginWithEmail } from "@/lib/user-auth";
@@ -13,6 +14,7 @@ export async function POST(request: Request) {
   try {
     const result = await loginWithEmail(email || "", password || "");
     const phone = result.user.phone || "";
+    await destroySession();
     await appendAuthAudit({
       at: new Date().toISOString(),
       channel: "user",
@@ -24,7 +26,7 @@ export async function POST(request: Request) {
       userAgent: session.userAgent,
       session: { ...session, phoneNumber: phone || session.phoneNumber },
     });
-    const res = NextResponse.json({ success: true, user: result.user });
+    const res = NextResponse.json({ success: true, user: result.user, clearAdminToken: true });
     applyUserSessionCookie(res, result.token, request);
     return res;
   } catch (err) {

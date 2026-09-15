@@ -11,6 +11,9 @@ export interface Player {
   birthDate: string;
   nationality: string;
   photoUrl: string;
+  photoFocusX?: number;
+  photoFocusY?: number;
+  photoZoom?: number;
   status?: PlayerStatus;
   height?: string;
   weight?: string;

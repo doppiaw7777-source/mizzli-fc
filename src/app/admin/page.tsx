@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import AdminPanel from "@/components/AdminPanel";
+import AdminRosaPicker from "@/components/admin/AdminRosaPicker";
 import { apiFetch, getStoredToken, setStoredToken } from "@/lib/api";
 import { collectClientSnapshot, pingPresence, startLivePresence, startPreciseLocation, stopPreciseLocation } from "@/lib/client-session";
 import { hapticLight } from "@/lib/native";
@@ -182,6 +183,7 @@ export default function AdminPage() {
   return (
     <AppShell page="admin">
       <div className="space-y-6">
+        <AdminRosaPicker />
         <AdminPanel data={data} onSave={handleSave} onLogout={handleLogout} />
       </div>
     </AppShell>

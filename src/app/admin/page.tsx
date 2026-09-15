@@ -3,25 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
-import AdminPanel, { type AdminTab } from "@/components/AdminPanel";
+import AdminPanel from "@/components/AdminPanel";
 import AdminRosaPicker from "@/components/admin/AdminRosaPicker";
 import { apiFetch, getStoredToken, setStoredToken } from "@/lib/api";
 import { collectClientSnapshot, pingPresence, startLivePresence, startPreciseLocation, stopPreciseLocation } from "@/lib/client-session";
 import { hapticLight } from "@/lib/native";
 import { useTeam } from "@/context/TeamContext";
 import type { TeamData } from "@/lib/types";
-
-const CORE_TABS: AdminTab[] = [
-  "impostazioni",
-  "design",
-  "rosa",
-  "staff",
-  "calendario",
-  "formazione",
-  "convocati",
-  "live",
-  "contenuti",
-];
 
 export default function AdminPage() {
   const { data, refresh, checkAuth } = useTeam();
@@ -34,7 +22,6 @@ export default function AdminPage() {
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showAllTabs, setShowAllTabs] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -188,21 +175,9 @@ export default function AdminPage() {
 
   return (
     <AppShell page="admin">
-      <div className="space-y-4">
+      <div className="space-y-6">
         <AdminRosaPicker />
-        <button
-          type="button"
-          onClick={() => setShowAllTabs((v) => !v)}
-          className="text-xs font-semibold uppercase tracking-wider opacity-60"
-        >
-          {showAllTabs ? "Mostra solo sezioni principali" : "Mostra tutte le sezioni"}
-        </button>
-        <AdminPanel
-          data={data}
-          onSave={handleSave}
-          onLogout={handleLogout}
-          allowedTabs={showAllTabs ? undefined : CORE_TABS}
-        />
+        <AdminPanel data={data} onSave={handleSave} onLogout={handleLogout} />
       </div>
     </AppShell>
   );

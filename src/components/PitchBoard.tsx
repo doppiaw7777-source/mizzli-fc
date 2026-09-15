@@ -10,31 +10,18 @@ export default function PitchBoard({
   settings,
   children,
   className = "",
-  mode = "flat",
 }: {
   c1: string;
   c2: string;
   settings?: Pick<TeamSettings, "logoUrl" | "appIconUrl"> | null;
   children: ReactNode;
   className?: string;
-  mode?: "flat" | "3d";
 }) {
   const crest = teamCrest(settings);
-  const board = (
+  return (
     <div
-      className={`pitch-board relative mx-auto aspect-[3/4] w-full overflow-hidden rounded-3xl border-4 border-white/20 shadow-2xl ${className}`}
-      style={
-        {
-          "--pitch-a": c1,
-          "--pitch-b": c2,
-          transform: mode === "3d" ? "rotateX(56deg)" : undefined,
-          transformOrigin: "center center",
-          boxShadow:
-            mode === "3d"
-              ? "0 40px 50px -20px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08)"
-              : undefined,
-        } as CSSProperties
-      }
+      className={`pitch-board relative mx-auto aspect-[3/4] max-w-lg overflow-hidden rounded-3xl border-4 border-white/20 shadow-2xl ${className}`}
+      style={{ "--pitch-a": c1, "--pitch-b": c2 } as CSSProperties}
     >
       <div className="pitch-stripes absolute inset-0" />
       <div className="pointer-events-none absolute inset-4 rounded-2xl border-2 border-white/35" />
@@ -46,14 +33,6 @@ export default function PitchBoard({
       <div className="pointer-events-none absolute top-[4px] left-1/2 h-2 w-16 -translate-x-1/2 bg-white/25" />
       <img src={crest} alt="" className="pitch-crest" />
       {children}
-    </div>
-  );
-
-  if (mode !== "3d") return board;
-
-  return (
-    <div className="mx-auto max-w-lg px-2 pb-6 pt-2" style={{ perspective: "980px", perspectiveOrigin: "50% 88%" }}>
-      <div className="[transform-style:preserve-3d]">{board}</div>
     </div>
   );
 }

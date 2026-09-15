@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.55rem;
 }
 .rosa-shield {
   position: relative;
@@ -10,50 +10,69 @@
   aspect-ratio: 2 / 3;
   overflow: hidden;
   isolation: isolate;
-  background: transparent;
 }
+.rosa-shield__svg,
 .rosa-shield__frame {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  object-position: center;
   pointer-events: none;
-  z-index: 0;
-  user-select: none;
+  z-index: 1;
+}
+.rosa-shield__svg-front {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  mask-image: linear-gradient(#000, #000),
+    linear-gradient(#000, #000);
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%, 56% 46%;
+  mask-position: center, 50% 30%;
+  mask-composite: exclude;
+  -webkit-mask-image: linear-gradient(#000, #000),
+    linear-gradient(#000, #000);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%, 56% 46%;
+  -webkit-mask-position: center, 50% 30%;
+  -webkit-mask-composite: destination-out;
+}
+.rosa-shield__svg-front .rosa-shield__svg {
+  position: absolute;
+  inset: 0;
 }
 .rosa-shield__frame--front {
   z-index: 3;
-  mask-image: linear-gradient(#000 0 0),
-    linear-gradient(#000 0 0);
+  mask-image: linear-gradient(#000, #000),
+    linear-gradient(#000, #000);
   mask-repeat: no-repeat;
-  mask-size: 100% 100%, 58% 48%;
-  mask-position: center, 50% 28%;
+  mask-size: 100% 100%, 56% 46%;
+  mask-position: center, 50% 30%;
   mask-composite: exclude;
-  -webkit-mask-image: linear-gradient(#000 0 0),
-    linear-gradient(#000 0 0);
+  -webkit-mask-image: linear-gradient(#000, #000),
+    linear-gradient(#000, #000);
   -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%, 58% 48%;
-  -webkit-mask-position: center, 50% 28%;
+  -webkit-mask-size: 100% 100%, 56% 46%;
+  -webkit-mask-position: center, 50% 30%;
   -webkit-mask-composite: destination-out;
 }
 .rosa-shield__photo {
   position: absolute;
-  inset: 0;
+  inset: 8% 14% 38% 14%;
   z-index: 2;
   overflow: hidden;
-  clip-path: polygon(18% 16%, 50% 8%, 82% 16%, 89% 30%, 87% 58%, 70% 66%, 30% 66%, 13% 58%, 11% 30%);
+  clip-path: polygon(50% 0, 96% 10%, 100% 78%, 50% 100%, 0 78%, 4% 10%);
 }
 .rosa-shield__face {
   position: absolute;
   left: 50%;
-  top: 42%;
-  width: 128%;
-  height: 128%;
+  top: 46%;
+  width: 140%;
+  height: 140%;
   object-fit: cover;
-  object-position: center 20%;
-  transform-origin: center 30%;
+  transform-origin: center 28%;
 }
 .rosa-card__meta {
   width: 100%;
@@ -75,7 +94,6 @@
 }
 .rosa-card__name strong {
   font-weight: 900;
-  letter-spacing: 0.02em;
 }
 .rosa-card__role {
   margin-top: 0.15rem;
@@ -85,8 +103,7 @@
   color: rgba(244, 232, 255, 0.62);
 }
 .rosa-card-lift {
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 0.28s ease;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), filter 0.28s ease;
 }
 @media (hover: hover) {
   a:hover .rosa-card-lift,
@@ -96,11 +113,10 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .rosa-card-lift {
-    transition: none;
-  }
+  .rosa-card-lift,
   a:hover .rosa-card-lift,
   .rosa-card-lift:hover {
+    transition: none;
     transform: none;
     filter: none;
   }

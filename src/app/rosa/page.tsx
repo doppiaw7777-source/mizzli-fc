@@ -8,6 +8,7 @@ import PhotoFitEditor from "@/components/PhotoFitEditor";
 import { useTeam } from "@/context/TeamContext";
 import type { Player } from "@/lib/types";
 import { uploadImageWithFallback } from "@/lib/images";
+import { autoPhotoFit } from "@/lib/auto-photo-fit";
 
 const ROLES = ["POR", "DIF", "CEN", "ATT"] as const;
 
@@ -55,6 +56,19 @@ export default function RosaPage() {
     }, 350);
   };
 
+  const autoAll = async () => {
+    setBusy(true);
+    const nextPlayers = [...data.players];
+    for (let i = 0; i < nextPlayers.length; i++) {
+      const p = nextPlayers[i];
+      if (!p.photoUrl) continue;
+      const fit = await autoPhotoFit(p.photoUrl);
+      nextPlayers[i] = { ...p, ...fit };
+    }
+    await updateData({ players: nextPlayers });
+    setBusy(false);
+  };
+
   return (
     <AppShell page="rosa">
       <div className="space-y-8">
@@ -69,9 +83,19 @@ export default function RosaPage() {
             {filtered.length} di {data.players.length} giocatori
           </p>
           {isAdmin && (
-            <p className="mt-2 text-sm text-[var(--team-accent)]">
-              Tocca «Foto» su una card per caricare, spostare e ingrandire l&apos;immagine.
-            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <p className="text-sm text-[var(--team-accent)]">
+                Tocca «Foto» per caricare. Il ritaglio parte in automatico.
+              </p>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void autoAll()}
+                className="rounded-full bg-[var(--team-accent)] px-3 py-1.5 text-xs font-bold text-[var(--team-secondary)] disabled:opacity-50"
+              >
+                {busy ? "Ritaglio…" : "Ritaglia tutte in automatico"}
+              </button>
+            </div>
           )}
         </div>
 
@@ -178,7 +202,8 @@ export default function RosaPage() {
                   setBusy(true);
                   const result = await uploadImageWithFallback(file);
                   if (result.url) {
-                    const next = { ...editing, photoUrl: result.url };
+                    const fit = await autoPhotoFit(result.url);
+                    const next = { ...editing, photoUrl: result.url, ...fit };
                     await savePlayer(next, true);
                   }
                   setBusy(false);
@@ -196,7 +221,7 @@ export default function RosaPage() {
                 }}
               />
             ) : (
-              <p className="text-sm opacity-60">Carica una foto per inquadrarla.</p>
+              <p className="text-sm opacity-60">Carica una foto: il ritaglio parte da solo.</p>
             )}
           </div>
         </div>

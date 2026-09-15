@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 import type { Player } from "@/lib/types";
 import { useTeam } from "@/context/TeamContext";
 import { MIZZLI_CREST } from "@/lib/brand";
-import { playerThumb } from "@/lib/player-art";
+import { photoFitStyle, playerThumb } from "@/lib/player-art";
 import { shortPlayerLabel } from "@/lib/player-name";
 import {
   DEFAULT_PLAYER_GRAPHIC,
@@ -71,6 +71,7 @@ export function PlayerKit({
             src={photo}
             alt=""
             className="player-mark-media"
+            style={photoFitStyle(player)}
             onError={(e) => {
               const fallback = playerThumb(player);
               const el = e.currentTarget;
@@ -159,7 +160,7 @@ export function PlayerCardArt({
       className={`player-card-art ${className}`}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <img src={art} alt="" className="player-card-art-img" />
+      <img src={art} alt="" className="player-card-art-img" style={photoFitStyle(player)} />
       <div className="player-card-art-fade" />
       <div className="player-card-art-kit">
         <PlayerKit

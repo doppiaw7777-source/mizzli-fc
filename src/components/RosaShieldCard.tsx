@@ -6,10 +6,14 @@ import { splitPlayerName } from "@/lib/rosa-filters";
 
 export const PLAYER_CARD_FRAME = "/brand/player-card-frame.png";
 
-const PHOTO_CLIP =
-  "polygon(18% 16%, 50% 8%, 82% 16%, 89% 30%, 87% 58%, 70% 66%, 30% 66%, 13% 58%, 11% 30%)";
-
-export default function RosaShieldCard({ player }: { player: Player }) {
+export default function RosaShieldCard({
+  player,
+  frameUrl,
+}: {
+  player: Player;
+  frameUrl?: string;
+}) {
+  const frame = (frameUrl || PLAYER_CARD_FRAME).trim() || PLAYER_CARD_FRAME;
   const photo = (player.photoUrl || "").trim();
   const { x, y, zoom } = photoFocus(player);
   const { first, last } = splitPlayerName(player.name);
@@ -19,7 +23,7 @@ export default function RosaShieldCard({ player }: { player: Player }) {
     <article className="rosa-card">
       <div className="rosa-shield">
         <img
-          src={PLAYER_CARD_FRAME}
+          src={frame}
           alt=""
           className="rosa-shield__frame"
           width={600}
@@ -27,7 +31,7 @@ export default function RosaShieldCard({ player }: { player: Player }) {
           draggable={false}
         />
         {photo ? (
-          <div className="rosa-shield__photo" aria-hidden={!alt}>
+          <div className="rosa-shield__photo">
             <img
               src={photo}
               alt={alt}
@@ -40,7 +44,7 @@ export default function RosaShieldCard({ player }: { player: Player }) {
           </div>
         ) : null}
         <img
-          src={PLAYER_CARD_FRAME}
+          src={frame}
           alt="Card MIZZLI FC 2026/27"
           className="rosa-shield__frame rosa-shield__frame--front"
           width={600}

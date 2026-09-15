@@ -19,11 +19,13 @@ export default function RosaPage() {
   const [role, setRole] = useState<RosaFilter>("ALL");
   const [editing, setEditing] = useState<Player | null>(null);
   const [busy, setBusy] = useState(false);
+  const [frameBusy, setFrameBusy] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const canEdit = isAdmin || !!getStoredToken();
 
   const players = data?.players ?? [];
   const query = q.trim().toLowerCase();
+  const frameUrl = data?.settings.branding.playerCardFrameUrl || "";
   const filtered = players.filter((p) => {
     if (!matchesRosaFilter(p, role)) return false;
     if (!query) return true;
@@ -60,6 +62,20 @@ export default function RosaPage() {
     }, 350);
   };
 
+  const saveFrame = async (file: File) => {
+    setFrameBusy(true);
+    const result = await uploadImageWithFallback(file);
+    if (result.url) {
+      await updateData({
+        settings: {
+          ...data.settings,
+          branding: { ...data.settings.branding, playerCardFrameUrl: result.url },
+        },
+      });
+    }
+    setFrameBusy(false);
+  };
+
   return (
     <AppShell page="rosa">
       <div className="space-y-8">
@@ -68,9 +84,25 @@ export default function RosaPage() {
           <h1 className="mt-2 text-4xl font-black tracking-tight md:text-5xl">ROSA 2026/27</h1>
           <p className="mt-2 opacity-70">{filtered.length} giocatori</p>
           {canEdit && (
-            <p className="mt-2 text-sm text-[var(--team-accent)]">
-              Tocca «Foto» per caricare e regolare scala e posizione.
-            </p>
+            <div className="mt-3 flex flex-col items-center gap-2">
+              <p className="text-sm text-[var(--team-accent)]">
+                Tocca «Foto» sulla card per la foto giocatore.
+              </p>
+              <label className="cursor-pointer rounded-full bg-[var(--team-accent)] px-4 py-2 text-xs font-bold text-[var(--team-secondary)]">
+                {frameBusy ? "Carico cornice…" : frameUrl ? "Cambia cornice card" : "Carica cornice card"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={frameBusy}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (file) void saveFrame(file);
+                  }}
+                />
+              </label>
+            </div>
           )}
         </div>
 
@@ -114,7 +146,7 @@ export default function RosaPage() {
             {filtered.map((player) => (
               <div key={player.id} className="relative">
                 <Link href={`/giocatore/${player.id}`} className="block rosa-card-lift">
-                  <RosaShieldCard player={player} />
+                  <RosaShieldCard player={player} frameUrl={frameUrl} />
                 </Link>
                 {canEdit && (
                   <button

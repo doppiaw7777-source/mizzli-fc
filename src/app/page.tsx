@@ -86,7 +86,7 @@ export default function HomePage() {
       title: "Scarica l'app",
       desc: "iPhone, Android e computer",
     },
-    ...(isAdmin && ui.showHomeAdminCard
+    ...(isAdmin
       ? [
           {
             href: "/admin",

@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { Sponsor } from "@/lib/types";
 import { MAX_SPONSORS, visibleSponsors } from "@/lib/sponsors";
+import "@/app/sponsor-banner.css";
 
-const LOOP_MIN = 12;
+const LOOP_MIN = 16;
 
 function loopItems(items: Sponsor[]) {
   if (!items.length) return [];
@@ -15,10 +16,17 @@ function loopItems(items: Sponsor[]) {
 
 function SponsorChip({ sponsor }: { sponsor: Sponsor }) {
   const label = sponsor.name.trim() || "Sponsor";
+  const [broken, setBroken] = useState(false);
+  const showImg = Boolean(sponsor.logoUrl) && !broken;
   const inner = (
     <span className="sponsor-chip">
-      {sponsor.logoUrl ? (
-        <img src={sponsor.logoUrl} alt={label} draggable={false} />
+      {showImg ? (
+        <img
+          src={sponsor.logoUrl}
+          alt={label}
+          draggable={false}
+          onError={() => setBroken(true)}
+        />
       ) : (
         <span className="sponsor-chip-name">{label}</span>
       )}
@@ -44,7 +52,6 @@ function SponsorGroup({ items, hidden }: { items: Sponsor[]; hidden?: boolean })
     <div
       className="sponsor-marquee-set"
       aria-hidden={hidden || undefined}
-      {...(hidden ? { inert: true } : {})}
     >
       {items.map((sponsor, i) => (
         <SponsorChip key={`${sponsor.id}-${i}`} sponsor={sponsor} />
@@ -65,6 +72,7 @@ export default function SponsorBanner({
     [sponsors]
   );
   const loop = useMemo(() => loopItems(items), [items]);
+  const sig = items.map((s) => `${s.id}:${s.logoUrl}`).join("|");
 
   if (!items.length) return null;
 
@@ -72,7 +80,7 @@ export default function SponsorBanner({
     <section className="sponsor-marquee" aria-label={title || "Sponsor"}>
       <p className="sponsor-marquee-label">{title || "Sponsor"}</p>
       <div className="sponsor-marquee-viewport">
-        <div className="sponsor-marquee-track">
+        <div className="sponsor-marquee-track" key={sig}>
           <SponsorGroup items={loop} />
           <SponsorGroup items={loop} hidden />
         </div>

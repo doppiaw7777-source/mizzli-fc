@@ -1,44 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import AppShell from "@/components/AppShell";
-import PlayerCard, { groupPlayersByRole, roleLabels } from "@/components/PlayerCard";
+import RosaShieldCard from "@/components/RosaShieldCard";
 import PhotoFitEditor from "@/components/PhotoFitEditor";
 import { useTeam } from "@/context/TeamContext";
 import type { Player } from "@/lib/types";
 import { uploadImageWithFallback } from "@/lib/images";
 import { autoPhotoFit } from "@/lib/auto-photo-fit";
 import { getStoredToken } from "@/lib/api";
-
-const ROLES = ["POR", "DIF", "CEN", "ATT"] as const;
+import { ROSA_FILTERS, matchesRosaFilter, type RosaFilter } from "@/lib/rosa-filters";
+import "../rosa-card.css";
 
 export default function RosaPage() {
   const { data, isAdmin, updateData } = useTeam();
   const [q, setQ] = useState("");
-  const [role, setRole] = useState<(typeof ROLES)[number] | "ALL">("ALL");
+  const [role, setRole] = useState<RosaFilter>("ALL");
   const [editing, setEditing] = useState<Player | null>(null);
   const [busy, setBusy] = useState(false);
-  const [openMenu, setOpenMenu] = useState(false);
-  const [pickQ, setPickQ] = useState("");
-  const [pickedId, setPickedId] = useState("");
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const canEdit = isAdmin || !!getStoredToken();
 
   const players = data?.players ?? [];
-  const picked = players.find((p) => p.id === pickedId) || null;
-
-  const nameChoices = useMemo(() => {
-    const nq = pickQ.trim().toLowerCase();
-    return [...players]
-      .sort((a, b) => a.name.localeCompare(b.name, "it"))
-      .filter((p) => !nq || p.name.toLowerCase().includes(nq) || String(p.number) === nq);
-  }, [players, pickQ]);
-
   const query = q.trim().toLowerCase();
   const filtered = players.filter((p) => {
-    if (pickedId) return p.id === pickedId;
-    if (role !== "ALL" && p.role !== role) return false;
+    if (!matchesRosaFilter(p, role)) return false;
     if (!query) return true;
     return (
       p.name.toLowerCase().includes(query) ||
@@ -54,9 +41,6 @@ export default function RosaPage() {
       </AppShell>
     );
   }
-
-  const groups = groupPlayersByRole(filtered);
-  const rolesToShow = role === "ALL" || pickedId ? ROLES : [role];
 
   const savePlayer = async (next: Player, immediate = false) => {
     setEditing(next);
@@ -76,185 +60,74 @@ export default function RosaPage() {
     }, 350);
   };
 
-  const autoAll = async () => {
-    setBusy(true);
-    const nextPlayers = [...data.players];
-    for (let i = 0; i < nextPlayers.length; i++) {
-      const p = nextPlayers[i];
-      if (!p.photoUrl) continue;
-      nextPlayers[i] = { ...p, ...(await autoPhotoFit(p.photoUrl)) };
-    }
-    await updateData({ players: nextPlayers });
-    setBusy(false);
-  };
-
   return (
     <AppShell page="rosa">
       <div className="space-y-8">
-        <div>
-          <p className="page-kicker">{data.settings.branding.seasonLabel || "Stagione"}</p>
-          <h1 className="mt-2 text-4xl font-black tracking-tight">
-            {data.settings.branding.rosaTitle || "Rosa Squadra"}
-          </h1>
-          <p className="mt-2 opacity-70">
-            {filtered.length} di {data.players.length} giocatori
-          </p>
+        <div className="text-center">
+          <p className="page-kicker">MIZZLI FC</p>
+          <h1 className="mt-2 text-4xl font-black tracking-tight md:text-5xl">ROSA 2026/27</h1>
+          <p className="mt-2 opacity-70">{filtered.length} giocatori</p>
           {canEdit && (
-            <div className="mt-3 flex flex-wrap items-center gap-3">
-              <p className="text-sm text-[var(--team-accent)]">
-                Tocca «Foto» sulla card per caricare e inquadrare.
-              </p>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => void autoAll()}
-                className="rounded-full bg-[var(--team-accent)] px-3 py-1.5 text-xs font-bold text-[var(--team-secondary)] disabled:opacity-50"
-              >
-                {busy ? "Ritaglio…" : "Ritaglia tutte in automatico"}
-              </button>
-            </div>
+            <p className="mt-2 text-sm text-[var(--team-accent)]">
+              Tocca «Foto» per caricare e regolare scala e posizione.
+            </p>
           )}
         </div>
 
-        {canEdit && (
-          <div className="relative z-20">
-            <button
-              type="button"
-              onClick={() => setOpenMenu((v) => !v)}
-              className="flex w-full items-center justify-between rounded-2xl border border-white/15 bg-white/8 px-4 py-3 text-left"
-            >
-              <span className="font-semibold">
-                {picked ? picked.name : "Tutti i giocatori"}
-              </span>
-              <span className="text-xs opacity-60">{openMenu ? "chiudi" : "apri"}</span>
-            </button>
-            {openMenu && (
-              <div className="absolute left-0 right-0 mt-2 max-h-80 overflow-hidden rounded-2xl border border-white/15 bg-[#16081e] shadow-2xl">
-                <div className="border-b border-white/10 p-2">
-                  <input
-                    autoFocus
-                    value={pickQ}
-                    onChange={(e) => setPickQ(e.target.value)}
-                    placeholder="Cerca nome…"
-                    className="w-full rounded-xl bg-white/10 px-3 py-2 text-sm outline-none"
-                    type="search"
-                  />
-                </div>
-                <div className="max-h-64 overflow-y-auto py-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPickedId("");
-                      setOpenMenu(false);
-                      setPickQ("");
-                    }}
-                    className={`block w-full px-4 py-2 text-left text-sm ${
-                      !pickedId ? "bg-white/10 font-bold" : "opacity-80"
-                    }`}
-                  >
-                    Tutti i giocatori
-                  </button>
-                  {nameChoices.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => {
-                        setPickedId(p.id);
-                        setOpenMenu(false);
-                        setPickQ("");
-                      }}
-                      className={`block w-full px-4 py-2 text-left text-sm ${
-                        pickedId === p.id ? "bg-white/10 font-bold" : "hover:bg-white/5"
-                      }`}
-                    >
-                      {p.name}
-                    </button>
-                  ))}
-                  {nameChoices.length === 0 && (
-                    <p className="px-4 py-3 text-sm opacity-60">Nessun nome trovato.</p>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {!pickedId && (
-          <div className="space-y-3">
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Cerca nome, numero o ruolo…"
-              className="input-field"
-              type="search"
-              inputMode="search"
-              autoComplete="off"
-            />
-            <div className="flex flex-wrap gap-2">
+        <div className="space-y-3">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Cerca nome o numero…"
+            className="input-field"
+            type="search"
+            inputMode="search"
+            autoComplete="off"
+            aria-label="Cerca giocatore"
+          />
+          <div className="flex flex-wrap justify-center gap-2" role="tablist" aria-label="Filtra per ruolo">
+            {ROSA_FILTERS.map((f) => (
               <button
+                key={f.id}
                 type="button"
-                onClick={() => setRole("ALL")}
+                role="tab"
+                aria-selected={role === f.id}
+                onClick={() => setRole(f.id)}
                 className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
-                  role === "ALL"
+                  role === f.id
                     ? "bg-[var(--team-accent)] text-[var(--team-secondary)]"
                     : "bg-white/10"
                 }`}
               >
-                Tutti
+                {f.label}
               </button>
-              {ROLES.map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => setRole(r)}
-                  className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
-                    role === r
-                      ? "bg-[var(--team-accent)] text-[var(--team-secondary)]"
-                      : "bg-white/10"
-                  }`}
-                >
-                  {roleLabels[r]}
-                </button>
-              ))}
-            </div>
+            ))}
           </div>
-        )}
+        </div>
 
         {filtered.length === 0 ? (
           <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-8 text-center text-sm opacity-70">
             Nessun giocatore corrisponde alla ricerca.
           </p>
         ) : (
-          rolesToShow.map((r) => {
-            const list = groups[r];
-            if (!list?.length) return null;
-            return (
-              <section key={r}>
-                <h2 className="mb-4 text-2xl font-bold">
-                  <span className="mr-2 text-[var(--team-accent)]">●</span>
-                  {roleLabels[r]}
-                </h2>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {list.map((player) => (
-                    <div key={player.id} className="relative">
-                      <Link href={`/giocatore/${player.id}`}>
-                        <PlayerCard player={player} />
-                      </Link>
-                      {canEdit && (
-                        <button
-                          type="button"
-                          onClick={() => setEditing(player)}
-                          className="absolute right-2 top-2 z-10 rounded-full bg-black/70 px-2 py-1 text-[11px] font-bold uppercase tracking-wide"
-                        >
-                          Foto
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            );
-          })
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-4 gap-y-8 min-[420px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+            {filtered.map((player) => (
+              <div key={player.id} className="relative">
+                <Link href={`/giocatore/${player.id}`} className="block rosa-card-lift">
+                  <RosaShieldCard player={player} />
+                </Link>
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={() => setEditing(player)}
+                    className="absolute right-2 top-2 z-10 rounded-full bg-black/70 px-2 py-1 text-[11px] font-bold uppercase tracking-wide"
+                  >
+                    Foto
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
@@ -302,7 +175,7 @@ export default function RosaPage() {
                 }}
               />
             ) : (
-              <p className="text-sm opacity-60">Carica una foto: il ritaglio parte da solo.</p>
+              <p className="text-sm opacity-60">Senza foto la card resta vuota.</p>
             )}
           </div>
         </div>

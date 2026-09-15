@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Player, PlayerRole } from "./types";
 
 export const ROLE_PORTRAIT: Record<PlayerRole, string> = {
@@ -34,6 +35,38 @@ export function playerPhoto(player: Player) {
 
 export function playerThumb(player: Player) {
   return player.photoUrl || ROLE_THUMB[player.role] || ROLE_THUMB.CEN;
+}
+
+export function clampPhoto(n: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, n));
+}
+
+export function photoFocus(player: Pick<Player, "photoFocusX" | "photoFocusY" | "photoZoom">) {
+  return {
+    x: clampPhoto(player.photoFocusX ?? 50, 0, 100),
+    y: clampPhoto(player.photoFocusY ?? 18, 0, 100),
+    zoom: clampPhoto(player.photoZoom ?? 100, 80, 280),
+  };
+}
+
+export function photoFitVars(player: Pick<Player, "photoFocusX" | "photoFocusY" | "photoZoom">) {
+  const { x, y, zoom } = photoFocus(player);
+  return {
+    "--photo-x": `${x}%`,
+    "--photo-y": `${y}%`,
+    "--photo-z": String(zoom / 100),
+  } as CSSProperties;
+}
+
+export function photoFitStyle(player: Pick<Player, "photoFocusX" | "photoFocusY" | "photoZoom">): CSSProperties {
+  const { x, y, zoom } = photoFocus(player);
+  return {
+    objectFit: "cover",
+    objectPosition: `${x}% ${y}%`,
+    transform: `scale(${zoom / 100})`,
+    transformOrigin: `${x}% ${y}%`,
+    ...photoFitVars(player),
+  };
 }
 
 const SKIN = ["#f3d1b0", "#e8c39e", "#d1a074", "#c68642"] as const;

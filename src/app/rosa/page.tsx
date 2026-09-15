@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import AppShell from "@/components/AppShell";
 import PlayerCard, { groupPlayersByRole, roleLabels } from "@/components/PlayerCard";
 import PhotoFitEditor from "@/components/PhotoFitEditor";
@@ -9,6 +9,7 @@ import { useTeam } from "@/context/TeamContext";
 import type { Player } from "@/lib/types";
 import { uploadImageWithFallback } from "@/lib/images";
 import { autoPhotoFit } from "@/lib/auto-photo-fit";
+import { getStoredToken } from "@/lib/api";
 
 const ROLES = ["POR", "DIF", "CEN", "ATT"] as const;
 
@@ -19,21 +20,27 @@ export default function RosaPage() {
   const [editing, setEditing] = useState<Player | null>(null);
   const [busy, setBusy] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const query = q.trim().toLowerCase();
-  const filtered = useMemo(() => {
-    const players = data?.players ?? [];
-    return players.filter((p) => {
-      if (role !== "ALL" && p.role !== role) return false;
-      if (!query) return true;
-      return (
-        p.name.toLowerCase().includes(query) ||
-        String(p.number) === query ||
-        (p.position || "").toLowerCase().includes(query)
-      );
-    });
-  }, [data?.players, query, role]);
+  const canEdit = isAdmin || !!getStoredToken();
 
-  if (!data) return null;
+  const players = data?.players ?? [];
+  const query = q.trim().toLowerCase();
+  const filtered = players.filter((p) => {
+    if (role !== "ALL" && p.role !== role) return false;
+    if (!query) return true;
+    return (
+      p.name.toLowerCase().includes(query) ||
+      String(p.number) === query ||
+      (p.position || "").toLowerCase().includes(query)
+    );
+  });
+
+  if (!data) {
+    return (
+      <AppShell page="rosa">
+        <p className="opacity-70">Caricamento rosa…</p>
+      </AppShell>
+    );
+  }
 
   const groups = groupPlayersByRole(filtered);
   const rolesToShow = role === "ALL" ? ROLES : [role];
@@ -41,8 +48,8 @@ export default function RosaPage() {
   const savePlayer = async (next: Player, immediate = false) => {
     setEditing(next);
     const run = async () => {
-      const players = data.players.map((p) => (p.id === next.id ? next : p));
-      await updateData({ players });
+      const list = data.players.map((p) => (p.id === next.id ? next : p));
+      await updateData({ players: list });
     };
     if (immediate) {
       setBusy(true);
@@ -62,8 +69,7 @@ export default function RosaPage() {
     for (let i = 0; i < nextPlayers.length; i++) {
       const p = nextPlayers[i];
       if (!p.photoUrl) continue;
-      const fit = await autoPhotoFit(p.photoUrl);
-      nextPlayers[i] = { ...p, ...fit };
+      nextPlayers[i] = { ...p, ...(await autoPhotoFit(p.photoUrl)) };
     }
     await updateData({ players: nextPlayers });
     setBusy(false);
@@ -73,19 +79,17 @@ export default function RosaPage() {
     <AppShell page="rosa">
       <div className="space-y-8">
         <div>
-          <p className="page-kicker">
-            {data.settings.branding.seasonLabel || "Stagione"}
-          </p>
+          <p className="page-kicker">{data.settings.branding.seasonLabel || "Stagione"}</p>
           <h1 className="mt-2 text-4xl font-black tracking-tight">
             {data.settings.branding.rosaTitle || "Rosa Squadra"}
           </h1>
           <p className="mt-2 opacity-70">
             {filtered.length} di {data.players.length} giocatori
           </p>
-          {isAdmin && (
+          {canEdit && (
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <p className="text-sm text-[var(--team-accent)]">
-                Tocca «Foto» per caricare. Il ritaglio parte in automatico.
+                Tocca «Foto» sulla card per caricare e inquadrare.
               </p>
               <button
                 type="button"
@@ -144,8 +148,8 @@ export default function RosaPage() {
           </p>
         ) : (
           rolesToShow.map((r) => {
-            const players = groups[r];
-            if (!players?.length) return null;
+            const list = groups[r];
+            if (!list?.length) return null;
             return (
               <section key={r}>
                 <h2 className="mb-4 text-2xl font-bold">
@@ -153,12 +157,12 @@ export default function RosaPage() {
                   {roleLabels[r]}
                 </h2>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {players.map((player) => (
+                  {list.map((player) => (
                     <div key={player.id} className="relative">
                       <Link href={`/giocatore/${player.id}`}>
                         <PlayerCard player={player} />
                       </Link>
-                      {isAdmin && (
+                      {canEdit && (
                         <button
                           type="button"
                           onClick={() => setEditing(player)}
@@ -203,8 +207,7 @@ export default function RosaPage() {
                   const result = await uploadImageWithFallback(file);
                   if (result.url) {
                     const fit = await autoPhotoFit(result.url);
-                    const next = { ...editing, photoUrl: result.url, ...fit };
-                    await savePlayer(next, true);
+                    await savePlayer({ ...editing, photoUrl: result.url, ...fit }, true);
                   }
                   setBusy(false);
                 }}

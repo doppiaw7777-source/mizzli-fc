@@ -17,7 +17,7 @@ export default function Navbar({ settings }: { settings: TeamSettings }) {
   const { user } = useUser();
   const { data, isAdmin } = useTeam();
   const staff = canAccessStaff(user);
-  const showAdmin = isAdmin;
+  const showAdmin = isAdmin && !user;
   const liveOn = isLiveActive(
     data?.club.matchLives?.find((item) => item.matchId === data.club.info.liveMatchId) ||
       data?.club.matchLives?.find((item) => item.status === "live" || item.status === "ht")
@@ -51,36 +51,20 @@ export default function Navbar({ settings }: { settings: TeamSettings }) {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
           <Link href="/" className="flex min-w-0 items-center gap-3">
-            <img
-              src={teamCrest(settings)}
-              alt="MIZZLI FC"
-              className="club-crest h-11 w-11 transition-transform duration-300 hover:rotate-6"
-            />
+            <img src={teamCrest(settings)} alt="MIZZLI FC" className="club-crest h-11 w-11 transition-transform duration-300 hover:rotate-6" />
             <div className="min-w-0">
-              <p className="truncate text-lg font-bold leading-tight">
-                {settings.teamName}
-              </p>
-              {settings.ui.showMotto && (
-                <p className="truncate text-xs opacity-70">{settings.motto}</p>
-              )}
+              <p className="truncate text-lg font-bold leading-tight">{settings.teamName}</p>
+              {settings.ui.showMotto && <p className="truncate text-xs opacity-70">{settings.motto}</p>}
             </div>
           </Link>
-          <a
-            href="/instagram"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white"
-            aria-label="@mizzlifc su Instagram"
-          >
+          <a href="/instagram" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white" aria-label="@mizzlifc su Instagram">
             <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden>
               <rect x="2" y="2" width="20" height="20" rx="6" fill="#E4405F" />
               <circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" strokeWidth="1.8" />
               <circle cx="17.2" cy="6.8" r="1.15" fill="#fff" />
             </svg>
           </a>
-          <a
-            href="/tiktok"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white"
-            aria-label="@mizzlitv su TikTok"
-          >
+          <a href="/tiktok" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white" aria-label="@mizzlitv su TikTok">
             <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden>
               <rect x="2" y="2" width="20" height="20" rx="6" fill="#111" />
               <path fill="#25F4EE" d="M14.2 7.2c.7.9 1.7 1.5 2.9 1.7v2.1c-.9 0-1.8-.3-2.6-.7v4.7c0 2.4-1.9 4.3-4.3 4.3S6 17.4 6 15c0-2.4 1.9-4.3 4.3-4.3.3 0 .5 0 .8.1v2.2c-.2-.1-.5-.1-.8-.1-1.2 0-2.1 1-2.1 2.1s1 2.1 2.1 2.1 2.1-1 2.1-2.1V7.2h1.8z" />
@@ -89,10 +73,7 @@ export default function Navbar({ settings }: { settings: TeamSettings }) {
             </svg>
           </a>
           {liveOn && (
-            <Link
-              href="/live"
-              className="flex items-center gap-1.5 rounded-full bg-red-500/20 px-3 py-1.5 text-xs font-black tracking-wide text-red-300"
-            >
+            <Link href="/live" className="flex items-center gap-1.5 rounded-full bg-red-500/20 px-3 py-1.5 text-xs font-black tracking-wide text-red-300">
               <span className="live-dot" />
               LIVE
             </Link>

@@ -11,7 +11,7 @@ export function menuGroupsForUser(user: PublicUser | null, opts?: { isAdmin?: bo
         continue;
       }
       if (item.href === "/admin") {
-        if (opts?.isAdmin) {
+        if (opts?.isAdmin && !user) {
           items.push(item);
         } else if (canAccessStaff(user)) {
           items.push({

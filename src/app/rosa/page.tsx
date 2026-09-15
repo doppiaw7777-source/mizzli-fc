@@ -12,11 +12,10 @@ export default function RosaPage() {
   const { data } = useTeam();
   const [q, setQ] = useState("");
   const [role, setRole] = useState<(typeof ROLES)[number] | "ALL">("ALL");
-  if (!data) return null;
-
   const query = q.trim().toLowerCase();
   const filtered = useMemo(() => {
-    return data.players.filter((p) => {
+    const players = data?.players ?? [];
+    return players.filter((p) => {
       if (role !== "ALL" && p.role !== role) return false;
       if (!query) return true;
       return (
@@ -25,7 +24,9 @@ export default function RosaPage() {
         (p.position || "").toLowerCase().includes(query)
       );
     });
-  }, [data.players, query, role]);
+  }, [data?.players, query, role]);
+
+  if (!data) return null;
 
   const groups = groupPlayersByRole(filtered);
   const rolesToShow = role === "ALL" ? ROLES : [role];

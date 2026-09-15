@@ -9,6 +9,7 @@ import { useLiveRefresh } from "@/lib/use-live-refresh";
 import { upcomingMatch } from "@/lib/club";
 import { formatItDate } from "@/lib/dates";
 import { isLiveActive } from "@/lib/match-live";
+import { getMatchKind } from "@/lib/match-kind";
 import { useUser } from "@/context/UserContext";
 import { canEditLive } from "@/lib/roles";
 
@@ -19,9 +20,28 @@ export default function LivePage() {
   useLiveRefresh(info?.liveStatus);
 
   if (!data) return null;
-  const live = (data.club.matchLives || []).find(
-    (item) => item.matchId === info?.liveMatchId || item.status === "live" || item.status === "ht"
-  ) || (data.club.matchLives || []).find((item) => item.status === "ft");
+  const matchesById = new Map(data.matches.map((m) => [m.id, m]));
+  const lives = data.club.matchLives || [];
+  const isRealFixture = (matchId?: string) => {
+    if (!matchId) return false;
+    const match = matchesById.get(matchId);
+    return !match || getMatchKind(match) !== "allenamento";
+  };
+  const live =
+    lives.find(
+      (item) =>
+        item.matchId === info?.liveMatchId &&
+        item.status !== "idle" &&
+        isRealFixture(item.matchId)
+    ) ||
+    lives.find(
+      (item) =>
+        (item.status === "live" || item.status === "ht") &&
+        isRealFixture(item.matchId)
+    ) ||
+    (info?.liveStatus && info.liveStatus !== "idle"
+      ? lives.find((item) => item.status === "ft" && isRealFixture(item.matchId))
+      : undefined);
   const next = upcomingMatch(data);
   const active = isLiveActive(live);
 

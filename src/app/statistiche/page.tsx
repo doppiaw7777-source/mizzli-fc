@@ -39,6 +39,11 @@ export default function StatistichePage() {
           ))}
         </div>
         <SoftCard>
+          {rows.length > 0 && rows.every((row) => !row.value) && (
+            <p className="mb-3 text-center text-sm opacity-60">
+              Ancora nessun dato registrato per questa voce.
+            </p>
+          )}
           <div className="space-y-2">
             {rows.map((row, i) => (
               <Link

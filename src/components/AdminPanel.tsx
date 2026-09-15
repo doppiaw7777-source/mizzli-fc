@@ -21,6 +21,7 @@ import EventsTab from "@/components/admin/EventsTab";
 import DocumentsTab from "@/components/admin/DocumentsTab";
 import FinesTab from "@/components/admin/FinesTab";
 import UsersTab from "@/components/admin/UsersTab";
+import AdminAiTab from "@/components/admin/AdminAiTab";
 import DeveloperGate from "@/components/DeveloperGate";
 import { todayKey } from "@/lib/dates";
 import { syncStandings } from "@/lib/standings";
@@ -42,6 +43,7 @@ export type AdminTab =
   | "documenti"
   | "multe"
   | "utenti"
+  | "ai"
   | "whatsapp"
   | "sms";
 
@@ -80,6 +82,7 @@ export default function AdminPanel({
     { id: "documenti", label: "Documenti" },
     { id: "multe", label: "Multe" },
     { id: "utenti", label: "Ruoli" },
+    { id: "ai", label: "AI" },
     { id: "whatsapp", label: "WhatsApp" },
     { id: "sms", label: "SMS" },
   ];
@@ -239,6 +242,7 @@ export default function AdminPanel({
         {tab === "documenti" && <DocumentsTab draft={draft} setDraft={setDraft} />}
         {tab === "multe" && <FinesTab draft={draft} setDraft={setDraft} />}
         {tab === "utenti" && <UsersTab />}
+        {tab === "ai" && <AdminAiTab />}
         {tab === "whatsapp" && <WhatsAppTab />}
         {tab === "sms" && <SmsTab />}
       </div>

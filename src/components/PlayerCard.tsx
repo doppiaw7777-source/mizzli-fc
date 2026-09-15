@@ -2,7 +2,7 @@
 
 import type { Player } from "@/lib/types";
 import { PlayerKit } from "@/components/PlayerKit";
-import { playerPhoto } from "@/lib/player-art";
+import { photoFitStyle, playerPhoto } from "@/lib/player-art";
 
 const roleLabels: Record<string, string> = {
   POR: "Portieri",
@@ -26,7 +26,8 @@ export default function PlayerCard({ player }: { player: Player }) {
         <img
           src={art}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-top transition duration-500 group-hover:scale-105"
+          className="player-photo-fit absolute inset-0 h-full w-full object-cover"
+          style={photoFitStyle(player)}
           onError={(e) => {
             const el = e.currentTarget;
             if (!el.src.includes("/brand/players/")) {

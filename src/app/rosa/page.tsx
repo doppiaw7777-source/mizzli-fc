@@ -1,17 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import AppShell from "@/components/AppShell";
 import PlayerCard, { groupPlayersByRole, roleLabels } from "@/components/PlayerCard";
+import PhotoFitEditor from "@/components/PhotoFitEditor";
 import { useTeam } from "@/context/TeamContext";
+import type { Player } from "@/lib/types";
+import { uploadImageWithFallback } from "@/lib/images";
 
 const ROLES = ["POR", "DIF", "CEN", "ATT"] as const;
 
 export default function RosaPage() {
-  const { data } = useTeam();
+  const { data, isAdmin, updateData } = useTeam();
   const [q, setQ] = useState("");
   const [role, setRole] = useState<(typeof ROLES)[number] | "ALL">("ALL");
+  const [editing, setEditing] = useState<Player | null>(null);
+  const [busy, setBusy] = useState(false);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const query = q.trim().toLowerCase();
   const filtered = useMemo(() => {
     const players = data?.players ?? [];
@@ -31,6 +37,24 @@ export default function RosaPage() {
   const groups = groupPlayersByRole(filtered);
   const rolesToShow = role === "ALL" ? ROLES : [role];
 
+  const savePlayer = async (next: Player, immediate = false) => {
+    setEditing(next);
+    const run = async () => {
+      const players = data.players.map((p) => (p.id === next.id ? next : p));
+      await updateData({ players });
+    };
+    if (immediate) {
+      setBusy(true);
+      await run();
+      setBusy(false);
+      return;
+    }
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      void run();
+    }, 350);
+  };
+
   return (
     <AppShell page="rosa">
       <div className="space-y-8">
@@ -44,6 +68,11 @@ export default function RosaPage() {
           <p className="mt-2 opacity-70">
             {filtered.length} di {data.players.length} giocatori
           </p>
+          {isAdmin && (
+            <p className="mt-2 text-sm text-[var(--team-accent)]">
+              Tocca «Foto» su una card per caricare, spostare e ingrandire l&apos;immagine.
+            </p>
+          )}
         </div>
 
         <div className="space-y-3">
@@ -101,9 +130,20 @@ export default function RosaPage() {
                 </h2>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {players.map((player) => (
-                    <Link key={player.id} href={`/giocatore/${player.id}`}>
-                      <PlayerCard player={player} />
-                    </Link>
+                    <div key={player.id} className="relative">
+                      <Link href={`/giocatore/${player.id}`}>
+                        <PlayerCard player={player} />
+                      </Link>
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={() => setEditing(player)}
+                          className="absolute right-2 top-2 z-10 rounded-full bg-black/70 px-2 py-1 text-[11px] font-bold uppercase tracking-wide"
+                        >
+                          Foto
+                        </button>
+                      )}
+                    </div>
                   ))}
                 </div>
               </section>
@@ -111,6 +151,56 @@ export default function RosaPage() {
           })
         )}
       </div>
+
+      {editing && (
+        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/70 p-4 sm:items-center">
+          <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl border border-white/15 bg-[#1a0b24] p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-wider opacity-60">Foto rosa</p>
+                <h3 className="text-lg font-black">{editing.name}</h3>
+              </div>
+              <button type="button" onClick={() => setEditing(null)} className="text-sm opacity-70">
+                Chiudi
+              </button>
+            </div>
+            <label className="mb-3 flex cursor-pointer flex-col items-center rounded-xl border border-dashed border-white/25 bg-white/5 px-3 py-4 text-center text-sm">
+              {busy ? "Caricamento…" : "Carica o cambia foto"}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={busy}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (!file) return;
+                  setBusy(true);
+                  const result = await uploadImageWithFallback(file);
+                  if (result.url) {
+                    const next = { ...editing, photoUrl: result.url };
+                    await savePlayer(next, true);
+                  }
+                  setBusy(false);
+                }}
+              />
+            </label>
+            {editing.photoUrl ? (
+              <PhotoFitEditor
+                src={editing.photoUrl}
+                player={editing}
+                onChange={(fit) => {
+                  const next = { ...editing, ...fit };
+                  setEditing(next);
+                  void savePlayer(next);
+                }}
+              />
+            ) : (
+              <p className="text-sm opacity-60">Carica una foto per inquadrarla.</p>
+            )}
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }

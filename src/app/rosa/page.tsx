@@ -9,7 +9,6 @@ import { useTeam } from "@/context/TeamContext";
 import type { Player } from "@/lib/types";
 import { uploadImageWithFallback } from "@/lib/images";
 import { autoPhotoFit } from "@/lib/auto-photo-fit";
-import { getStoredToken } from "@/lib/api";
 
 const ROLES = ["POR", "DIF", "CEN", "ATT"] as const;
 
@@ -20,7 +19,7 @@ export default function RosaPage() {
   const [editing, setEditing] = useState<Player | null>(null);
   const [busy, setBusy] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const canEdit = isAdmin || !!getStoredToken();
+  const canEdit = isAdmin;
 
   const players = data?.players ?? [];
   const query = q.trim().toLowerCase();

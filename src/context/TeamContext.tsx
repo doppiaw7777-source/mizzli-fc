@@ -60,7 +60,7 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await apiFetch("/api/auth/me");
       const d = await res.json();
-      setIsAdmin(!!d.authenticated);
+      setIsAdmin(d.isAdmin === true);
     } catch {
       setIsAdmin(false);
     }
@@ -68,7 +68,6 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     refresh().catch(() => {});
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial auth check
     checkAuth().catch(() => {});
   }, [refresh, checkAuth]);
 

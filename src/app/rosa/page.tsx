@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import AppShell from "@/components/AppShell";
 import PlayerCard, { groupPlayersByRole, roleLabels } from "@/components/PlayerCard";
 import PhotoFitEditor from "@/components/PhotoFitEditor";
@@ -19,12 +19,25 @@ export default function RosaPage() {
   const [role, setRole] = useState<(typeof ROLES)[number] | "ALL">("ALL");
   const [editing, setEditing] = useState<Player | null>(null);
   const [busy, setBusy] = useState(false);
+  const [openMenu, setOpenMenu] = useState(false);
+  const [pickQ, setPickQ] = useState("");
+  const [pickedId, setPickedId] = useState("");
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const canEdit = isAdmin || !!getStoredToken();
 
   const players = data?.players ?? [];
+  const picked = players.find((p) => p.id === pickedId) || null;
+
+  const nameChoices = useMemo(() => {
+    const nq = pickQ.trim().toLowerCase();
+    return [...players]
+      .sort((a, b) => a.name.localeCompare(b.name, "it"))
+      .filter((p) => !nq || p.name.toLowerCase().includes(nq) || String(p.number) === nq);
+  }, [players, pickQ]);
+
   const query = q.trim().toLowerCase();
   const filtered = players.filter((p) => {
+    if (pickedId) return p.id === pickedId;
     if (role !== "ALL" && p.role !== role) return false;
     if (!query) return true;
     return (
@@ -43,7 +56,7 @@ export default function RosaPage() {
   }
 
   const groups = groupPlayersByRole(filtered);
-  const rolesToShow = role === "ALL" ? ROLES : [role];
+  const rolesToShow = role === "ALL" || pickedId ? ROLES : [role];
 
   const savePlayer = async (next: Player, immediate = false) => {
     setEditing(next);
@@ -103,44 +116,109 @@ export default function RosaPage() {
           )}
         </div>
 
-        <div className="space-y-3">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Cerca nome, numero o ruolo…"
-            className="input-field"
-            type="search"
-            inputMode="search"
-            autoComplete="off"
-          />
-          <div className="flex flex-wrap gap-2">
+        {canEdit && (
+          <div className="relative z-20">
             <button
               type="button"
-              onClick={() => setRole("ALL")}
-              className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
-                role === "ALL"
-                  ? "bg-[var(--team-accent)] text-[var(--team-secondary)]"
-                  : "bg-white/10"
-              }`}
+              onClick={() => setOpenMenu((v) => !v)}
+              className="flex w-full items-center justify-between rounded-2xl border border-white/15 bg-white/8 px-4 py-3 text-left"
             >
-              Tutti
+              <span className="font-semibold">
+                {picked ? picked.name : "Tutti i giocatori"}
+              </span>
+              <span className="text-xs opacity-60">{openMenu ? "chiudi" : "apri"}</span>
             </button>
-            {ROLES.map((r) => (
+            {openMenu && (
+              <div className="absolute left-0 right-0 mt-2 max-h-80 overflow-hidden rounded-2xl border border-white/15 bg-[#16081e] shadow-2xl">
+                <div className="border-b border-white/10 p-2">
+                  <input
+                    autoFocus
+                    value={pickQ}
+                    onChange={(e) => setPickQ(e.target.value)}
+                    placeholder="Cerca nome…"
+                    className="w-full rounded-xl bg-white/10 px-3 py-2 text-sm outline-none"
+                    type="search"
+                  />
+                </div>
+                <div className="max-h-64 overflow-y-auto py-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPickedId("");
+                      setOpenMenu(false);
+                      setPickQ("");
+                    }}
+                    className={`block w-full px-4 py-2 text-left text-sm ${
+                      !pickedId ? "bg-white/10 font-bold" : "opacity-80"
+                    }`}
+                  >
+                    Tutti i giocatori
+                  </button>
+                  {nameChoices.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setPickedId(p.id);
+                        setOpenMenu(false);
+                        setPickQ("");
+                      }}
+                      className={`block w-full px-4 py-2 text-left text-sm ${
+                        pickedId === p.id ? "bg-white/10 font-bold" : "hover:bg-white/5"
+                      }`}
+                    >
+                      {p.name}
+                    </button>
+                  ))}
+                  {nameChoices.length === 0 && (
+                    <p className="px-4 py-3 text-sm opacity-60">Nessun nome trovato.</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!pickedId && (
+          <div className="space-y-3">
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Cerca nome, numero o ruolo…"
+              className="input-field"
+              type="search"
+              inputMode="search"
+              autoComplete="off"
+            />
+            <div className="flex flex-wrap gap-2">
               <button
-                key={r}
                 type="button"
-                onClick={() => setRole(r)}
+                onClick={() => setRole("ALL")}
                 className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
-                  role === r
+                  role === "ALL"
                     ? "bg-[var(--team-accent)] text-[var(--team-secondary)]"
                     : "bg-white/10"
                 }`}
               >
-                {roleLabels[r]}
+                Tutti
               </button>
-            ))}
+              {ROLES.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setRole(r)}
+                  className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
+                    role === r
+                      ? "bg-[var(--team-accent)] text-[var(--team-secondary)]"
+                      : "bg-white/10"
+                  }`}
+                >
+                  {roleLabels[r]}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {filtered.length === 0 ? (
           <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-8 text-center text-sm opacity-70">

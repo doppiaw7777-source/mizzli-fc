@@ -70,6 +70,8 @@ export function PlayerKit({
           <img
             src={photo}
             alt=""
+            loading="lazy"
+            decoding="async"
             className="player-mark-media"
             style={photoFitStyle(player)}
             onError={(e) => {
@@ -87,7 +89,7 @@ export function PlayerKit({
           <span className="player-mark-fill" />
         )}
         {graphic.id === "crest" && (
-          <img src={MIZZLI_CREST} alt="" className="player-mark-crest" />
+          <img src={MIZZLI_CREST} alt="" loading="lazy" decoding="async" className="player-mark-crest" />
         )}
         {showNumber && <span className="player-mark-num">{player.number}</span>}
         {graphic.id === "stack" && (
@@ -119,9 +121,7 @@ export function PlayerToken({
   showNumber?: boolean;
 }) {
   return (
-    <div
-      className={`player-token flex flex-col items-center ${selected ? "is-on scale-110" : ""}`}
-    >
+    <div className={`player-token flex flex-col items-center ${selected ? "is-on scale-110" : ""}`}>
       <PlayerKit
         player={player}
         size={size}
@@ -156,11 +156,15 @@ export function PlayerCardArt({
   );
   const art = player.photoUrl || playerThumb(player);
   return (
-    <div
-      className={`player-card-art ${className}`}
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <img src={art} alt="" className="player-card-art-img" style={photoFitStyle(player)} />
+    <div className={`player-card-art ${className}`} style={{ animationDelay: `${delay}ms` }}>
+      <img
+        src={art}
+        alt={player.name}
+        loading="lazy"
+        decoding="async"
+        className="player-card-art-img"
+        style={photoFitStyle(player)}
+      />
       <div className="player-card-art-fade" />
       <div className="player-card-art-kit">
         <PlayerKit

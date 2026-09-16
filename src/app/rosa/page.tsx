@@ -63,12 +63,6 @@ export default function RosaPage() {
     }, 350);
   };
 
-  const setCaptain = async (id: string) => {
-    await updateData({
-      formation: { ...data.formation, captainId: id },
-    });
-  };
-
   const autoAll = async () => {
     setBusy(true);
     const nextPlayers = [...data.players];
@@ -94,21 +88,6 @@ export default function RosaPage() {
           </p>
           {canEdit && (
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <label className="flex items-center gap-2 text-sm">
-                <span className="opacity-70">Capitano</span>
-                <select
-                  value={captainId}
-                  onChange={(e) => void setCaptain(e.target.value)}
-                  className="input-field min-w-[12rem]"
-                >
-                  <option value="">Nessuno</option>
-                  {players.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.number} {p.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
               <button
                 type="button"
                 disabled={busy}

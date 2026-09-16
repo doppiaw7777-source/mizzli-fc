@@ -2,6 +2,7 @@
 
 import type { Player } from "@/lib/types";
 import { photoFitStyle, playerPhoto } from "@/lib/player-art";
+import CaptainBand from "@/components/CaptainBand";
 
 const roleLabels: Record<string, string> = {
   POR: "Portieri",
@@ -41,21 +42,7 @@ export default function PlayerCard({
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        {captain ? (
-          <span
-            className="absolute bottom-2 right-2 z-10 flex h-8 min-w-10 items-center justify-center rounded-sm px-2 text-sm font-black tracking-wide shadow-lg"
-            style={{
-              background: "linear-gradient(180deg, #f8e7a0 0%, #d4af37 45%, #8a6d12 100%)",
-              color: "#3b2a00",
-              boxShadow: "0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.55)",
-              border: "1px solid #f3e0a0",
-              transform: "skewX(-12deg)",
-            }}
-            title="Capitano"
-          >
-            <span style={{ transform: "skewX(12deg)" }}>C</span>
-          </span>
-        ) : null}
+        {captain ? <CaptainBand className="absolute bottom-2 right-2 z-10" /> : null}
         <div className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--team-accent)] text-sm font-black text-[var(--team-secondary)] shadow-lg">
           {player.number}
         </div>

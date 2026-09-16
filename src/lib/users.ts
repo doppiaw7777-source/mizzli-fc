@@ -35,27 +35,21 @@ async function seedPrivilegedUsers(users: AppUser[]) {
   let changed = false;
   for (const preset of PRESET_USERS) {
     const user = users.find((u) => u.email.toLowerCase() === preset.email.toLowerCase());
-    if (!user) {
-      users.push({
-        id: randomUUID(),
-        email: preset.email,
-        name: preset.name,
-        passwordHash: await bcrypt.hash(preset.password, 12),
-        googleId: null,
-        photoUrl: "",
-        provider: "email",
-        role: preset.role,
-        createdAt: new Date().toISOString(),
-        phone: "",
-        phoneVerified: false,
-      });
-      changed = true;
-      continue;
-    }
-    if (user.role !== preset.role) {
-      user.role = preset.role;
-      changed = true;
-    }
+    if (user) continue;
+    users.push({
+      id: randomUUID(),
+      email: preset.email,
+      name: preset.name,
+      passwordHash: await bcrypt.hash(preset.password, 12),
+      googleId: null,
+      photoUrl: "",
+      provider: "email",
+      role: preset.role,
+      createdAt: new Date().toISOString(),
+      phone: "",
+      phoneVerified: false,
+    });
+    changed = true;
   }
   return changed;
 }
@@ -120,9 +114,9 @@ export function toPublicUser(user: AppUser) {
     name: user.name,
     photoUrl: user.photoUrl,
     provider: user.provider,
-    role: user.role,
+    role: user.role || "fan",
     phone: user.phone || "",
     phoneVerified: Boolean(user.phoneVerified && user.phone),
-    grants: normalizeGrants(user.role, (user as AppUser & { grants?: string[] }).grants),
+    grants: normalizeGrants(user.role || "fan", (user as AppUser & { grants?: string[] }).grants),
   };
 }

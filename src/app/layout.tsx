@@ -8,6 +8,7 @@ import "./globals.css";
 import "./crest-plain.css";
 import "./partner-ticker.css";
 import "./sponsor-fit.css";
+import "./motto-gold.css";
 
 const inter = Inter({
   subsets: ["latin"],

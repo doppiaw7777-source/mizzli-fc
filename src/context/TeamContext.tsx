@@ -33,7 +33,7 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
         setData(await res.json());
       }
     } catch {
-      // Keep the last good snapshot if the network blips.
+      /* keep last snapshot */
     } finally {
       setLoading(false);
     }
@@ -76,14 +76,12 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
       if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
       void refresh();
     };
-    const id = window.setInterval(tick, 6000);
+    const id = window.setInterval(tick, 20000);
     const onVis = () => tick();
     document.addEventListener("visibilitychange", onVis);
-    window.addEventListener("focus", onVis);
     return () => {
       window.clearInterval(id);
       document.removeEventListener("visibilitychange", onVis);
-      window.removeEventListener("focus", onVis);
     };
   }, [refresh]);
 

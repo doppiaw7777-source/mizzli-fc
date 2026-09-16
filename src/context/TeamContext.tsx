@@ -7,7 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, getStoredToken } from "@/lib/api";
 import type { TeamData } from "@/lib/types";
 
 interface TeamContextValue {
@@ -37,7 +37,7 @@ function sameCallup(a: TeamData | null, b: TeamData) {
 export function TeamProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<TeamData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => !!getStoredToken());
 
   const refresh = useCallback(async () => {
     try {
@@ -76,12 +76,15 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const checkAuth = useCallback(async () => {
+    const token = getStoredToken();
+    if (token) setIsAdmin(true);
     try {
       const res = await apiFetch("/api/auth/me");
       const d = await res.json();
-      setIsAdmin(d.isAdmin === true);
+      if (d.isAdmin === true) setIsAdmin(true);
+      else if (!token) setIsAdmin(false);
     } catch {
-      setIsAdmin(false);
+      if (!token) setIsAdmin(false);
     }
   }, []);
 

@@ -177,15 +177,6 @@ export function PlayersTab({
             <Field label="Peso">
               <input value={p.weight || ""} onChange={(e) => updatePlayer({ weight: e.target.value })} className="input-field" />
             </Field>
-            <Field label="Gialli">
-              <input type="number" value={p.yellowCards || 0} onChange={(e) => updatePlayer({ yellowCards: parseInt(e.target.value) || 0 })} className="input-field" />
-            </Field>
-            <Field label="Rossi">
-              <input type="number" value={p.redCards || 0} onChange={(e) => updatePlayer({ redCards: parseInt(e.target.value) || 0 })} className="input-field" />
-            </Field>
-            <Field label="Minuti">
-              <input type="number" value={p.minutes || 0} onChange={(e) => updatePlayer({ minutes: parseInt(e.target.value) || 0 })} className="input-field" />
-            </Field>
             <Field label="Bio">
               <input value={p.bio || ""} onChange={(e) => updatePlayer({ bio: e.target.value })} className="input-field" />
             </Field>

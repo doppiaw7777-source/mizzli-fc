@@ -3,27 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { ROLE_BLURBS, ROLE_LABELS } from "@/lib/roles";
+import { ALL_GRANTS, normalizeGrants, type UserGrant } from "@/lib/permissions";
 import type { PublicUser, UserRole } from "@/lib/types";
 
-type ListedUser = PublicUser & { createdAt?: string };
+type ListedUser = PublicUser & { createdAt?: string; grants?: UserGrant[] };
 
 const ROLES: UserRole[] = ["fan", "player", "coach", "assistant_coach", "team_manager"];
 const CREATE_ROLES: UserRole[] = ["player", "coach", "assistant_coach", "team_manager"];
-
-const PERMISSIONS: { label: string; roles: Array<UserRole | "admin"> }[] = [
-  { label: "Vedere il sito pubblico", roles: ["fan", "player", "coach", "assistant_coach", "team_manager", "admin"] },
-  { label: "Votare e profilo tifoso", roles: ["fan", "player", "coach", "assistant_coach", "team_manager", "admin"] },
-  { label: "Vedere convocati e formazione", roles: ["player", "coach", "assistant_coach", "team_manager", "admin"] },
-  { label: "Modificare convocati / formazione / live", roles: ["coach", "assistant_coach", "admin"] },
-  { label: "Modificare calendario partite", roles: ["coach", "assistant_coach", "admin"] },
-  { label: "Multe e documenti", roles: ["team_manager", "admin"] },
-  { label: "Eventi club", roles: ["coach", "assistant_coach", "team_manager", "admin"] },
-  { label: "Pannello Admin (tutto il sito)", roles: ["admin"] },
-];
-
-function hasPerm(role: UserRole | "admin", item: (typeof PERMISSIONS)[number]) {
-  return item.roles.includes(role);
-}
 
 export default function UsersTab() {
   const [users, setUsers] = useState<ListedUser[]>([]);
@@ -62,24 +48,32 @@ export default function UsersTab() {
     );
   }, [users, query]);
 
-  const setUserRole = async (id: string, next: UserRole) => {
+  const patchUser = async (id: string, body: Record<string, unknown>) => {
     setSavingId(id);
     setError("");
     try {
       const res = await apiFetch("/api/users", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, role: next }),
+        body: JSON.stringify({ id, ...body }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error || "Ruolo non aggiornato");
+        setError(data.error || "Non aggiornato");
         return;
       }
-      setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role: next } : u)));
+      if (data.user) {
+        setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...data.user } : u)));
+      }
     } finally {
       setSavingId("");
     }
+  };
+
+  const toggleGrant = (user: ListedUser, grant: UserGrant) => {
+    const current = normalizeGrants(user.role, user.grants);
+    const next = current.includes(grant) ? current.filter((g) => g !== grant) : [...current, grant];
+    void patchUser(user.id, { grants: next });
   };
 
   const createUser = async (e: React.FormEvent) => {
@@ -112,40 +106,12 @@ export default function UsersTab() {
       <div>
         <h2 className="text-xl font-bold">Gestione permessi</h2>
         <p className="mt-1 text-sm opacity-60">
-          Solo l&apos;admin Noldi con PIN vede il pannello Admin. Agli altri assegni un ruolo qui sotto.
+          Admin, Mister e Vice gestiscono i convocati. Qui scegli ruolo e concessioni per ogni account.
         </p>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-white/10">
-        <table className="w-full min-w-[40rem] text-left text-sm">
-          <thead className="bg-white/5 text-xs uppercase tracking-wide opacity-60">
-            <tr>
-              <th className="px-3 py-2 font-medium">Permesso</th>
-              <th className="px-2 py-2 font-medium">Tifoso</th>
-              <th className="px-2 py-2 font-medium">Giocatore</th>
-              <th className="px-2 py-2 font-medium">Mister</th>
-              <th className="px-2 py-2 font-medium">Vice</th>
-              <th className="px-2 py-2 font-medium">TM</th>
-              <th className="px-2 py-2 font-medium">Admin</th>
-            </tr>
-          </thead>
-          <tbody>
-            {PERMISSIONS.map((item) => (
-              <tr key={item.label} className="border-t border-white/10">
-                <td className="px-3 py-2">{item.label}</td>
-                {(["fan", "player", "coach", "assistant_coach", "team_manager", "admin"] as const).map((r) => (
-                  <td key={r} className="px-2 py-2 text-center">
-                    {hasPerm(r, item) ? "Sì" : "—"}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
       <form onSubmit={createUser} className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-        <h3 className="font-bold">Crea account con permessi</h3>
+        <h3 className="font-bold">Crea account</h3>
         <div className="grid gap-3 md:grid-cols-2">
           <label className="block">
             <span className="text-xs opacity-70">Nome</span>
@@ -180,47 +146,56 @@ export default function UsersTab() {
 
       <label className="block">
         <span className="text-xs opacity-70">Cerca utente</span>
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="input-field mt-1"
-          placeholder="Nome, email o ruolo"
-        />
+        <input value={query} onChange={(e) => setQuery(e.target.value)} className="input-field mt-1" placeholder="Nome, email o ruolo" />
       </label>
 
-      {filtered.length === 0 && !error && (
-        <p className="rounded-xl border border-white/10 bg-white/5 px-4 py-6 text-sm opacity-60">
-          Nessun account in elenco.
-        </p>
-      )}
       <div className="space-y-3">
-        {filtered.map((u) => (
-          <div
-            key={u.id}
-            className="flex flex-col gap-3 rounded-xl border border-white/10 p-4 sm:flex-row sm:items-center sm:justify-between"
-          >
-            <div className="min-w-0">
-              <p className="font-bold">{u.name}</p>
-              <p className="truncate text-sm opacity-60">{u.email}</p>
-              <p className="mt-1 text-xs opacity-50">{ROLE_BLURBS[u.role]}</p>
+        {filtered.map((u) => {
+          const grants = normalizeGrants(u.role, u.grants);
+          return (
+            <div key={u.id} className="space-y-3 rounded-xl border border-white/10 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="font-bold">{u.name}</p>
+                  <p className="truncate text-sm opacity-60">{u.email}</p>
+                </div>
+                <label className="block sm:w-56">
+                  <span className="text-xs opacity-70">Ruolo</span>
+                  <select
+                    value={u.role}
+                    disabled={savingId === u.id}
+                    onChange={(e) => void patchUser(u.id, { role: e.target.value })}
+                    className="input-field mt-1"
+                  >
+                    {ROLES.map((r) => (
+                      <option key={r} value={r}>
+                        {ROLE_LABELS[r]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {ALL_GRANTS.map((g) => {
+                  const on = grants.includes(g.id);
+                  return (
+                    <button
+                      key={g.id}
+                      type="button"
+                      disabled={savingId === u.id}
+                      onClick={() => toggleGrant(u, g.id)}
+                      className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                        on ? "bg-[var(--team-accent)] text-[var(--team-secondary)]" : "bg-white/10 opacity-70"
+                      }`}
+                    >
+                      {g.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <label className="block sm:w-56">
-              <span className="text-xs opacity-70">Permesso / ruolo</span>
-              <select
-                value={u.role}
-                disabled={savingId === u.id}
-                onChange={(e) => void setUserRole(u.id, e.target.value as UserRole)}
-                className="input-field mt-1"
-              >
-                {ROLES.map((r) => (
-                  <option key={r} value={r}>
-                    {ROLE_LABELS[r]}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

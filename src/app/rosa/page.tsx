@@ -22,6 +22,7 @@ export default function RosaPage() {
   const canEdit = isAdmin;
 
   const players = data?.players ?? [];
+  const captainId = data?.formation?.captainId || "";
   const query = q.trim().toLowerCase();
   const filtered = players.filter((p) => {
     if (role !== "ALL" && p.role !== role) return false;
@@ -62,6 +63,12 @@ export default function RosaPage() {
     }, 350);
   };
 
+  const setCaptain = async (id: string) => {
+    await updateData({
+      formation: { ...data.formation, captainId: id },
+    });
+  };
+
   const autoAll = async () => {
     setBusy(true);
     const nextPlayers = [...data.players];
@@ -87,9 +94,21 @@ export default function RosaPage() {
           </p>
           {canEdit && (
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <p className="text-sm text-[var(--team-accent)]">
-                Tocca «Foto» sulla card per caricare e inquadrare.
-              </p>
+              <label className="flex items-center gap-2 text-sm">
+                <span className="opacity-70">Capitano</span>
+                <select
+                  value={captainId}
+                  onChange={(e) => void setCaptain(e.target.value)}
+                  className="input-field min-w-[12rem]"
+                >
+                  <option value="">Nessuno</option>
+                  {players.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.number} {p.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <button
                 type="button"
                 disabled={busy}
@@ -159,7 +178,7 @@ export default function RosaPage() {
                   {list.map((player) => (
                     <div key={player.id} className="relative">
                       <Link href={`/giocatore/${player.id}`}>
-                        <PlayerCard player={player} />
+                        <PlayerCard player={player} captain={player.id === captainId} />
                       </Link>
                       {canEdit && (
                         <button

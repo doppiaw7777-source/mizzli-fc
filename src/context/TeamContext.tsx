@@ -21,6 +21,19 @@ interface TeamContextValue {
 
 const TeamContext = createContext<TeamContextValue | null>(null);
 
+function sameCallup(a: TeamData | null, b: TeamData) {
+  if (!a) return false;
+  const ac = a.club;
+  const bc = b.club;
+  return (
+    JSON.stringify(ac?.callupPlayerIds || []) === JSON.stringify(bc?.callupPlayerIds || []) &&
+    (ac?.callupNote || "") === (bc?.callupNote || "") &&
+    (ac?.callupMeeting || "") === (bc?.callupMeeting || "") &&
+    JSON.stringify(a.formation) === JSON.stringify(b.formation) &&
+    JSON.stringify(a.standings) === JSON.stringify(b.standings)
+  );
+}
+
 export function TeamProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<TeamData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,9 +41,15 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      const res = await apiFetch("/api/team");
+      const res = await apiFetch("/api/team", { cache: "no-store" });
       if (res.ok) {
-        setData(await res.json());
+        const next = (await res.json()) as TeamData;
+        setData((prev) => {
+          if (prev && sameCallup(prev, next) && JSON.stringify(prev) === JSON.stringify(next)) {
+            return prev;
+          }
+          return next;
+        });
       }
     } catch {
       /* keep last snapshot */
@@ -76,12 +95,13 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
       if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
       void refresh();
     };
-    const id = window.setInterval(tick, 20000);
-    const onVis = () => tick();
-    document.addEventListener("visibilitychange", onVis);
+    const id = window.setInterval(tick, 4000);
+    document.addEventListener("visibilitychange", tick);
+    window.addEventListener("focus", tick);
     return () => {
       window.clearInterval(id);
-      document.removeEventListener("visibilitychange", onVis);
+      document.removeEventListener("visibilitychange", tick);
+      window.removeEventListener("focus", tick);
     };
   }, [refresh]);
 

@@ -3,7 +3,6 @@
 import type { GraphicStyle } from "@/lib/themes";
 import type { TeamSettings } from "@/lib/types";
 import { graphicCss, graphicSize, getTheme } from "@/lib/themes";
-import { useEffect } from "react";
 import ThemeLoopVideo from "@/components/ThemeLoopVideo";
 
 type PageKey = "home" | "rosa" | "calendario" | "formazione" | "admin" | "altro";
@@ -97,13 +96,12 @@ export function PageBackground({
       data-theme={settings.themeId}
       data-graphic={settings.graphicStyle || theme.graphicStyle}
     >
-      <ThemeLoopVideo />
+      {page === "home" ? <ThemeLoopVideo /> : null}
       <div
         className="pointer-events-none fixed inset-0 z-[1]"
         style={{ background: `rgba(7,3,12,${overlay / 100})` }}
         aria-hidden
       />
-      <PitchParallax />
       <div className="pointer-events-none fixed inset-0 z-[1] overflow-hidden" aria-hidden>
         <div
           className="pitch-grain absolute inset-0"
@@ -119,19 +117,4 @@ export function PageBackground({
       </div>
     </div>
   );
-}
-
-function PitchParallax() {
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const el = document.querySelector(".pitch-grain") as HTMLElement | null;
-    if (!el) return;
-    const onScroll = () => {
-      el.style.backgroundPosition = `center ${Math.round(window.scrollY * 0.12)}px`;
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-  return null;
 }

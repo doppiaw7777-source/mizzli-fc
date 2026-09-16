@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import type { AppUser } from "./types";
 import { readJson, writeJson } from "./store";
+import { normalizeGrants } from "./permissions";
 
 const PRESET_USERS = [
   {
@@ -122,5 +123,6 @@ export function toPublicUser(user: AppUser) {
     role: user.role,
     phone: user.phone || "",
     phoneVerified: Boolean(user.phoneVerified && user.phone),
+    grants: normalizeGrants(user.role, (user as AppUser & { grants?: string[] }).grants),
   };
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { requireTeamManagerUser } from "@/lib/user-auth";
 import { saveUploadedImage } from "@/lib/storage";
+import { compressImageBuffer } from "@/lib/compress-image";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,6 +13,13 @@ async function requireUploader() {
   } catch {
     await requireTeamManagerUser();
   }
+}
+
+async function storeImage(buffer: Buffer, filename: string) {
+  const compact = await compressImageBuffer(buffer);
+  const out = compact.bytes;
+  const name = compact.contentType === "image/jpeg" ? filename.replace(/\.\w+$/, ".jpg") : filename;
+  return saveUploadedImage(out, name);
 }
 
 export async function POST(request: NextRequest) {
@@ -31,7 +39,7 @@ export async function POST(request: NextRequest) {
       }
       const ext = match[1].split("/")[1]?.replace("jpeg", "jpg") || "png";
       const buffer = Buffer.from(match[2], "base64");
-      const url = await saveUploadedImage(buffer, `upload.${ext}`);
+      const url = await storeImage(buffer, `upload.${ext}`);
       return NextResponse.json({ url });
     }
 
@@ -47,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const url = await saveUploadedImage(buffer, file.name);
+    const url = await storeImage(buffer, file.name);
     return NextResponse.json({ url });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Non autorizzato";

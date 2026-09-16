@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMedia } from "@/lib/media-store";
+import { getMedia, updateMediaBytes } from "@/lib/media-store";
+import { compressImageBuffer } from "@/lib/compress-image";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -14,11 +15,22 @@ export async function GET(
     return new NextResponse("Not found", { status: 404 });
   }
 
-  return new NextResponse(new Uint8Array(media.bytes), {
+  let bytes = media.bytes;
+  let type = media.contentType;
+  if (bytes.length > 90_000 && type.startsWith("image/") && type !== "image/svg+xml" && type !== "image/gif") {
+    const compact = await compressImageBuffer(bytes);
+    if (compact.bytes.length && compact.bytes.length < bytes.length) {
+      bytes = compact.bytes;
+      type = compact.contentType || "image/jpeg";
+      void updateMediaBytes(id, bytes, type, media.filename.replace(/\.\w+$/, ".jpg"));
+    }
+  }
+
+  return new NextResponse(new Uint8Array(bytes), {
     status: 200,
     headers: {
-      "Content-Type": media.contentType,
-      "Content-Length": String(media.bytes.length),
+      "Content-Type": type,
+      "Content-Length": String(bytes.length),
       "Cache-Control": "public, max-age=31536000, immutable",
       "Content-Disposition": `inline; filename="${media.filename.replace(/"/g, "")}"`,
     },

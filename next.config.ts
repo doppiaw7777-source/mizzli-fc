@@ -39,23 +39,25 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/:path*",
-        headers: [
-          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate" },
-          {
-            key: "Accept-CH",
-            value:
-              "Sec-CH-UA-Model, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Sec-CH-UA-Full-Version-List, Sec-CH-UA-Mobile, Sec-CH-UA-Arch, Sec-CH-UA-Bitness, Sec-CH-UA-Form-Factors",
-          },
-          { key: "Critical-CH", value: "Sec-CH-UA-Model" },
-        ],
+        source: "/api/media/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
+        source: "/brand/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400" }],
+      },
+      {
+        source: "/_next/static/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
+        source: "/api/team",
+        headers: [{ key: "Cache-Control", value: "public, max-age=15, stale-while-revalidate=60" }],
       },
     ];
   },
   async rewrites() {
-    return [
-      { source: "/brand/players/:name.jpg", destination: "/brand/players/:name.png" },
-    ];
+    return [{ source: "/brand/players/:name.jpg", destination: "/brand/players/:name.png" }];
   },
 };
 

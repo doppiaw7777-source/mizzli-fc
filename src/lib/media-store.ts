@@ -62,6 +62,22 @@ export async function getMedia(id: string): Promise<StoredMedia | null> {
     id: rows[0].id,
     filename: rows[0].filename,
     contentType: rows[0].content_type,
-  bytes: Buffer.from(rows[0].bytes),
+    bytes: Buffer.from(rows[0].bytes),
   };
+}
+
+export async function updateMediaBytes(
+  id: string,
+  bytes: Buffer,
+  contentType: string,
+  filename?: string
+) {
+  if (!isDatabaseEnabled()) return;
+  const pool = getPool();
+  await pool.query(
+    `UPDATE app_media
+     SET bytes = $2, content_type = $3, filename = COALESCE($4, filename)
+     WHERE id = $1`,
+    [id, bytes, contentType, filename || null]
+  );
 }

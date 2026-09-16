@@ -65,6 +65,7 @@ export default function SettingsTab({
   onUpload: (f: File, cb: (url: string) => void) => void;
 }) {
   const s = draft.settings;
+  const branding = s.branding as typeof s.branding & { fieldNote?: string; fieldMapsUrl?: string };
   type ColorKey = keyof typeof s.colors;
   const updateSettings = (patch: Partial<typeof s>) => {
     setDraft({ ...draft, settings: { ...s, ...patch } });
@@ -117,6 +118,35 @@ export default function SettingsTab({
     <div className="space-y-6">
       <DemoClubBox />
       <h2 className="text-xl font-bold">Personalizzazione Completa</h2>
+
+      <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 space-y-3">
+        <h3 className="font-bold text-amber-200">Campo / stadio (Home)</h3>
+        <Field label="Nome stadio">
+          <input
+            value={s.branding.stadiumName || ""}
+            onChange={(e) => updateSettings({ branding: { ...s.branding, stadiumName: e.target.value } })}
+            className="input-field"
+            placeholder="Stadio Comunale"
+          />
+        </Field>
+        <Field label="Testo libero (orari, raduno, note)">
+          <textarea
+            value={branding.fieldNote || ""}
+            onChange={(e) => updateSettings({ branding: { ...s.branding, fieldNote: e.target.value } })}
+            className="input-field min-h-20"
+            placeholder="Scrivi quello che vuoi"
+          />
+        </Field>
+        <Field label="Link posizione (Google Maps)">
+          <input
+            value={branding.fieldMapsUrl || ""}
+            onChange={(e) => updateSettings({ branding: { ...s.branding, fieldMapsUrl: e.target.value } })}
+            className="input-field"
+            placeholder="https://maps.google.com/..."
+          />
+        </Field>
+      </div>
+
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"

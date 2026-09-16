@@ -1,8 +1,13 @@
 import type { AppUser, PublicUser, TeamData, UserRole } from "./types";
+import { hasGrant, normalizeGrants, type UserGrant } from "./permissions";
 
 export type { UserRole };
 
-export type RoleUser = Pick<AppUser, "role"> | Pick<PublicUser, "role"> | null | undefined;
+export type RoleUser =
+  | (Pick<AppUser, "role"> & { grants?: string[] })
+  | (Pick<PublicUser, "role"> & { grants?: string[] })
+  | null
+  | undefined;
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   fan: "Ospite / tifoso",
@@ -50,7 +55,8 @@ export function isStaffRole(role?: UserRole | null) {
 }
 
 export function canAccessStaff(user: RoleUser) {
-  return isStaffRole(user?.role);
+  if (!user?.role) return false;
+  return isStaffRole(user.role) || normalizeGrants(user.role, user.grants).length > 0;
 }
 
 export function canManageTeam(user: RoleUser) {
@@ -58,31 +64,31 @@ export function canManageTeam(user: RoleUser) {
 }
 
 export function canEditLive(user: RoleUser) {
-  return isCoachRole(user?.role);
+  return hasGrant(user?.role, user?.grants, "live");
 }
 
 export function canEditFormation(user: RoleUser) {
-  return isCoachRole(user?.role);
+  return hasGrant(user?.role, user?.grants, "formation");
 }
 
 export function canEditCallups(user: RoleUser) {
-  return isCoachRole(user?.role);
+  return hasGrant(user?.role, user?.grants, "callups");
 }
 
 export function canEditFines(user: RoleUser) {
-  return isTeamManagerRole(user?.role);
+  return hasGrant(user?.role, user?.grants, "fines");
 }
 
 export function canEditDocuments(user: RoleUser) {
-  return isTeamManagerRole(user?.role);
+  return hasGrant(user?.role, user?.grants, "documents");
 }
 
 export function canEditEvents(user: RoleUser) {
-  return isCoachRole(user?.role) || isTeamManagerRole(user?.role);
+  return hasGrant(user?.role, user?.grants, "events");
 }
 
 export function canEditCalendar(user: RoleUser) {
-  return isCoachRole(user?.role);
+  return hasGrant(user?.role, user?.grants, "calendar");
 }
 
 export function canVote(user: RoleUser) {
@@ -95,10 +101,17 @@ export function postLoginPath(user: RoleUser) {
   return "/profilo";
 }
 
-export function staffPanelTabs(role: UserRole): StaffPanelTab[] {
-  if (isTeamManagerRole(role)) return ["eventi", "documenti", "multe"];
-  if (isCoachRole(role)) return ["calendario", "formazione", "convocati", "live"];
-  return [];
+export function staffPanelTabs(role: UserRole, grants?: string[]): StaffPanelTab[] {
+  const g = normalizeGrants(role, grants);
+  const tabs: StaffPanelTab[] = [];
+  if (g.includes("calendar")) tabs.push("calendario");
+  if (g.includes("formation")) tabs.push("formazione");
+  if (g.includes("callups")) tabs.push("convocati");
+  if (g.includes("live")) tabs.push("live");
+  if (g.includes("events")) tabs.push("eventi");
+  if (g.includes("documents")) tabs.push("documenti");
+  if (g.includes("fines")) tabs.push("multe");
+  return tabs;
 }
 
 function formationSubset(formation: TeamData["formation"] | undefined) {
@@ -114,38 +127,28 @@ function formationSubset(formation: TeamData["formation"] | undefined) {
   };
 }
 
-export function coachWritableSubset(input: Partial<TeamData>): Partial<TeamData> {
+export function staffWritableSubset(
+  input: Partial<TeamData>,
+  role?: UserRole,
+  grants?: string[]
+): Partial<TeamData> {
+  if (!role) return {};
+  const g = normalizeGrants(role, grants);
+  const club: Record<string, unknown> = {};
+  if (g.includes("callups") && input.club) {
+    club.callupPlayerIds = input.club.callupPlayerIds;
+    club.callupNote = input.club.callupNote;
+    club.callupMeeting = input.club.callupMeeting;
+    club.callupPublishedAt = input.club.callupPublishedAt;
+  }
+  if (g.includes("events") && input.club) club.events = input.club.events;
+  if (g.includes("documents") && input.club) club.documents = input.club.documents;
+  if (g.includes("fines") && input.club) club.fines = input.club.fines;
   return compactTeamData({
-    formation: formationSubset(input.formation),
-    matches: input.matches,
-    club: input.club
-      ? {
-          callupPlayerIds: input.club.callupPlayerIds,
-          callupNote: input.club.callupNote,
-          callupMeeting: input.club.callupMeeting,
-          callupPublishedAt: input.club.callupPublishedAt,
-          events: input.club.events,
-        }
-      : undefined,
+    formation: g.includes("formation") ? formationSubset(input.formation) : undefined,
+    matches: g.includes("calendar") ? input.matches : undefined,
+    club: Object.keys(club).length ? club : undefined,
   }) as Partial<TeamData>;
-}
-
-export function managerWritableSubset(input: Partial<TeamData>): Partial<TeamData> {
-  return compactTeamData({
-    club: input.club
-      ? {
-          events: input.club.events,
-          documents: input.club.documents,
-          fines: input.club.fines,
-        }
-      : undefined,
-  }) as Partial<TeamData>;
-}
-
-export function staffWritableSubset(input: Partial<TeamData>, role?: UserRole): Partial<TeamData> {
-  if (isCoachRole(role)) return coachWritableSubset(input);
-  if (isTeamManagerRole(role)) return managerWritableSubset(input);
-  return {};
 }
 
 export function compactTeamData<T extends object>(data: T) {
@@ -153,3 +156,5 @@ export function compactTeamData<T extends object>(data: T) {
     Object.entries(data).filter(([, value]) => value !== undefined)
   ) as Partial<T>;
 }
+
+export type { UserGrant };

@@ -44,9 +44,32 @@ export function PlayersTab({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-bold">Gestione Rosa</h2>
         <button onClick={addPlayer} className="btn-add">+ Aggiungi Giocatore</button>
+      </div>
+      <div className="rounded-2xl border border-amber-400/40 bg-amber-400/10 p-4">
+        <label className="block space-y-1">
+          <span className="text-sm font-bold text-amber-200">Capitano della squadra</span>
+          <select
+            value={draft.formation.captainId || ""}
+            onChange={(e) =>
+              setDraft({
+                ...draft,
+                formation: { ...draft.formation, captainId: e.target.value },
+              })
+            }
+            className="input-field"
+          >
+            <option value="">Nessuno</option>
+            {draft.players.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.number}. {p.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p className="mt-2 text-xs opacity-70">Sulla card Rosa compare la fascia oro con la C.</p>
       </div>
       {draft.players.map((p, i) => (
         <div key={p.id} className="rounded-xl border border-white/10 p-4">

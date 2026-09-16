@@ -8,7 +8,7 @@ export default function ClubCrest({
   size = 40,
   alt = "MIZZLI FC",
   glow = false,
-  goldRing = false,
+  goldRing,
   className = "",
 }: {
   settings?: Pick<TeamSettings, "logoUrl" | "appIconUrl"> | null;
@@ -18,13 +18,14 @@ export default function ClubCrest({
   goldRing?: boolean;
   className?: string;
 }) {
+  const ring = goldRing ?? (glow && size >= 96);
   const img = (
     <img
       src={clubLogo(settings)}
       alt={alt}
       width={size}
       height={size}
-      className={`club-crest club-crest-plain ${glow && !goldRing ? "club-crest-glow" : ""} ${className}`.trim()}
+      className={`club-crest club-crest-plain ${glow && !ring ? "club-crest-glow" : ""} ${className}`.trim()}
       style={{
         width: size,
         height: size,
@@ -37,7 +38,7 @@ export default function ClubCrest({
     />
   );
 
-  if (!goldRing) return img;
+  if (!ring) return img;
 
   const wrap = size + 14;
   return (

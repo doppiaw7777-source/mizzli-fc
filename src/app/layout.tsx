@@ -6,6 +6,7 @@ import NativeBootstrap from "@/components/NativeBootstrap";
 import { MIZZLI_CREST } from "@/lib/brand";
 import "./globals.css";
 import "./crest-plain.css";
+import "./crest-gold.css";
 import "./partner-ticker.css";
 import "./sponsor-fit.css";
 import "./motto-gold.css";

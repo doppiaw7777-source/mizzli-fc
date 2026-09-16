@@ -154,6 +154,7 @@ export function PlayerCardArt({
   const graphic = getPlayerGraphic(
     graphicId || data?.settings.ui.playerGraphicId || DEFAULT_PLAYER_GRAPHIC
   );
+  const showMini = !!data?.settings.ui.showRosaMiniBadge;
   const art = player.photoUrl || playerThumb(player);
   return (
     <div className={`player-card-art ${className}`} style={{ animationDelay: `${delay}ms` }}>
@@ -166,16 +167,18 @@ export function PlayerCardArt({
         style={photoFitStyle(player)}
       />
       <div className="player-card-art-fade" />
-      <div className="player-card-art-kit">
-        <PlayerKit
-          player={player}
-          size="xs"
-          captain={false}
-          animate={false}
-          graphicId={graphic.id}
-          showNumber={false}
-        />
-      </div>
+      {showMini ? (
+        <div className="player-card-art-kit">
+          <PlayerKit
+            player={player}
+            size="xs"
+            captain={false}
+            animate={false}
+            graphicId={graphic.id}
+            showNumber={false}
+          />
+        </div>
+      ) : null}
       {captain && <span className="player-kit-c">C</span>}
       <div className="player-card-art-foot">
         <p className="player-card-art-name">{player.name}</p>

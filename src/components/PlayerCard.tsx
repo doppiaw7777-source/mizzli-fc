@@ -1,7 +1,6 @@
 "use client";
 
 import type { Player } from "@/lib/types";
-import { PlayerKit } from "@/components/PlayerKit";
 import { photoFitStyle, playerPhoto } from "@/lib/player-art";
 
 const roleLabels: Record<string, string> = {
@@ -17,7 +16,13 @@ const statusLabels: Record<string, string> = {
   unavailable: "Indisponibile",
 };
 
-export default function PlayerCard({ player }: { player: Player }) {
+export default function PlayerCard({
+  player,
+  captain = false,
+}: {
+  player: Player;
+  captain?: boolean;
+}) {
   const status = player.status && player.status !== "available" ? player.status : null;
   const art = playerPhoto(player);
   return (
@@ -36,9 +41,21 @@ export default function PlayerCard({ player }: { player: Player }) {
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        <div className="absolute bottom-2 right-2">
-          <PlayerKit player={player} size="sm" animate={false} photoHead={false} />
-        </div>
+        {captain ? (
+          <span
+            className="absolute bottom-2 right-2 z-10 flex h-8 min-w-10 items-center justify-center rounded-sm px-2 text-sm font-black tracking-wide shadow-lg"
+            style={{
+              background: "linear-gradient(180deg, #f8e7a0 0%, #d4af37 45%, #8a6d12 100%)",
+              color: "#3b2a00",
+              boxShadow: "0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.55)",
+              border: "1px solid #f3e0a0",
+              transform: "skewX(-12deg)",
+            }}
+            title="Capitano"
+          >
+            <span style={{ transform: "skewX(12deg)" }}>C</span>
+          </span>
+        ) : null}
         <div className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--team-accent)] text-sm font-black text-[var(--team-secondary)] shadow-lg">
           {player.number}
         </div>
@@ -49,7 +66,10 @@ export default function PlayerCard({ player }: { player: Player }) {
         )}
       </div>
       <div className="p-3">
-        <h3 className="text-sm font-bold tracking-tight">{player.name}</h3>
+        <h3 className="text-sm font-bold tracking-tight">
+          {player.name}
+          {captain ? <span className="ml-1 text-[11px] text-[#d4af37]">· Cap.</span> : null}
+        </h3>
         <p className="text-[11px] uppercase tracking-wide opacity-55">{player.position}</p>
         <div className="mt-2 grid grid-cols-3 gap-1 text-center text-[11px]">
           <div className="rounded-md bg-white/5 p-1.5">

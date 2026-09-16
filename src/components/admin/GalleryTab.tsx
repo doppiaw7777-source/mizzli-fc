@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { GalleryItem, TeamData } from "@/lib/types";
-import { uploadImageWithFallback } from "@/lib/images";
+import { uploadImageWithFallback, uploadOriginalImage } from "@/lib/images";
 
 export default function GalleryTab({
   draft,
@@ -18,11 +18,12 @@ export default function GalleryTab({
   const addFiles = async (files: FileList | null) => {
     if (!files?.length) return;
     setBusy(true);
-    setMsg("Caricamento...");
+    setMsg("Caricamento originale...");
     const added: GalleryItem[] = [];
     const errors: string[] = [];
     for (const file of Array.from(files)) {
-      const result = await uploadImageWithFallback(file);
+      let result = await uploadOriginalImage(file);
+      if (!result.url) result = await uploadImageWithFallback(file);
       if (result.url) {
         added.push({
           id: `g${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -72,7 +73,7 @@ export default function GalleryTab({
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Galleria / Album</h2>
       <p className="text-sm opacity-70">
-        Scegli l&apos;album, poi carica. Se esce “sessione scaduta” esci e rientra in Admin.
+        Carica JPG, PNG o WEBP di qualsiasi misura. Il file originale viene tenuto.
       </p>
       <div className="flex flex-wrap items-end gap-3">
         <label className="block min-w-[12rem] space-y-1">

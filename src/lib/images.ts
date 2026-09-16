@@ -54,22 +54,10 @@ export async function compressImage(file: File): Promise<File> {
   });
 }
 
-export async function uploadImageWithFallback(
-  file: File
-): Promise<{ url: string | null; message?: string }> {
-  if (!file || file.size === 0) {
-    return { url: null, message: "File non valido" };
-  }
-
-  if (!file.type.startsWith("image/")) {
-    return { url: null, message: "Seleziona un file immagine (JPG, PNG, WEBP)" };
-  }
-
-  const ready = await compressImage(file);
-
+async function postFile(file: File): Promise<{ url: string | null; message?: string }> {
   try {
     const formData = new FormData();
-    formData.append("file", ready);
+    formData.append("file", file);
     const res = await apiFetch("/api/upload", { method: "POST", body: formData });
     if (res.ok) {
       const data = await res.json();
@@ -83,15 +71,35 @@ export async function uploadImageWithFallback(
     /* fallback */
   }
 
-  if (ready.size <= MAX_BASE64_SIZE) {
-    const url = await readFileAsDataURL(ready);
+  if (file.size <= MAX_BASE64_SIZE) {
+    const url = await readFileAsDataURL(file);
     return { url, message: "Immagine salvata. Pubblica per confermare." };
   }
 
   return {
     url: null,
-    message: "Immagine troppo grande. Usa un file sotto 1.5 MB.",
+    message: "Immagine troppo grande per il salvataggio di riserva.",
   };
+}
+
+export async function uploadImageWithFallback(
+  file: File
+): Promise<{ url: string | null; message?: string }> {
+  if (!file || file.size === 0) return { url: null, message: "File non valido" };
+  if (!file.type.startsWith("image/")) {
+    return { url: null, message: "Seleziona un file immagine (JPG, PNG, WEBP)" };
+  }
+  return postFile(await compressImage(file));
+}
+
+export async function uploadOriginalImage(
+  file: File
+): Promise<{ url: string | null; message?: string }> {
+  if (!file || file.size === 0) return { url: null, message: "File non valido" };
+  if (!file.type.startsWith("image/")) {
+    return { url: null, message: "Seleziona un file immagine (JPG, PNG, WEBP)" };
+  }
+  return postFile(file);
 }
 
 export function isValidImageUrl(value: string) {

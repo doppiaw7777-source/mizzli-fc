@@ -13,6 +13,7 @@ import {
   StandingsTab,
 } from "@/components/admin/AdminPanelParts";
 import ClubTab from "@/components/admin/ClubTab";
+import GalleryTab from "@/components/admin/GalleryTab";
 import LiveTab from "@/components/admin/LiveTab";
 import CallupBoard from "@/components/CallupBoard";
 import WhatsAppTab from "@/components/admin/WhatsAppTab";
@@ -39,6 +40,7 @@ export type AdminTab =
   | "contenuti"
   | "classifica"
   | "club"
+  | "galleria"
   | "eventi"
   | "documenti"
   | "multe"
@@ -78,6 +80,7 @@ export default function AdminPanel({
     { id: "contenuti", label: "Contenuti" },
     { id: "classifica", label: "Classifica" },
     { id: "club", label: "Club+" },
+    { id: "galleria", label: "Galleria" },
     { id: "eventi", label: "Eventi" },
     { id: "documenti", label: "Documenti" },
     { id: "multe", label: "Multe" },
@@ -238,6 +241,7 @@ export default function AdminPanel({
         {tab === "contenuti" && <ContentTab draft={draft} setDraft={setDraft} onUpload={handleImageUpload} />}
         {tab === "classifica" && <StandingsTab draft={draft} setDraft={setDraft} onUpload={handleImageUpload} />}
         {tab === "club" && <ClubTab draft={draft} setDraft={setDraft} limited={limitedClubTab} onUpload={handleImageUpload} />}
+        {tab === "galleria" && <GalleryTab draft={draft} setDraft={setDraft} />}
         {tab === "eventi" && <EventsTab draft={draft} setDraft={setDraft} />}
         {tab === "documenti" && <DocumentsTab draft={draft} setDraft={setDraft} />}
         {tab === "multe" && <FinesTab draft={draft} setDraft={setDraft} />}

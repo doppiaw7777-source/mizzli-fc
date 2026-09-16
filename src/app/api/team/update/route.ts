@@ -2,36 +2,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { getTeamData, saveTeamData } from "@/lib/storage";
 import type { ClubEvent, Match, TeamData } from "@/lib/types";
-import { compactTeamData, staffWritableSubset } from "@/lib/roles";
-import { getUserSession, requireStaffUser } from "@/lib/user-auth";
+import { canAccessStaff, compactTeamData, staffWritableSubset } from "@/lib/roles";
+import { getUserSession } from "@/lib/user-auth";
 import { addNotice } from "@/lib/notices";
 import { matchPublicDetail, matchPublicTitle } from "@/lib/match-kind";
 
 export const dynamic = "force-dynamic";
 
-async function authorizeAndSanitize(request: NextRequest, body: Partial<TeamData>) {
-  const user = await getUserSession();
-  if (user) {
-    if (user.role === "coach" || user.role === "assistant_coach" || user.role === "team_manager") {
-      return {
-        mode: "staff" as const,
-        role: user.role,
-        payload: compactTeamData(staffWritableSubset(body, user.role)) as Partial<TeamData>,
-      };
-    }
-    throw new Error("Non autorizzato");
-  }
+async function authorizeAndSanitize(_request: NextRequest, body: Partial<TeamData>) {
   try {
     await requireAdmin();
     return { mode: "admin" as const, payload: body };
   } catch {
-    const staff = await requireStaffUser();
+    /* staff below */
+  }
+  const user = await getUserSession();
+  if (user && canAccessStaff(user)) {
     return {
       mode: "staff" as const,
-      role: staff.role,
-      payload: compactTeamData(staffWritableSubset(body, staff.role)) as Partial<TeamData>,
+      role: user.role,
+      payload: compactTeamData(staffWritableSubset(body, user.role, user.grants)) as Partial<TeamData>,
     };
   }
+  throw new Error("Non autorizzato");
 }
 
 function stamp(m: Match) {

@@ -117,6 +117,16 @@ export default function SettingsTab({
     <div className="space-y-6">
       <DemoClubBox />
       <h2 className="text-xl font-bold">Personalizzazione Completa</h2>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={!!s.ui.showRosaMiniBadge}
+          onChange={(e) =>
+            updateSettings({ ui: { ...s.ui, showRosaMiniBadge: e.target.checked } })
+          }
+        />
+        Mostra il quadratino in basso a destra sulle card Rosa
+      </label>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Nome Squadra">

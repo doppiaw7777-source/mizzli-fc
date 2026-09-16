@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { apiFetch, getStoredToken } from "@/lib/api";
@@ -37,15 +38,15 @@ function snapshot(d: TeamData) {
   });
 }
 
-function pollMs() {
-  if (typeof window === "undefined") return 12000;
-  return window.location.pathname.startsWith("/convocati") ? 4000 : 12000;
+function onCallupsPage() {
+  return typeof window !== "undefined" && window.location.pathname.startsWith("/convocati");
 }
 
 export function TeamProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<TeamData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(() => !!getStoredToken());
+  const lastAt = useRef(0);
 
   const refresh = useCallback(async () => {
     try {
@@ -61,6 +62,7 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
       /* keep last snapshot */
     } finally {
       setLoading(false);
+      lastAt.current = Date.now();
     }
   }, []);
 
@@ -100,25 +102,19 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
   }, [refresh, checkAuth]);
 
   useEffect(() => {
-    let id = 0;
     const tick = () => {
       if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+      const wait = onCallupsPage() ? 4000 : 12000;
+      if (Date.now() - lastAt.current < wait) return;
       void refresh();
     };
-    const arm = () => {
-      if (id) window.clearInterval(id);
-      id = window.setInterval(tick, pollMs());
-    };
-    arm();
-    const onNav = () => arm();
+    const id = window.setInterval(tick, 2000);
     document.addEventListener("visibilitychange", tick);
     window.addEventListener("focus", tick);
-    window.addEventListener("popstate", onNav);
     return () => {
-      if (id) window.clearInterval(id);
+      window.clearInterval(id);
       document.removeEventListener("visibilitychange", tick);
       window.removeEventListener("focus", tick);
-      window.removeEventListener("popstate", onNav);
     };
   }, [refresh]);
 

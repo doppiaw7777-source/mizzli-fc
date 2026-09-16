@@ -66,6 +66,7 @@ export default function SettingsTab({
 }) {
   const s = draft.settings;
   const branding = s.branding as typeof s.branding & { fieldNote?: string; fieldMapsUrl?: string };
+  const ui = s.ui as typeof s.ui & { showCrestGoldRing?: boolean };
   type ColorKey = keyof typeof s.colors;
   const updateSettings = (patch: Partial<typeof s>) => {
     setDraft({ ...draft, settings: { ...s, ...patch } });
@@ -158,6 +159,17 @@ export default function SettingsTab({
         Mostra il quadratino in basso a destra sulle card Rosa
       </label>
 
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={ui.showCrestGoldRing !== false}
+          onChange={(e) =>
+            updateSettings({ ui: { ...s.ui, showCrestGoldRing: e.target.checked } })
+          }
+        />
+        Anello d'oro luccicante sullo stemma centrale in Home
+      </label>
+
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Nome Squadra">
           <input value={s.teamName} onChange={(e) => updateSettings({ teamName: e.target.value })} className="input-field" />
@@ -191,7 +203,7 @@ export default function SettingsTab({
       </div>
 
       <div>
-        <h3 className="mb-3 font-semibold">Identità e testi dell&apos;app</h3>
+        <h3 className="mb-3 font-semibold">Identità e testi dell'app</h3>
         <div className="grid gap-4 md:grid-cols-2">
           {brandFields.map(([key, label]) => (
             <Field key={key} label={label}>

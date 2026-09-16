@@ -30,13 +30,16 @@ const ROLES: { id: "ALL" | PlayerRole; label: string }[] = [
   { id: "ATT", label: "Att" },
 ];
 
-function valueOf(p: {
-  stats?: { goals?: number; assists?: number; appearances?: number };
-  minutes?: number;
-  motm?: number;
-  yellowCards?: number;
-  redCards?: number;
-}, tab: Tab) {
+function valueOf(
+  p: {
+    stats?: { goals?: number; assists?: number; appearances?: number };
+    minutes?: number;
+    motm?: number;
+    yellowCards?: number;
+    redCards?: number;
+  },
+  tab: Tab
+) {
   if (tab === "goals") return p.stats?.goals ?? 0;
   if (tab === "assists") return p.stats?.assists ?? 0;
   if (tab === "appearances") return p.stats?.appearances ?? 0;
@@ -49,6 +52,15 @@ export default function StatistichePage() {
   const { data } = useTeam();
   const [tab, setTab] = useState<Tab>("goals");
   const [role, setRole] = useState<"ALL" | PlayerRole>("ALL");
+
+  const rows = useMemo(() => {
+    if (!data) return [];
+    return [...(data.players || [])]
+      .filter((p) => role === "ALL" || p.role === role)
+      .map((player) => ({ player, value: valueOf(player, tab) }))
+      .sort((a, b) => b.value - a.value || a.player.number - b.player.number);
+  }, [data, role, tab]);
+
   if (!data) return null;
 
   const league = (data.matches || []).filter((m) => getMatchKind(m) === "partita" && parseScore(m.result));
@@ -70,14 +82,6 @@ export default function StatistichePage() {
   const form = formGuide(data);
   const goals = ranking(data, "goals").filter((r) => r.value > 0).slice(0, 3);
   const assists = ranking(data, "assists").filter((r) => r.value > 0).slice(0, 3);
-
-  const rows = useMemo(() => {
-    return [...(data.players || [])]
-      .filter((p) => role === "ALL" || p.role === role)
-      .map((player) => ({ player, value: valueOf(player, tab) }))
-      .sort((a, b) => b.value - a.value || a.player.number - b.player.number);
-  }, [data.players, role, tab]);
-
   const max = Math.max(1, rows[0]?.value || 0);
 
   return (
@@ -118,38 +122,36 @@ export default function StatistichePage() {
           </div>
         </div>
 
-        {(goals.length > 0 || assists.length > 0) && (
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <p className="text-xs uppercase tracking-wider opacity-50">Top marcatori</p>
-              <div className="mt-3 space-y-2">
-                {goals.map((r, i) => (
-                  <Link key={r.player.id} href={`/giocatore/${r.player.id}`} className="flex items-center gap-3">
-                    <span className="w-4 text-sm opacity-40">{i + 1}</span>
-                    <PlayerKit player={r.player} size="xs" animate={false} />
-                    <span className="flex-1 truncate font-semibold">{r.player.name}</span>
-                    <span className="font-black text-[var(--team-accent)]">{r.value}</span>
-                  </Link>
-                ))}
-                {goals.length === 0 && <p className="text-sm opacity-50">Nessun gol ancora</p>}
-              </div>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <p className="text-xs uppercase tracking-wider opacity-50">Top assist</p>
-              <div className="mt-3 space-y-2">
-                {assists.map((r, i) => (
-                  <Link key={r.player.id} href={`/giocatore/${r.player.id}`} className="flex items-center gap-3">
-                    <span className="w-4 text-sm opacity-40">{i + 1}</span>
-                    <PlayerKit player={r.player} size="xs" animate={false} />
-                    <span className="flex-1 truncate font-semibold">{r.player.name}</span>
-                    <span className="font-black text-[var(--team-accent)]">{r.value}</span>
-                  </Link>
-                ))}
-                {assists.length === 0 && <p className="text-sm opacity-50">Nessun assist ancora</p>}
-              </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-xs uppercase tracking-wider opacity-50">Top marcatori</p>
+            <div className="mt-3 space-y-2">
+              {goals.length === 0 && <p className="text-sm opacity-50">Nessun gol ancora</p>}
+              {goals.map((r, i) => (
+                <Link key={r.player.id} href={`/giocatore/${r.player.id}`} className="flex items-center gap-3">
+                  <span className="w-4 text-sm opacity-40">{i + 1}</span>
+                  <PlayerKit player={r.player} size="xs" animate={false} />
+                  <span className="flex-1 truncate font-semibold">{r.player.name}</span>
+                  <span className="font-black text-[var(--team-accent)]">{r.value}</span>
+                </Link>
+              ))}
             </div>
           </div>
-        )}
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-xs uppercase tracking-wider opacity-50">Top assist</p>
+            <div className="mt-3 space-y-2">
+              {assists.length === 0 && <p className="text-sm opacity-50">Nessun assist ancora</p>}
+              {assists.map((r, i) => (
+                <Link key={r.player.id} href={`/giocatore/${r.player.id}`} className="flex items-center gap-3">
+                  <span className="w-4 text-sm opacity-40">{i + 1}</span>
+                  <PlayerKit player={r.player} size="xs" animate={false} />
+                  <span className="flex-1 truncate font-semibold">{r.player.name}</span>
+                  <span className="font-black text-[var(--team-accent)]">{r.value}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
 
         <div className="flex flex-wrap gap-2">
           {TABS.map((t) => (
@@ -185,11 +187,7 @@ export default function StatistichePage() {
             <p className="py-4 text-center text-sm opacity-60">Ancora nessun dato per questa voce.</p>
           )}
           {rows.map((row, i) => (
-            <Link
-              key={row.player.id}
-              href={`/giocatore/${row.player.id}`}
-              className="block rounded-xl bg-white/5 px-3 py-2.5"
-            >
+            <Link key={row.player.id} href={`/giocatore/${row.player.id}`} className="block rounded-xl bg-white/5 px-3 py-2.5">
               <div className="flex items-center gap-3">
                 <span className="w-5 text-sm font-black opacity-40">{i + 1}</span>
                 <PlayerKit player={row.player} size="xs" animate={false} />

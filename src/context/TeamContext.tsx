@@ -37,6 +37,11 @@ function snapshot(d: TeamData) {
   });
 }
 
+function pollMs() {
+  if (typeof window === "undefined") return 12000;
+  return window.location.pathname.startsWith("/convocati") ? 4000 : 12000;
+}
+
 export function TeamProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<TeamData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -95,17 +100,25 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
   }, [refresh, checkAuth]);
 
   useEffect(() => {
+    let id = 0;
     const tick = () => {
       if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
       void refresh();
     };
-    const id = window.setInterval(tick, 12000);
+    const arm = () => {
+      if (id) window.clearInterval(id);
+      id = window.setInterval(tick, pollMs());
+    };
+    arm();
+    const onNav = () => arm();
     document.addEventListener("visibilitychange", tick);
     window.addEventListener("focus", tick);
+    window.addEventListener("popstate", onNav);
     return () => {
-      window.clearInterval(id);
+      if (id) window.clearInterval(id);
       document.removeEventListener("visibilitychange", tick);
       window.removeEventListener("focus", tick);
+      window.removeEventListener("popstate", onNav);
     };
   }, [refresh]);
 

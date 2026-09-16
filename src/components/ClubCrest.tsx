@@ -1,6 +1,7 @@
 "use client";
 
 import { clubLogo } from "@/lib/brand";
+import { useTeam } from "@/context/TeamContext";
 import type { TeamSettings } from "@/lib/types";
 
 export default function ClubCrest({
@@ -18,7 +19,10 @@ export default function ClubCrest({
   goldRing?: boolean;
   className?: string;
 }) {
-  const ring = goldRing ?? (glow && size >= 96);
+  const { data } = useTeam();
+  const allowed =
+    (data?.settings?.ui as { showCrestGoldRing?: boolean } | undefined)?.showCrestGoldRing !== false;
+  const ring = allowed && (goldRing ?? (glow && size >= 96));
   const img = (
     <img
       src={clubLogo(settings)}

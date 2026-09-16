@@ -183,9 +183,6 @@ export function PlayersTab({
             <Field label="Gol">
               <input type="number" value={p.stats.goals} onChange={(e) => updatePlayer({ stats: { ...p.stats, goals: parseInt(e.target.value) || 0 } })} className="input-field" />
             </Field>
-            <Field label="Assist">
-              <input type="number" value={p.stats.assists} onChange={(e) => updatePlayer({ stats: { ...p.stats, assists: parseInt(e.target.value) || 0 } })} className="input-field" />
-            </Field>
             <Field label="Presenze">
               <input type="number" value={p.stats.appearances} onChange={(e) => updatePlayer({ stats: { ...p.stats, appearances: parseInt(e.target.value) || 0 } })} className="input-field" />
             </Field>

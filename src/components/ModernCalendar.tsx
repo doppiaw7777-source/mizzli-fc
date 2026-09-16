@@ -173,12 +173,14 @@ function CalendarGrid({
   const cols = model.showWeekNumbers ? "grid-cols-8" : "grid-cols-7";
   const monthPrefix = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`;
   const monthLegend = useMemo(() => {
-    const seen = new Map<string, CalendarItem>();
+    const seen = new Map<string, { color: string; label: string }>();
     for (const item of filtered) {
       if (!item.date.startsWith(monthPrefix)) continue;
-      if (!seen.has(item.id)) seen.set(item.id, item);
+      const color = normalizeHex(item.color) || item.color;
+      if (!color || seen.has(color.toLowerCase())) continue;
+      seen.set(color.toLowerCase(), { color, label: item.detail || item.title });
     }
-    return [...seen.values()].slice(0, 8);
+    return [...seen.values()];
   }, [filtered, monthPrefix]);
 
   const goToday = () => {
@@ -391,7 +393,7 @@ function CalendarGrid({
         <div className="mt-4 flex flex-wrap gap-2">
           {monthLegend.map((item) => (
             <span
-              key={item.id}
+              key={item.color}
               className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-[11px]"
             >
               <i
@@ -399,7 +401,7 @@ function CalendarGrid({
                 style={{ background: item.color }}
                 aria-hidden
               />
-              <span className="truncate">{item.title}</span>
+              <span className="truncate">{item.label}</span>
             </span>
           ))}
         </div>

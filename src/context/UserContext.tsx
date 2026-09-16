@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { apiFetch } from "@/lib/api";
-import { pingPresence, startLivePresence, startPreciseLocation, stopPreciseLocation } from "@/lib/client-session";
+import { pingPresence, stopPreciseLocation } from "@/lib/client-session";
 import type { PublicUser } from "@/lib/types";
 
 interface UserContextValue {
@@ -55,42 +55,22 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!user) return;
-    void startPreciseLocation();
-    startLivePresence();
     const pingQuick = () => {
       void pingPresence("quick");
-    };
-    const pingFull = () => {
-      void pingPresence("full");
     };
     const offline = () => {
       void apiFetch("/api/presence/offline", { method: "POST", keepalive: true });
     };
 
-    const onVisibility = () => pingQuick();
-    const onPageHide = () => {
-      pingQuick();
-      offline();
-    };
-
-    pingFull();
-    const quickTimer = setInterval(pingQuick, 2000);
-    const fullTimer = setInterval(pingFull, 20000);
-    document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("focus", onVisibility);
-    window.addEventListener("blur", onVisibility);
-    window.addEventListener("pagehide", onPageHide);
-    window.addEventListener("beforeunload", onPageHide);
+    pingQuick();
+    const timer = setInterval(pingQuick, 60000);
+    document.addEventListener("visibilitychange", pingQuick);
+    window.addEventListener("pagehide", offline);
 
     return () => {
-      clearInterval(quickTimer);
-      clearInterval(fullTimer);
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("focus", onVisibility);
-      window.removeEventListener("blur", onVisibility);
-      window.removeEventListener("pagehide", onPageHide);
-      window.removeEventListener("beforeunload", onPageHide);
-      void stopPreciseLocation();
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", pingQuick);
+      window.removeEventListener("pagehide", offline);
       offline();
     };
   }, [user?.id]);

@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { requireAdmin } from "@/lib/auth";
 import { getUsers, saveUsers, toPublicUser } from "@/lib/users";
 import { hashPassword, isValidEmail, validatePassword } from "@/lib/user-auth";
+import { normalizeGrants } from "@/lib/permissions";
 import type { AppUser, UserRole } from "@/lib/types";
 
 function isUserRole(value: unknown): value is UserRole {
@@ -61,6 +62,7 @@ export async function POST(request: Request) {
   if (users.some((u) => u.email.toLowerCase() === email)) {
     return NextResponse.json({ error: "Questa email e gia registrata" }, { status: 409 });
   }
+  const grants = normalizeGrants(role, body?.grants);
   const user: AppUser = {
     id: randomUUID(),
     email,
@@ -73,7 +75,8 @@ export async function POST(request: Request) {
     createdAt: new Date().toISOString(),
     phone: "",
     phoneVerified: false,
-  };
+    grants,
+  } as AppUser;
   users.push(user);
   await saveUsers(users);
   return NextResponse.json({ ok: true, user: toPublicUser(user) });
@@ -87,16 +90,23 @@ export async function PATCH(request: Request) {
   }
   const body = await request.json().catch(() => ({}));
   const id = String(body?.id || "").trim();
-  const role = body?.role;
-  if (!id || !isUserRole(role)) {
-    return NextResponse.json({ error: "Utente o ruolo non valido" }, { status: 400 });
-  }
   const users = await getUsers();
   const user = users.find((u) => u.id === id);
   if (!user) {
     return NextResponse.json({ error: "Utente non trovato" }, { status: 404 });
   }
-  user.role = role;
+  if (body?.role !== undefined) {
+    if (!isUserRole(body.role)) {
+      return NextResponse.json({ error: "Ruolo non valido" }, { status: 400 });
+    }
+    user.role = body.role;
+    if (body.grants === undefined) {
+      (user as AppUser & { grants?: string[] }).grants = normalizeGrants(body.role);
+    }
+  }
+  if (body?.grants !== undefined) {
+    (user as AppUser & { grants?: string[] }).grants = normalizeGrants(user.role, body.grants);
+  }
   await saveUsers(users);
   return NextResponse.json({ ok: true, user: toPublicUser(user) });
 }

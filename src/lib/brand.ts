@@ -1,4 +1,4 @@
-export const MIZZLI_CREST = "/brand/mizzli-crest.png";
+export const MIZZLI_CREST = "/api/media/16eafe68-678b-4ec8-9889-02b44185d296";
 export const MIZZLI_NAME = "MIZZLI FC";
 
 export function teamCrest(settings?: {

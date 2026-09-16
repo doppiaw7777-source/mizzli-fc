@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { TeamProvider } from "@/context/TeamContext";
 import { UserProvider } from "@/context/UserContext";
 import NativeBootstrap from "@/components/NativeBootstrap";
+import { MIZZLI_CREST } from "@/lib/brand";
 import "./globals.css";
 import "./crest-plain.css";
 import "./partner-ticker.css";
@@ -24,8 +25,8 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
   },
   icons: {
-    icon: [{ url: "/brand/mizzli-crest.png", sizes: "192x192" }],
-    apple: "/brand/mizzli-crest.png",
+    icon: [{ url: MIZZLI_CREST, sizes: "192x192" }],
+    apple: MIZZLI_CREST,
   },
   other: {
     "mobile-web-app-capable": "yes",

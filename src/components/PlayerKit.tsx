@@ -6,6 +6,7 @@ import { useTeam } from "@/context/TeamContext";
 import { MIZZLI_CREST } from "@/lib/brand";
 import { photoFitStyle, playerThumb } from "@/lib/player-art";
 import { shortPlayerLabel } from "@/lib/player-name";
+import CaptainBand from "@/components/CaptainBand";
 import {
   DEFAULT_PLAYER_GRAPHIC,
   getPlayerGraphic,
@@ -48,6 +49,7 @@ export function PlayerKit({
   const delay = animate ? Math.min((player.number % 11) * 35, 240) : 0;
   const showPhoto = graphic.photo || photoHead;
   const photo = showPhoto ? player.photoUrl || playerThumb(player) : "";
+  const isCap = captain || data?.formation?.captainId === player.id;
 
   return (
     <div
@@ -96,7 +98,7 @@ export function PlayerKit({
           <span className="player-mark-role">{ROLE_LETTER[player.role] || player.role}</span>
         )}
       </div>
-      {captain && <span className="player-kit-c">C</span>}
+      {isCap ? <CaptainBand className="absolute -bottom-1 -right-1 scale-75" /> : null}
     </div>
   );
 }
@@ -156,6 +158,7 @@ export function PlayerCardArt({
   );
   const showMini = !!data?.settings.ui.showRosaMiniBadge;
   const art = player.photoUrl || playerThumb(player);
+  const isCap = captain || data?.formation?.captainId === player.id;
   return (
     <div className={`player-card-art ${className}`} style={{ animationDelay: `${delay}ms` }}>
       <img
@@ -179,7 +182,7 @@ export function PlayerCardArt({
           />
         </div>
       ) : null}
-      {captain && <span className="player-kit-c">C</span>}
+      {isCap ? <CaptainBand className="absolute bottom-2 right-2 z-10" /> : null}
       <div className="player-card-art-foot">
         <p className="player-card-art-name">{player.name}</p>
         <p className="player-card-art-role">{player.position}</p>

@@ -1,0 +1,45 @@
+.crest-gold-ring {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+}
+.crest-gold-ring-spin {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    #7a5b12 0%,
+    #d4af37 18%,
+    #fff4c2 32%,
+    #d4af37 48%,
+    #8a6d12 62%,
+    #fff1b0 78%,
+    #d4af37 90%,
+    #7a5b12 100%
+  );
+  animation: crest-gold-spin 3.4s linear infinite;
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.75));
+}
+.crest-gold-ring-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  border-radius: 50%;
+  background: #0b0614;
+  overflow: hidden;
+}
+@keyframes crest-gold-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .crest-gold-ring-spin {
+    animation: none;
+  }
+}

@@ -122,7 +122,8 @@ export async function getSession(): Promise<{ username: string } | null> {
 
 export async function requireAdmin() {
   const session = await getSession();
-  if (!session) {
+  if (!session) throw new Error("Unauthorized");
+  if (session.username.trim().toLowerCase() !== ADMIN_USERNAME.toLowerCase()) {
     throw new Error("Unauthorized");
   }
   return session;

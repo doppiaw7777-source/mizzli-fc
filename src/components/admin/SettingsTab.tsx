@@ -1,6 +1,7 @@
 "use client";
 
 import LogoPicker from "@/components/LogoPicker";
+import DemoClubBox from "@/components/admin/DemoClubBox";
 import { resolveTeamLogo, setTeamLogo } from "@/lib/club-teams";
 import type { TeamData } from "@/lib/types";
 
@@ -114,6 +115,7 @@ export default function SettingsTab({
 
   return (
     <div className="space-y-6">
+      <DemoClubBox />
       <h2 className="text-xl font-bold">Personalizzazione Completa</h2>
 
       <div className="grid gap-4 md:grid-cols-2">

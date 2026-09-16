@@ -126,16 +126,18 @@ export async function registerWithEmail(
     throw new Error("Questo utente è riservato. Usa un'email.");
   }
   if (!isValidEmail(cleanEmail)) throw new Error("Email non valida");
-  if (!isValidPhone(cleanPhone)) throw new Error("Inserisci un numero di cellulare valido");
   const pwdError = validatePassword(password);
   if (pwdError) throw new Error(pwdError);
 
   const existing = await findUserByEmail(cleanEmail);
   if (existing) throw new Error("Questa email è già registrata. Accedi.");
-  const taken = await findUserByPhone(normalizePhone(cleanPhone));
-  if (taken) throw new Error("Questo numero è già associato a un account. Accedi.");
 
-  await consumePhoneCode(cleanPhone, smsCode, "register");
+  if (cleanPhone) {
+    if (!isValidPhone(cleanPhone)) throw new Error("Inserisci un numero di cellulare valido");
+    const taken = await findUserByPhone(normalizePhone(cleanPhone));
+    if (taken) throw new Error("Questo numero è già associato a un account. Accedi.");
+    if (smsCode) await consumePhoneCode(cleanPhone, smsCode, "register");
+  }
 
   const user: AppUser = {
     id: randomUUID(),
@@ -147,8 +149,8 @@ export async function registerWithEmail(
     provider: "email",
     role: "fan",
     createdAt: new Date().toISOString(),
-    phone: normalizePhone(cleanPhone),
-    phoneVerified: true,
+    phone: cleanPhone ? normalizePhone(cleanPhone) : "",
+    phoneVerified: false,
   };
   await upsertUser(user);
   return createUserSession(user);

@@ -1,0 +1,36 @@
+.motto-gold {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background-image: linear-gradient(
+    110deg,
+    #7a5b12 0%,
+    #d4af37 18%,
+    #fff4c2 38%,
+    #f3e0a0 48%,
+    #d4af37 62%,
+    #fff1b0 78%,
+    #8a6d12 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.45));
+  animation: motto-shine 3.2s ease-in-out infinite;
+}
+@keyframes motto-shine {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .motto-gold {
+    animation: none;
+    background-position: 40% 50%;
+  }
+}

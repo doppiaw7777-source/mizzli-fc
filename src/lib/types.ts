@@ -145,6 +145,7 @@ export interface TeamSettings {
     calendarModelId: string;
     calendarSize: "xs" | "sm" | "md" | "lg" | "xl";
     playerGraphicId: string;
+    showRosaMiniBadge?: boolean;
   };
 }
 

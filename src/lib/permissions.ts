@@ -1,22 +1,22 @@
 import type { UserRole } from "./types";
 
 export type UserGrant =
+  | "rosa"
   | "callups"
   | "formation"
   | "calendar"
   | "live"
   | "events"
-  | "documents"
-  | "fines";
+  | "documents";
 
 export const ALL_GRANTS: { id: UserGrant; label: string }[] = [
+  { id: "rosa", label: "Rosa" },
   { id: "callups", label: "Convocati (inserire / svuotare)" },
   { id: "formation", label: "Formazione" },
   { id: "calendar", label: "Calendario partite" },
   { id: "live", label: "Live gara" },
   { id: "events", label: "Eventi" },
   { id: "documents", label: "Documenti" },
-  { id: "fines", label: "Multe" },
 ];
 
 export const DEFAULT_GRANTS: Record<UserRole, UserGrant[]> = {
@@ -24,7 +24,7 @@ export const DEFAULT_GRANTS: Record<UserRole, UserGrant[]> = {
   player: [],
   coach: ["callups", "formation", "calendar", "live", "events"],
   assistant_coach: ["callups", "formation", "calendar", "live", "events"],
-  team_manager: ["events", "documents", "fines"],
+  team_manager: ["events", "documents"],
 };
 
 export function normalizeGrants(role: UserRole, grants?: string[] | null): UserGrant[] {

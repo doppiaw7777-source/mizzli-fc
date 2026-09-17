@@ -22,7 +22,7 @@ export const ROLE_BLURBS: Record<UserRole, string> = {
   player: "Account giocatore: vede convocati, formazione e calendario.",
   coach: "Convocazioni, formazione e calendario partite.",
   assistant_coach: "Come l'allenatore: convocazioni, formazione e calendario.",
-  team_manager: "Multe, documenti ed eventi del club.",
+  team_manager: "Documenti ed eventi del club.",
 };
 
 export type StaffPanelTab =
@@ -32,7 +32,7 @@ export type StaffPanelTab =
   | "calendario"
   | "eventi"
   | "documenti"
-  | "multe";
+  | "rosa";
 
 export function isFanRole(role?: UserRole | null) {
   return !role || role === "fan";
@@ -75,10 +75,6 @@ export function canEditCallups(user: RoleUser) {
   return hasGrant(user?.role, user?.grants, "callups");
 }
 
-export function canEditFines(user: RoleUser) {
-  return hasGrant(user?.role, user?.grants, "fines");
-}
-
 export function canEditDocuments(user: RoleUser) {
   return hasGrant(user?.role, user?.grants, "documents");
 }
@@ -89,6 +85,10 @@ export function canEditEvents(user: RoleUser) {
 
 export function canEditCalendar(user: RoleUser) {
   return hasGrant(user?.role, user?.grants, "calendar");
+}
+
+export function canEditRosa(user: RoleUser) {
+  return hasGrant(user?.role, user?.grants, "rosa");
 }
 
 export function canVote(user: RoleUser) {
@@ -104,13 +104,13 @@ export function postLoginPath(user: RoleUser) {
 export function staffPanelTabs(role: UserRole, grants?: string[]): StaffPanelTab[] {
   const g = normalizeGrants(role, grants);
   const tabs: StaffPanelTab[] = [];
+  if (g.includes("rosa")) tabs.push("rosa");
   if (g.includes("calendar")) tabs.push("calendario");
   if (g.includes("formation")) tabs.push("formazione");
   if (g.includes("callups")) tabs.push("convocati");
   if (g.includes("live")) tabs.push("live");
   if (g.includes("events")) tabs.push("eventi");
   if (g.includes("documents")) tabs.push("documenti");
-  if (g.includes("fines")) tabs.push("multe");
   return tabs;
 }
 
@@ -143,8 +143,8 @@ export function staffWritableSubset(
   }
   if (g.includes("events") && input.club) club.events = input.club.events;
   if (g.includes("documents") && input.club) club.documents = input.club.documents;
-  if (g.includes("fines") && input.club) club.fines = input.club.fines;
   return compactTeamData({
+    players: g.includes("rosa") ? input.players : undefined,
     formation: g.includes("formation") ? formationSubset(input.formation) : undefined,
     matches: g.includes("calendar") ? input.matches : undefined,
     club: Object.keys(club).length ? club : undefined,

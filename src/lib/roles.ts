@@ -20,8 +20,8 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 export const ROLE_BLURBS: Record<UserRole, string> = {
   fan: "Guarda il sito, vota e legge le news. Non modifica la squadra.",
   player: "Account giocatore: vede convocati, formazione e calendario.",
-  coach: "Convocazioni, formazione e calendario partite.",
-  assistant_coach: "Come l'allenatore: convocazioni, formazione e calendario.",
+  coach: "Convocazioni, formazione, calendario e classifica.",
+  assistant_coach: "Come l'allenatore: convocazioni, formazione, calendario e classifica.",
   team_manager: "Documenti ed eventi del club.",
 };
 
@@ -30,6 +30,7 @@ export type StaffPanelTab =
   | "formazione"
   | "convocati"
   | "calendario"
+  | "classifica"
   | "eventi"
   | "documenti"
   | "rosa";
@@ -91,6 +92,10 @@ export function canEditRosa(user: RoleUser) {
   return hasGrant(user?.role, user?.grants, "rosa");
 }
 
+export function canEditStandings(user: RoleUser) {
+  return hasGrant(user?.role, user?.grants, "standings");
+}
+
 export function canVote(user: RoleUser) {
   return Boolean(user?.role);
 }
@@ -106,6 +111,7 @@ export function staffPanelTabs(role: UserRole, grants?: string[]): StaffPanelTab
   const tabs: StaffPanelTab[] = [];
   if (g.includes("rosa")) tabs.push("rosa");
   if (g.includes("calendar")) tabs.push("calendario");
+  if (g.includes("standings")) tabs.push("classifica");
   if (g.includes("formation")) tabs.push("formazione");
   if (g.includes("callups")) tabs.push("convocati");
   if (g.includes("live")) tabs.push("live");
@@ -147,6 +153,7 @@ export function staffWritableSubset(
     players: g.includes("rosa") ? input.players : undefined,
     formation: g.includes("formation") ? formationSubset(input.formation) : undefined,
     matches: g.includes("calendar") ? input.matches : undefined,
+    standings: g.includes("standings") ? input.standings : undefined,
     club: Object.keys(club).length ? club : undefined,
   }) as Partial<TeamData>;
 }

@@ -1,6 +1,7 @@
 import { clubNameKey } from "@/lib/club-teams";
 import { dateKey, todayKey } from "./dates";
 import { getMatchKind } from "./match-kind";
+import { leagueStandingRows, looksLikePlaceholderStandings } from "./league-clubs";
 import type { Match, StandingRow, Standings, TeamData } from "./types";
 
 export function parseScore(result?: string | null): [number, number] | null {
@@ -97,11 +98,15 @@ function applyGame(us: StandingRow, them: StandingRow, usGoals: number, themGoal
 
 export function syncStandings(data: TeamData): TeamData {
   const teamName = data.settings?.teamName || "MIZZLI FC";
-  const prev: Standings = data.standings || {
+  let prev: Standings = data.standings || {
     title: "Classifica Campionato",
     season: "",
     rows: [],
   };
+
+  if (looksLikePlaceholderStandings(prev.rows)) {
+    prev = { ...prev, rows: leagueStandingRows(teamName) };
+  }
 
   if (prev.manual) {
     const rows = sortStandings(

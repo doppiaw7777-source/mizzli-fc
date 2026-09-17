@@ -3,6 +3,7 @@
 import AppShell from "@/components/AppShell";
 import MatchCard from "@/components/MatchCard";
 import ModernCalendar from "@/components/ModernCalendar";
+import MizzliMatchLog from "@/components/MizzliMatchLog";
 import { useTeam } from "@/context/TeamContext";
 
 export default function CalendarioPage() {
@@ -76,6 +77,8 @@ export default function CalendarioPage() {
             </div>
           )}
         </section>
+
+        <MizzliMatchLog data={data} />
 
         {past.length > 0 && (
           <section>

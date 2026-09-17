@@ -5,6 +5,7 @@ export type UserGrant =
   | "callups"
   | "formation"
   | "calendar"
+  | "standings"
   | "live"
   | "events"
   | "documents";
@@ -28,7 +29,12 @@ export const ALL_GRANTS: { id: UserGrant; label: string; detail: string }[] = [
   {
     id: "calendar",
     label: "Calendario",
-    detail: "Crea e modifica partite, orari, risultati. Aggiorna anche la classifica automatica.",
+    detail: "Crea e modifica partite, orari, risultati.",
+  },
+  {
+    id: "standings",
+    label: "Classifica",
+    detail: "Modifica punti, gol fatti e subiti. Al salvataggio la tabella si riordina da sola.",
   },
   {
     id: "live",
@@ -50,8 +56,8 @@ export const ALL_GRANTS: { id: UserGrant; label: string; detail: string }[] = [
 export const DEFAULT_GRANTS: Record<UserRole, UserGrant[]> = {
   fan: [],
   player: [],
-  coach: ["callups", "formation", "calendar", "live", "events"],
-  assistant_coach: ["callups", "formation", "calendar", "live", "events"],
+  coach: ["callups", "formation", "calendar", "standings", "live", "events"],
+  assistant_coach: ["callups", "formation", "calendar", "standings", "live", "events"],
   team_manager: ["events", "documents"],
 };
 
@@ -64,22 +70,22 @@ export const ROLE_SETUP = [
   {
     id: "player",
     label: "Giocatore",
-    detail: "Come il tifoso, ma riconoscibile come giocatore. Per fargli toccare la rosa o i convocati serve la spunta.",
+    detail: "Come il tifoso, ma riconoscibile come giocatore.",
   },
   {
     id: "coach",
     label: "Allenatore",
-    detail: "Di default: convocati, formazione, calendario, live, eventi. Puoi aggiungere Rosa.",
+    detail: "Di default: convocati, formazione, calendario, classifica, live, eventi.",
   },
   {
     id: "assistant_coach",
     label: "Vice allenatore",
-    detail: "Stessi default del mister. Puoi togliere o aggiungere spunte.",
+    detail: "Stessi default del mister.",
   },
   {
     id: "team_manager",
     label: "Team Manager",
-    detail: "Di default: eventi e documenti. Rosa e convocati solo se li attivi tu.",
+    detail: "Di default: eventi e documenti.",
   },
 ] as const;
 

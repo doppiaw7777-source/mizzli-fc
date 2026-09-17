@@ -20,7 +20,6 @@ import WhatsAppTab from "@/components/admin/WhatsAppTab";
 import SmsTab from "@/components/admin/SmsTab";
 import EventsTab from "@/components/admin/EventsTab";
 import DocumentsTab from "@/components/admin/DocumentsTab";
-import FinesTab from "@/components/admin/FinesTab";
 import UsersTab from "@/components/admin/UsersTab";
 import AdminAiTab from "@/components/admin/AdminAiTab";
 import DeveloperGate from "@/components/DeveloperGate";
@@ -43,7 +42,6 @@ export type AdminTab =
   | "galleria"
   | "eventi"
   | "documenti"
-  | "multe"
   | "utenti"
   | "ai"
   | "whatsapp"
@@ -83,7 +81,6 @@ export default function AdminPanel({
     { id: "galleria", label: "Galleria" },
     { id: "eventi", label: "Eventi" },
     { id: "documenti", label: "Documenti" },
-    { id: "multe", label: "Multe" },
     { id: "utenti", label: "Ruoli" },
     { id: "ai", label: "AI" },
     { id: "whatsapp", label: "WhatsApp" },
@@ -244,7 +241,6 @@ export default function AdminPanel({
         {tab === "galleria" && <GalleryTab draft={draft} setDraft={setDraft} />}
         {tab === "eventi" && <EventsTab draft={draft} setDraft={setDraft} />}
         {tab === "documenti" && <DocumentsTab draft={draft} setDraft={setDraft} />}
-        {tab === "multe" && <FinesTab draft={draft} setDraft={setDraft} />}
         {tab === "utenti" && <UsersTab />}
         {tab === "ai" && <AdminAiTab />}
         {tab === "whatsapp" && <WhatsAppTab />}

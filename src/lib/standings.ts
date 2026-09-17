@@ -20,20 +20,63 @@ export function standingGoalDiff(row: StandingRow) {
   return row.goalsFor - row.goalsAgainst;
 }
 
-export function sortStandings(rows: StandingRow[]) {
+function clubKey(name: string) {
+  return clubNameKey(name);
+}
+
+function headToHeadDelta(
+  a: StandingRow,
+  b: StandingRow,
+  matches: Match[] | undefined,
+  teamName: string
+) {
+  const ka = clubKey(a.name);
+  const kb = clubKey(b.name);
+  const us = clubKey(teamName);
+  let aPts = 0;
+  let bPts = 0;
+  for (const match of matches || []) {
+    if (!isLeagueMatch(match)) continue;
+    const score = parseScore(match.result);
+    if (!score) continue;
+    const opp = clubKey(match.opponent);
+    if (ka === us && opp === kb) {
+      if (score[0] > score[1]) aPts += 3;
+      else if (score[0] < score[1]) bPts += 3;
+      else {
+        aPts += 1;
+        bPts += 1;
+      }
+    } else if (kb === us && opp === ka) {
+      if (score[0] > score[1]) bPts += 3;
+      else if (score[0] < score[1]) aPts += 3;
+      else {
+        aPts += 1;
+        bPts += 1;
+      }
+    }
+  }
+  return aPts - bPts;
+}
+
+export function sortStandings(
+  rows: StandingRow[],
+  matches?: Match[],
+  teamName?: string
+) {
   return [...rows].sort((a, b) => {
     const pd = standingPoints(b) - standingPoints(a);
     if (pd !== 0) return pd;
-    const gd = standingGoalDiff(b) - standingGoalDiff(a);
-    if (gd !== 0) return gd;
+    if (matches && teamName) {
+      const h2h = headToHeadDelta(a, b, matches, teamName);
+      if (h2h !== 0) return -h2h;
+    }
     const gf = b.goalsFor - a.goalsFor;
     if (gf !== 0) return gf;
+    const gd = standingGoalDiff(b) - standingGoalDiff(a);
+    if (gd !== 0) return gd;
     return a.name.localeCompare(b.name, "it");
   });
-}
-
-function clubKey(name: string) {
-  return clubNameKey(name);
 }
 
 export function isLeagueMatch(match: Match) {
@@ -112,12 +155,23 @@ export function syncStandings(data: TeamData): TeamData {
     const rows = sortStandings(
       (prev.rows || []).map((row) => {
         const ours = clubKey(row.name) === clubKey(teamName) || row.isUs;
+        const won = Math.max(0, Math.round(Number(row.won) || 0));
+        const drawn = Math.max(0, Math.round(Number(row.drawn) || 0));
+        const lost = Math.max(0, Math.round(Number(row.lost) || 0));
         return {
           ...row,
+          won,
+          drawn,
+          lost,
+          played: won + drawn + lost,
+          goalsFor: Math.max(0, Math.round(Number(row.goalsFor) || 0)),
+          goalsAgainst: Math.max(0, Math.round(Number(row.goalsAgainst) || 0)),
           isUs: ours,
           name: ours ? teamName : row.name,
         };
-      })
+      }),
+      data.matches,
+      teamName
     );
     return {
       ...data,
@@ -198,7 +252,9 @@ export function syncStandings(data: TeamData): TeamData {
           ? data.settings?.logoUrl || row.logoUrl || fromCatalog?.logoUrl || ""
           : row.logoUrl || fromCatalog?.logoUrl || "",
       };
-    })
+    }),
+    data.matches,
+    teamName
   );
 
   return {

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { ROLE_BLURBS, ROLE_LABELS } from "@/lib/roles";
 import { ALL_GRANTS, normalizeGrants, type UserGrant } from "@/lib/permissions";
+import RoleGuide from "@/components/admin/RoleGuide";
 import type { PublicUser, UserRole } from "@/lib/types";
 
 type ListedUser = PublicUser & { createdAt?: string; grants?: UserGrant[] };
@@ -151,6 +152,8 @@ export default function UsersTab() {
         </p>
       </div>
 
+      <RoleGuide />
+
       <div className="space-y-3 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4">
         <h3 className="font-bold text-amber-200">Ruolo personalizzato</h3>
         <label className="block">
@@ -169,6 +172,7 @@ export default function UsersTab() {
               <button
                 key={g.id}
                 type="button"
+                title={g.detail}
                 onClick={() =>
                   setNewRoleGrants((prev) =>
                     on ? prev.filter((x) => x !== g.id) : [...prev, g.id]
@@ -178,7 +182,7 @@ export default function UsersTab() {
                   on ? "bg-[var(--team-accent)] text-[var(--team-secondary)]" : "bg-white/10"
                 }`}
               >
-                {g.label.replace(" (inserire / svuotare)", "")}
+                {g.label}
               </button>
             );
           })}
@@ -247,8 +251,8 @@ export default function UsersTab() {
               <th className="px-3 py-3">Ruolo base</th>
               <th className="px-3 py-3">Applica personalizzato</th>
               {ALL_GRANTS.map((g) => (
-                <th key={g.id} className="px-2 py-3 text-center">
-                  {g.label.replace(" (inserire / svuotare)", "")}
+                <th key={g.id} className="px-2 py-3 text-center" title={g.detail}>
+                  {g.label}
                 </th>
               ))}
             </tr>
@@ -301,6 +305,7 @@ export default function UsersTab() {
                       <td key={g.id} className="px-2 py-3 text-center">
                         <button
                           type="button"
+                          title={g.detail}
                           disabled={savingId === u.id}
                           onClick={() => toggleGrant(u, g.id)}
                           className={`min-h-9 min-w-14 rounded-lg text-xs font-black ${

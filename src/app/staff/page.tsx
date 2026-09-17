@@ -21,7 +21,7 @@ export default function StaffPage() {
   const { user, loading, logout } = useUser();
   const router = useRouter();
   const allowed = !loading && canAccessStaff(user);
-  const tabs = user ? (staffPanelTabs(user.role) as AdminTab[]) : [];
+  const tabs = user ? (staffPanelTabs(user.role, user.grants) as AdminTab[]) : [];
 
   useEffect(() => {
     if (!loading && !user) router.replace("/accedi");
@@ -41,7 +41,7 @@ export default function StaffPage() {
         <div className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-[var(--team-card-bg)] p-8 text-center">
           <h1 className="text-3xl font-black">Area staff protetta</h1>
           <p className="mt-3 opacity-70">
-            Il mister gestisce formazione, convocati e live. Il team manager gestisce multe, documenti ed eventi. I tifosi votano e leggono dal profilo.
+            Il mister gestisce formazione, convocati e live. Il team manager gestisce documenti ed eventi.
           </p>
         </div>
       </AppShell>

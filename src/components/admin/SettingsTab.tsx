@@ -3,6 +3,7 @@
 import LogoPicker from "@/components/LogoPicker";
 import DemoClubBox from "@/components/admin/DemoClubBox";
 import { resolveTeamLogo, setTeamLogo } from "@/lib/club-teams";
+import { apiFetch } from "@/lib/api";
 import type { TeamData } from "@/lib/types";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -53,6 +54,14 @@ function ImageUpload({
       ) : null}
     </div>
   );
+}
+
+function persistFlags(patch: { showCrestGoldRing?: boolean; showRosaMiniBadge?: boolean }) {
+  void apiFetch("/api/ui-flags", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(patch),
+  });
 }
 
 export default function SettingsTab({
@@ -152,9 +161,10 @@ export default function SettingsTab({
         <input
           type="checkbox"
           checked={!!s.ui.showRosaMiniBadge}
-          onChange={(e) =>
-            updateSettings({ ui: { ...s.ui, showRosaMiniBadge: e.target.checked } })
-          }
+          onChange={(e) => {
+            updateSettings({ ui: { ...s.ui, showRosaMiniBadge: e.target.checked } });
+            persistFlags({ showRosaMiniBadge: e.target.checked });
+          }}
         />
         Mostra il quadratino in basso a destra sulle card Rosa
       </label>
@@ -163,9 +173,10 @@ export default function SettingsTab({
         <input
           type="checkbox"
           checked={ui.showCrestGoldRing !== false}
-          onChange={(e) =>
-            updateSettings({ ui: { ...s.ui, showCrestGoldRing: e.target.checked } })
-          }
+          onChange={(e) => {
+            updateSettings({ ui: { ...s.ui, showCrestGoldRing: e.target.checked } });
+            persistFlags({ showCrestGoldRing: e.target.checked });
+          }}
         />
         Anello d'oro luccicante sullo stemma centrale in Home
       </label>

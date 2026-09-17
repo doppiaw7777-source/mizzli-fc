@@ -21,9 +21,8 @@ export function StandingsTab({
     <div className="space-y-5">
       <h2 className="text-xl font-bold">Classifica stagione</h2>
       <p className="text-sm opacity-70">
-        {s.manual
-          ? "Classifica manuale da foto: i numeri restano quelli caricati finché non torni al calcolo automatico."
-          : "Punti e reti si calcolano dai risultati del calendario, oppure carichi una foto e il sito legge la tabella."}
+        Modifica V, N, P, GF e GS. I punti e l&apos;ordine si calcolano da soli al salvataggio
+        (punti, poi scontri diretti, poi gol fatti). Non si vede il calcolo, solo la tabella ordinata.
       </p>
       <StandingsPhotoImport draft={draft} setDraft={setDraft} />
       <div className="grid gap-3 md:grid-cols-2">

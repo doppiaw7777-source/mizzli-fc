@@ -21,8 +21,8 @@ export function StandingsTab({
     <div className="space-y-5">
       <h2 className="text-xl font-bold">Classifica stagione</h2>
       <p className="text-sm opacity-70">
-        Modifica V, N, P, GF e GS. I punti e l&apos;ordine si calcolano da soli al salvataggio
-        (punti, poi scontri diretti, poi gol fatti). Non si vede il calcolo, solo la tabella ordinata.
+        La classifica si ricalcola da sola ogni volta che inserisci, correggi o cancelli un risultato
+        nel calendario. Qui restano nomi, loghi e titolo. I numeri arrivano solo dalle partite concluse.
       </p>
       <StandingsPhotoImport draft={draft} setDraft={setDraft} />
       <div className="grid gap-3 md:grid-cols-2">

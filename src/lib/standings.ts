@@ -1,8 +1,31 @@
 import { clubNameKey } from "@/lib/club-teams";
-import { dateKey, todayKey } from "./dates";
 import { getMatchKind } from "./match-kind";
 import { leagueStandingRows, looksLikePlaceholderStandings } from "./league-clubs";
 import type { Match, StandingRow, Standings, TeamData } from "./types";
+
+export type StandingTiebreaker =
+  | "points"
+  | "goalDifference"
+  | "goalsFor"
+  | "headToHead"
+  | "name";
+
+export const DEFAULT_TIEBREAKERS: StandingTiebreaker[] = [
+  "points",
+  "goalDifference",
+  "goalsFor",
+  "name",
+];
+
+export type ResolvedFixture = {
+  matchId: string;
+  homeKey: string;
+  awayKey: string;
+  homeName: string;
+  awayName: string;
+  homeScore: number;
+  awayScore: number;
+};
 
 export function parseScore(result?: string | null): [number, number] | null {
   const m = String(result || "")
@@ -24,61 +47,6 @@ function clubKey(name: string) {
   return clubNameKey(name);
 }
 
-function headToHeadDelta(
-  a: StandingRow,
-  b: StandingRow,
-  matches: Match[] | undefined,
-  teamName: string
-) {
-  const ka = clubKey(a.name);
-  const kb = clubKey(b.name);
-  const us = clubKey(teamName);
-  let aPts = 0;
-  let bPts = 0;
-  for (const match of matches || []) {
-    if (!isLeagueMatch(match)) continue;
-    const score = parseScore(match.result);
-    if (!score) continue;
-    const opp = clubKey(match.opponent);
-    if (ka === us && opp === kb) {
-      if (score[0] > score[1]) aPts += 3;
-      else if (score[0] < score[1]) bPts += 3;
-      else {
-        aPts += 1;
-        bPts += 1;
-      }
-    } else if (kb === us && opp === ka) {
-      if (score[0] > score[1]) bPts += 3;
-      else if (score[0] < score[1]) aPts += 3;
-      else {
-        aPts += 1;
-        bPts += 1;
-      }
-    }
-  }
-  return aPts - bPts;
-}
-
-export function sortStandings(
-  rows: StandingRow[],
-  matches?: Match[],
-  teamName?: string
-) {
-  return [...rows].sort((a, b) => {
-    const pd = standingPoints(b) - standingPoints(a);
-    if (pd !== 0) return pd;
-    if (matches && teamName) {
-      const h2h = headToHeadDelta(a, b, matches, teamName);
-      if (h2h !== 0) return -h2h;
-    }
-    const gf = b.goalsFor - a.goalsFor;
-    if (gf !== 0) return gf;
-    const gd = standingGoalDiff(b) - standingGoalDiff(a);
-    if (gd !== 0) return gd;
-    return a.name.localeCompare(b.name, "it");
-  });
-}
-
 export function isLeagueMatch(match: Match) {
   const kind = getMatchKind(match);
   if (kind === "allenamento" || kind === "amichevole") return false;
@@ -86,6 +54,114 @@ export function isLeagueMatch(match: Match) {
   if (!c) return true;
   if (/(coppa|amichevol|torneo|supercoppa|friendly)/i.test(c)) return false;
   return true;
+}
+
+const SKIP_STATUS = new Set([
+  "scheduled",
+  "programmata",
+  "postponed",
+  "rinviata",
+  "rinviat",
+  "suspended",
+  "sospesa",
+  "cancelled",
+  "canceled",
+  "annullata",
+]);
+
+const DONE_STATUS = new Set(["finished", "completed", "played", "conclusa", "ft"]);
+
+export function isFinishedMatch(match: Match) {
+  const st = String(match.status || "").trim().toLowerCase();
+  if (SKIP_STATUS.has(st)) return false;
+  if (DONE_STATUS.has(st)) return hasRecordedScore(match);
+  return hasRecordedScore(match);
+}
+
+export function hasRecordedScore(match: Match) {
+  if (isFiniteScore(match.homeScore) && isFiniteScore(match.awayScore)) return true;
+  return parseScore(match.result) !== null;
+}
+
+function isFiniteScore(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+function nameFromId(
+  id: string | undefined,
+  rows: StandingRow[],
+  catalog: { id: string; name: string }[]
+) {
+  if (!id) return "";
+  const row = rows.find((r) => r.id === id);
+  if (row?.name) return row.name;
+  const team = catalog.find((t) => t.id === id);
+  return team?.name || "";
+}
+
+export function resolveFixture(
+  match: Match,
+  teamName: string,
+  seedRows: StandingRow[] = [],
+  catalog: { id: string; name: string }[] = []
+): ResolvedFixture | null {
+  if (!isLeagueMatch(match)) return null;
+  if (!isFinishedMatch(match)) return null;
+
+  const us = teamName || "MIZZLI FC";
+  const namedHome = (match.homeTeam || "").trim() || nameFromId(match.homeTeamId, seedRows, catalog);
+  const namedAway = (match.awayTeam || "").trim() || nameFromId(match.awayTeamId, seedRows, catalog);
+  const opponent = (match.opponent || "").trim();
+
+  let homeName = namedHome;
+  let awayName = namedAway;
+
+  if (!homeName || !awayName) {
+    if (!opponent) return null;
+    homeName = homeName || (match.isHome ? us : opponent);
+    awayName = awayName || (match.isHome ? opponent : us);
+  }
+
+  const homeKey = clubKey(homeName);
+  const awayKey = clubKey(awayName);
+  if (!homeKey || !awayKey || homeKey === awayKey) return null;
+
+  let homeScore: number | null = null;
+  let awayScore: number | null = null;
+
+  if (isFiniteScore(match.homeScore) && isFiniteScore(match.awayScore)) {
+    homeScore = Math.round(match.homeScore);
+    awayScore = Math.round(match.awayScore);
+  } else {
+    const parsed = parseScore(match.result);
+    if (!parsed) return null;
+    const involvesUs = homeKey === clubKey(us) || awayKey === clubKey(us);
+    if (involvesUs && !namedHome && !namedAway) {
+      const [usGoals, themGoals] = parsed;
+      if (match.isHome) {
+        homeScore = usGoals;
+        awayScore = themGoals;
+      } else {
+        homeScore = themGoals;
+        awayScore = usGoals;
+      }
+    } else {
+      homeScore = parsed[0];
+      awayScore = parsed[1];
+    }
+  }
+
+  if (homeScore === null || awayScore === null) return null;
+
+  return {
+    matchId: match.id,
+    homeKey,
+    awayKey,
+    homeName,
+    awayName,
+    homeScore,
+    awayScore,
+  };
 }
 
 function blankRow(id: string, name: string, isUs: boolean, logoUrl = ""): StandingRow {
@@ -103,40 +179,159 @@ function blankRow(id: string, name: string, isUs: boolean, logoUrl = ""): Standi
   };
 }
 
-function openLeagueMatch(data: TeamData) {
-  const open = (data.matches || []).filter((m) => isLeagueMatch(m) && !parseScore(m.result));
-  if (!open.length) return null;
-  const today = todayKey();
-  const todayMs = new Date(`${today}T12:00:00`).getTime();
-  const onToday = open.filter((m) => dateKey(m.date) === today);
-  const pool = onToday.length ? onToday : open;
-  return [...pool].sort((a, b) => {
-    const da = dateKey(a.date) || today;
-    const db = dateKey(b.date) || today;
-    return (
-      Math.abs(new Date(`${da}T12:00:00`).getTime() - todayMs) -
-      Math.abs(new Date(`${db}T12:00:00`).getTime() - todayMs)
-    );
-  })[0];
+function applyFixture(home: StandingRow, away: StandingRow, homeGoals: number, awayGoals: number) {
+  home.played += 1;
+  away.played += 1;
+  home.goalsFor += homeGoals;
+  home.goalsAgainst += awayGoals;
+  away.goalsFor += awayGoals;
+  away.goalsAgainst += homeGoals;
+  if (homeGoals > awayGoals) {
+    home.won += 1;
+    away.lost += 1;
+  } else if (homeGoals < awayGoals) {
+    away.won += 1;
+    home.lost += 1;
+  } else {
+    home.drawn += 1;
+    away.drawn += 1;
+  }
 }
 
-function applyGame(us: StandingRow, them: StandingRow, usGoals: number, themGoals: number) {
-  us.played += 1;
-  them.played += 1;
-  us.goalsFor += usGoals;
-  us.goalsAgainst += themGoals;
-  them.goalsFor += themGoals;
-  them.goalsAgainst += usGoals;
-  if (usGoals > themGoals) {
-    us.won += 1;
-    them.lost += 1;
-  } else if (usGoals < themGoals) {
-    us.lost += 1;
-    them.won += 1;
-  } else {
-    us.drawn += 1;
-    them.drawn += 1;
+function headToHeadDelta(
+  a: StandingRow,
+  b: StandingRow,
+  fixtures: ResolvedFixture[]
+) {
+  const ka = clubKey(a.name);
+  const kb = clubKey(b.name);
+  let aPts = 0;
+  let bPts = 0;
+  for (const fix of fixtures) {
+    const pair =
+      (fix.homeKey === ka && fix.awayKey === kb) || (fix.homeKey === kb && fix.awayKey === ka);
+    if (!pair) continue;
+    const aHome = fix.homeKey === ka;
+    const aGoals = aHome ? fix.homeScore : fix.awayScore;
+    const bGoals = aHome ? fix.awayScore : fix.homeScore;
+    if (aGoals > bGoals) aPts += 3;
+    else if (aGoals < bGoals) bPts += 3;
+    else {
+      aPts += 1;
+      bPts += 1;
+    }
   }
+  return aPts - bPts;
+}
+
+export function sortStandings(
+  rows: StandingRow[],
+  matches?: Match[],
+  teamName?: string,
+  tiebreakers: StandingTiebreaker[] = DEFAULT_TIEBREAKERS
+) {
+  const fixtures =
+    matches && teamName
+      ? completedFixtures(matches, teamName, rows)
+      : ([] as ResolvedFixture[]);
+  return [...rows].sort((a, b) => {
+    for (const rule of tiebreakers) {
+      if (rule === "points") {
+        const d = standingPoints(b) - standingPoints(a);
+        if (d) return d;
+      } else if (rule === "goalDifference") {
+        const d = standingGoalDiff(b) - standingGoalDiff(a);
+        if (d) return d;
+      } else if (rule === "goalsFor") {
+        const d = b.goalsFor - a.goalsFor;
+        if (d) return d;
+      } else if (rule === "headToHead") {
+        const d = headToHeadDelta(b, a, fixtures);
+        if (d) return d;
+      } else if (rule === "name") {
+        return a.name.localeCompare(b.name, "it");
+      }
+    }
+    return a.name.localeCompare(b.name, "it");
+  });
+}
+
+function completedFixtures(
+  matches: Match[],
+  teamName: string,
+  seedRows: StandingRow[] = [],
+  catalog: { id: string; name: string }[] = []
+) {
+  const seen = new Set<string>();
+  const out: ResolvedFixture[] = [];
+  for (const match of matches || []) {
+    if (!match?.id || seen.has(match.id)) continue;
+    seen.add(match.id);
+    const fix = resolveFixture(match, teamName, seedRows, catalog);
+    if (fix) out.push(fix);
+  }
+  return out;
+}
+
+export function calculateStandings(
+  teamName: string,
+  matches: Match[],
+  seedRows: StandingRow[] = [],
+  catalog: { id: string; name: string; logoUrl?: string }[] = [],
+  logoUrl = "",
+  tiebreakers: StandingTiebreaker[] = DEFAULT_TIEBREAKERS
+): StandingRow[] {
+  const us = teamName || "MIZZLI FC";
+  const byKey = new Map<string, StandingRow>();
+
+  const ensure = (name: string, isUs = false, id?: string, logo = "") => {
+    const key = clubKey(name) || name.toLowerCase();
+    if (!key) return null;
+    let row = byKey.get(key);
+    if (!row) {
+      row = blankRow(id || `st-${key}`, isUs ? us : name, isUs, logo);
+      byKey.set(key, row);
+    }
+    if (isUs) {
+      row.isUs = true;
+      row.name = us;
+      if (logoUrl) row.logoUrl = logoUrl;
+    } else if (name && !row.name) {
+      row.name = name;
+    }
+    if (logo && !row.logoUrl) row.logoUrl = logo;
+    return row;
+  };
+
+  for (const row of seedRows) {
+    const trimmed = (row.name || "").trim();
+    if (/^allenamento$/i.test(trimmed)) continue;
+    if (!trimmed && !row.isUs) continue;
+    ensure(trimmed || us, row.isUs || clubKey(trimmed) === clubKey(us), row.id, row.logoUrl || "");
+  }
+  for (const team of catalog) {
+    if (!team.name?.trim()) continue;
+    ensure(team.name, clubKey(team.name) === clubKey(us), team.id, team.logoUrl || "");
+  }
+  ensure(us, true, undefined, logoUrl);
+
+  const fixtures = completedFixtures(matches, us, seedRows, catalog);
+  for (const fix of fixtures) {
+    const home = ensure(fix.homeName, fix.homeKey === clubKey(us));
+    const away = ensure(fix.awayName, fix.awayKey === clubKey(us));
+    if (!home || !away) continue;
+    applyFixture(home, away, fix.homeScore, fix.awayScore);
+  }
+
+  return sortStandings([...byKey.values()], matches, us, tiebreakers).map((row) => ({
+    ...row,
+    isUs: clubKey(row.name) === clubKey(us),
+    name: clubKey(row.name) === clubKey(us) ? us : row.name,
+    logoUrl:
+      clubKey(row.name) === clubKey(us)
+        ? logoUrl || row.logoUrl || ""
+        : row.logoUrl || catalog.find((t) => clubKey(t.name) === clubKey(row.name))?.logoUrl || "",
+  }));
 }
 
 export function syncStandings(data: TeamData): TeamData {
@@ -147,114 +342,16 @@ export function syncStandings(data: TeamData): TeamData {
     rows: [],
   };
 
-  if (looksLikePlaceholderStandings(prev.rows)) {
+  if (looksLikePlaceholderStandings(prev.rows) || !prev.rows?.length) {
     prev = { ...prev, rows: leagueStandingRows(teamName) };
   }
 
-  if (prev.manual) {
-    const rows = sortStandings(
-      (prev.rows || []).map((row) => {
-        const ours = clubKey(row.name) === clubKey(teamName) || row.isUs;
-        const won = Math.max(0, Math.round(Number(row.won) || 0));
-        const drawn = Math.max(0, Math.round(Number(row.drawn) || 0));
-        const lost = Math.max(0, Math.round(Number(row.lost) || 0));
-        return {
-          ...row,
-          won,
-          drawn,
-          lost,
-          played: won + drawn + lost,
-          goalsFor: Math.max(0, Math.round(Number(row.goalsFor) || 0)),
-          goalsAgainst: Math.max(0, Math.round(Number(row.goalsAgainst) || 0)),
-          isUs: ours,
-          name: ours ? teamName : row.name,
-        };
-      }),
-      data.matches,
-      teamName
-    );
-    return {
-      ...data,
-      standings: {
-        ...prev,
-        rows,
-        live: false,
-        manual: true,
-      },
-    };
-  }
-
-  const byKey = new Map<string, StandingRow>();
-
-  const ensure = (name: string, isUs = false) => {
-    const key = clubKey(name) || name.toLowerCase();
-    let row = byKey.get(key);
-    if (!row) {
-      const old = prev.rows.find((r) => clubKey(r.name) === key);
-      const fromCatalog = (data.teams || []).find((t) => clubKey(t.name) === key);
-      row = blankRow(
-        old?.id || `st-${key || "x"}`,
-        isUs ? teamName : old?.name || name,
-        isUs,
-        old?.logoUrl || fromCatalog?.logoUrl || ""
-      );
-      byKey.set(key, row);
-    }
-    if (isUs) {
-      row.isUs = true;
-      row.name = teamName;
-      row.logoUrl = data.settings?.logoUrl || row.logoUrl;
-    }
-    return row;
-  };
-
-  for (const row of prev.rows) {
-    const trimmed = (row.name || "").trim();
-    if (/^allenamento$/i.test(trimmed)) continue;
-    if (!trimmed && !row.isUs) {
-      const key = `new:${row.id || Math.random().toString(36).slice(2)}`;
-      byKey.set(key, blankRow(row.id || key, "", false, row.logoUrl || ""));
-      continue;
-    }
-    ensure(trimmed || teamName, row.isUs);
-  }
-  ensure(teamName, true);
-
-  const usRow = ensure(teamName, true);
-
-  for (const match of data.matches || []) {
-    if (!isLeagueMatch(match)) continue;
-    const score = parseScore(match.result);
-    if (!score || !match.opponent.trim()) continue;
-    applyGame(usRow, ensure(match.opponent), score[0], score[1]);
-  }
-
-  let live = false;
-  const info = data.club?.info;
-  if (info && (info.liveStatus === "live" || info.liveStatus === "ht")) {
-    const score = parseScore(info.liveScore);
-    const match = openLeagueMatch(data);
-    if (score && match?.opponent.trim()) {
-      applyGame(usRow, ensure(match.opponent), score[0], score[1]);
-      live = true;
-    }
-  }
-
-  const rows = sortStandings(
-    [...byKey.values()].map((row) => {
-      const ours = clubKey(row.name) === clubKey(teamName);
-      const fromCatalog = (data.teams || []).find((t) => clubKey(t.name) === clubKey(row.name));
-      return {
-        ...row,
-        isUs: ours,
-        name: ours ? teamName : row.name,
-        logoUrl: ours
-          ? data.settings?.logoUrl || row.logoUrl || fromCatalog?.logoUrl || ""
-          : row.logoUrl || fromCatalog?.logoUrl || "",
-      };
-    }),
-    data.matches,
-    teamName
+  const rows = calculateStandings(
+    teamName,
+    data.matches || [],
+    prev.rows || [],
+    data.teams || [],
+    data.settings?.logoUrl || ""
   );
 
   return {
@@ -263,7 +360,7 @@ export function syncStandings(data: TeamData): TeamData {
       title: prev.title || "Classifica Campionato",
       season: data.settings?.branding?.seasonLabel || prev.season || "",
       rows,
-      live,
+      live: false,
       manual: false,
     },
   };

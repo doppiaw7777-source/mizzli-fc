@@ -23,7 +23,9 @@ export default function ClubCrest({
   const { data } = useTeam();
   const fromTeam =
     (data?.settings?.ui as { showCrestGoldRing?: boolean } | undefined)?.showCrestGoldRing;
-  const [allowed, setAllowed] = useState(fromTeam !== false);
+  const [allowed, setAllowed] = useState<boolean | null>(
+    fromTeam === false ? false : fromTeam === true ? true : null
+  );
 
   useEffect(() => {
     if (fromTeam === false) setAllowed(false);
@@ -37,13 +39,16 @@ export default function ClubCrest({
       .then((d) => {
         if (live && typeof d.showCrestGoldRing === "boolean") setAllowed(d.showCrestGoldRing);
       })
-      .catch(() => {});
+      .catch(() => {
+        if (live && allowed === null) setAllowed(false);
+      });
     return () => {
       live = false;
     };
   }, [fromTeam]);
 
-  const ring = allowed && (goldRing ?? (glow && size >= 96));
+  const wantRing = goldRing ?? (glow && size >= 96);
+  const ring = allowed === true && wantRing;
   const img = (
     <img
       src={clubLogo(settings)}

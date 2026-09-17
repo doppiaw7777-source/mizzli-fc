@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { clubLogo } from "@/lib/brand";
 import { useTeam } from "@/context/TeamContext";
 import type { TeamSettings } from "@/lib/types";
@@ -20,8 +21,28 @@ export default function ClubCrest({
   className?: string;
 }) {
   const { data } = useTeam();
-  const allowed =
-    (data?.settings?.ui as { showCrestGoldRing?: boolean } | undefined)?.showCrestGoldRing !== false;
+  const fromTeam =
+    (data?.settings?.ui as { showCrestGoldRing?: boolean } | undefined)?.showCrestGoldRing;
+  const [allowed, setAllowed] = useState(fromTeam !== false);
+
+  useEffect(() => {
+    if (fromTeam === false) setAllowed(false);
+    if (fromTeam === true) setAllowed(true);
+  }, [fromTeam]);
+
+  useEffect(() => {
+    let live = true;
+    fetch("/api/ui-flags", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (live && typeof d.showCrestGoldRing === "boolean") setAllowed(d.showCrestGoldRing);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [fromTeam]);
+
   const ring = allowed && (goldRing ?? (glow && size >= 96));
   const img = (
     <img

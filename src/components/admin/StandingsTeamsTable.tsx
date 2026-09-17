@@ -11,7 +11,7 @@ import {
 } from "@/lib/club-teams";
 import { straightenLogoFile } from "@/lib/logo-straighten";
 import { standingPoints } from "@/lib/standings";
-import type { TeamData } from "@/lib/types";
+import type { StandingRow, TeamData } from "@/lib/types";
 
 function LogoCell({
   name,
@@ -96,6 +96,24 @@ function LogoCell({
   );
 }
 
+function Num({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (n: number) => void;
+}) {
+  return (
+    <input
+      type="number"
+      min={0}
+      value={value}
+      onChange={(e) => onChange(Math.max(0, Math.round(Number(e.target.value) || 0)))}
+      className="input-field w-14 px-1 text-center"
+    />
+  );
+}
+
 export default function StandingsTeamsTable({
   draft,
   setDraft,
@@ -108,11 +126,28 @@ export default function StandingsTeamsTable({
   const [nameDrafts, setNameDrafts] = useState<Record<string, string>>({});
   const rows = draft.standings.rows.filter((row) => !/^allenamento$/i.test(row.name.trim()));
 
+  const patchRow = (id: string, field: keyof StandingRow, value: number) => {
+    setDraft({
+      ...draft,
+      standings: {
+        ...draft.standings,
+        manual: true,
+        rows: draft.standings.rows.map((row) => {
+          if (row.id !== id) return row;
+          const next = { ...row, [field]: value } as StandingRow;
+          next.played = next.won + next.drawn + next.lost;
+          return next;
+        }),
+      },
+    });
+  };
+
   const addRow = () => {
     setDraft({
       ...draft,
       standings: {
         ...draft.standings,
+        manual: true,
         rows: [
           ...draft.standings.rows,
           {
@@ -137,6 +172,7 @@ export default function StandingsTeamsTable({
       ...draft,
       standings: {
         ...draft.standings,
+        manual: true,
         rows: draft.standings.rows.filter((row) => row.id !== id),
       },
     });
@@ -148,8 +184,7 @@ export default function StandingsTeamsTable({
         <div>
           <h3 className="text-lg font-bold">Squadre della classifica</h3>
           <p className="mt-1 text-sm opacity-70">
-            Tabella a parte: associ il logo (per MIZZLI FC è d&apos;oro), si raddrizza da
-            solo, poi scrivi il nome. Punti e partite arrivano dal calendario.
+            Scrivi V, N, P, GF e GS. I punti e la posizione si aggiornano da soli.
           </p>
         </div>
         <button type="button" onClick={addRow} className="btn-add min-h-11">
@@ -157,7 +192,7 @@ export default function StandingsTeamsTable({
         </button>
       </div>
       <div className="overflow-x-auto rounded-2xl border border-white/10">
-        <table className="w-full min-w-[640px] text-sm">
+        <table className="w-full min-w-[760px] text-sm">
           <thead>
             <tr className="text-left text-[11px] uppercase tracking-wider opacity-50">
               <th className="px-3 py-3 font-medium">Logo</th>
@@ -166,6 +201,8 @@ export default function StandingsTeamsTable({
               <th className="px-2 py-3 text-center font-medium">V</th>
               <th className="px-2 py-3 text-center font-medium">N</th>
               <th className="px-2 py-3 text-center font-medium">P</th>
+              <th className="px-2 py-3 text-center font-medium">GF</th>
+              <th className="px-2 py-3 text-center font-medium">GS</th>
               <th className="px-3 py-3 text-right font-medium">Pt</th>
               <th className="px-3 py-3 font-medium"> </th>
             </tr>
@@ -206,7 +243,13 @@ export default function StandingsTeamsTable({
                             delete copy[row.id];
                             return copy;
                           });
-                          setDraft(setStandingTeamName(draft, row.id, next));
+                          setDraft({
+                            ...setStandingTeamName(draft, row.id, next),
+                            standings: {
+                              ...setStandingTeamName(draft, row.id, next).standings,
+                              manual: true,
+                            },
+                          });
                         }}
                         onKeyDown={(e) => {
                           if (e.key === "Enter") (e.target as HTMLInputElement).blur();
@@ -215,14 +258,23 @@ export default function StandingsTeamsTable({
                         className="input-field min-w-[10rem]"
                       />
                     )}
-                    {ours ? (
-                      <p className="mt-0.5 text-[11px] font-semibold text-[#d4af37]">Riquadro d&apos;oro</p>
-                    ) : null}
                   </td>
-                  <td className="px-2 py-3 text-center opacity-80">{row.played}</td>
-                  <td className="px-2 py-3 text-center opacity-80">{row.won}</td>
-                  <td className="px-2 py-3 text-center opacity-80">{row.drawn}</td>
-                  <td className="px-2 py-3 text-center opacity-80">{row.lost}</td>
+                  <td className="px-2 py-3 text-center opacity-80">{row.won + row.drawn + row.lost}</td>
+                  <td className="px-1 py-3">
+                    <Num value={row.won} onChange={(n) => patchRow(row.id, "won", n)} />
+                  </td>
+                  <td className="px-1 py-3">
+                    <Num value={row.drawn} onChange={(n) => patchRow(row.id, "drawn", n)} />
+                  </td>
+                  <td className="px-1 py-3">
+                    <Num value={row.lost} onChange={(n) => patchRow(row.id, "lost", n)} />
+                  </td>
+                  <td className="px-1 py-3">
+                    <Num value={row.goalsFor} onChange={(n) => patchRow(row.id, "goalsFor", n)} />
+                  </td>
+                  <td className="px-1 py-3">
+                    <Num value={row.goalsAgainst} onChange={(n) => patchRow(row.id, "goalsAgainst", n)} />
+                  </td>
                   <td className="px-3 py-3 text-right font-black text-[var(--team-accent)]">
                     {standingPoints(row)}
                   </td>

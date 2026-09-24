@@ -279,14 +279,20 @@ export function calculateStandings(
   seedRows: StandingRow[] = [],
   catalog: { id: string; name: string; logoUrl?: string }[] = [],
   logoUrl = "",
-  tiebreakers: StandingTiebreaker[] = DEFAULT_TIEBREAKERS
+  tiebreakers: StandingTiebreaker[] = DEFAULT_TIEBREAKERS,
+  excludedKeys: string[] = []
 ): StandingRow[] {
   const us = teamName || "MIZZLI FC";
   const byKey = new Map<string, StandingRow>();
+  const excluded = new Set(
+    (excludedKeys || []).map((k) => clubKey(k) || k.toLowerCase()).filter(Boolean)
+  );
+  const usKey = clubKey(us);
 
   const ensure = (name: string, isUs = false, id?: string, logo = "") => {
     const key = clubKey(name) || name.toLowerCase();
     if (!key) return null;
+    if (!isUs && key !== usKey && excluded.has(key)) return null;
     let row = byKey.get(key);
     if (!row) {
       row = blankRow(id || `st-${key}`, isUs ? us : name, isUs, logo);
@@ -303,12 +309,12 @@ export function calculateStandings(
     return row;
   };
 
-  // Solo le righe esplicite della classifica + partite concluse.
-  // Il catalogo squadre (data.teams) serve solo per i loghi, non forza la presenza in tabella.
   for (const row of seedRows) {
     const trimmed = (row.name || "").trim();
     if (/^allenamento$/i.test(trimmed)) continue;
     if (!trimmed && !row.isUs) continue;
+    const rowKey = clubKey(trimmed);
+    if (rowKey && rowKey !== usKey && excluded.has(rowKey)) continue;
     const fromCatalog = catalog.find((t) => clubKey(t.name) === clubKey(trimmed));
     ensure(
       trimmed || us,
@@ -355,7 +361,6 @@ export function syncStandings(data: TeamData): TeamData {
     rows: [],
   };
 
-  // Placeholder demo: togli le righe fittizie; non reinserire tutto il default se restano squadre vere.
   if (looksLikePlaceholderStandings(prev.rows)) {
     const cleaned = (prev.rows || []).filter(
       (r) => !PLACEHOLDER_NAME.has((r.name || "").trim().toLowerCase())
@@ -365,15 +370,20 @@ export function syncStandings(data: TeamData): TeamData {
       rows: cleaned.length ? cleaned : leagueStandingRows(teamName),
     };
   } else if (!prev.rows?.length) {
-    prev = { ...prev, rows: leagueStandingRows(teamName) };
+    if (!(prev.excludedKeys && prev.excludedKeys.length)) {
+      prev = { ...prev, rows: leagueStandingRows(teamName) };
+    }
   }
 
+  const excludedKeys = prev.excludedKeys || [];
   const rows = calculateStandings(
     teamName,
     data.matches || [],
     prev.rows || [],
     data.teams || [],
-    data.settings?.logoUrl || ""
+    data.settings?.logoUrl || "",
+    DEFAULT_TIEBREAKERS,
+    excludedKeys
   );
 
   return {
@@ -382,6 +392,7 @@ export function syncStandings(data: TeamData): TeamData {
       title: prev.title || "Classifica Campionato",
       season: data.settings?.branding?.seasonLabel || prev.season || "",
       rows,
+      excludedKeys,
       live: false,
       manual: false,
     },

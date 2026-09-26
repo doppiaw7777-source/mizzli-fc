@@ -134,6 +134,8 @@ export interface TeamSettings {
     calendarioLabel: string;
     formazioneLabel: string;
     playerCardFrameUrl?: string;
+    fieldNote?: string;
+    fieldMapsUrl?: string;
   };
   ui: {
     cardRadius: number;
@@ -162,6 +164,7 @@ export interface TeamSettings {
     calendarSize: "xs" | "sm" | "md" | "lg" | "xl";
     playerGraphicId: string;
     showRosaMiniBadge?: boolean;
+    showCrestGoldRing?: boolean;
   };
 }
 
@@ -231,7 +234,7 @@ export interface Standings {
   rows: StandingRow[];
   live?: boolean;
   manual?: boolean;
-  /** Chiavi normalizzate delle squadre rimosse: restano fuori finché non le riaggiungi. */
+  /** Chiavi normalizzate delle squadre rimosse: restano fuori finch\u00e9 non le riaggiungi. */
   excludedKeys?: string[];
 }
 
@@ -498,6 +501,7 @@ export interface AppUser {
   createdAt: string;
   phone?: string;
   phoneVerified?: boolean;
+  grants?: string[];
 }
 
 export interface PublicUser {
@@ -509,4 +513,5 @@ export interface PublicUser {
   role: UserRole;
   phone?: string;
   phoneVerified?: boolean;
+  grants?: string[];
 }

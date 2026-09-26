@@ -128,10 +128,12 @@ export interface TeamSettings {
     newsTitle: string;
     trainingsTitle: string;
     sponsorsTitle: string;
+    partnersTitle?: string;
     homeLabel: string;
     rosaLabel: string;
     calendarioLabel: string;
     formazioneLabel: string;
+    playerCardFrameUrl?: string;
   };
   ui: {
     cardRadius: number;
@@ -152,14 +154,56 @@ export interface TeamSettings {
     compactMode: boolean;
     backgroundOverlay: number;
     graphicIntensity: number;
-    titleSize: string;
-    buttonStyle: string;
-    heroStyle: string;
-    homeLayout: string;
+    titleSize: "normal" | "large" | "xl";
+    buttonStyle: "rounded" | "pill" | "square";
+    heroStyle: "center" | "left" | "banner";
+    homeLayout: "classic" | "magazine" | "minimal";
     calendarModelId: string;
-    calendarSize: string;
+    calendarSize: "xs" | "sm" | "md" | "lg" | "xl";
     playerGraphicId: string;
+    showRosaMiniBadge?: boolean;
   };
+}
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  description: string;
+  pinned: boolean;
+}
+
+export interface TrainingItem {
+  id: string;
+  day: string;
+  time: string;
+  location: string;
+  focus: string;
+}
+
+export type SponsorTier = "main" | "partner";
+
+export interface Sponsor {
+  id: string;
+  name: string;
+  logoUrl: string;
+  website: string;
+  tier?: SponsorTier;
+}
+
+export interface SocialLink {
+  id: string;
+  label: string;
+  url: string;
+}
+
+export interface Formation {
+  scheme: string;
+  starters: FormationSlot[];
+  bench: string[];
+  pitchColor?: string;
+  pitchColor2?: string;
+  captainId?: string;
+  note?: string;
 }
 
 export interface StandingRow {
@@ -187,78 +231,237 @@ export interface Standings {
   rows: StandingRow[];
   live?: boolean;
   manual?: boolean;
-  /** Chiavi normalizzate delle squadre rimosse dall'utente: non rientrano in classifica finché non le riaggiungi. */
+  /** Chiavi normalizzate delle squadre rimosse: restano fuori finché non le riaggiungi. */
   excludedKeys?: string[];
 }
 
 export interface GalleryItem {
   id: string;
   url: string;
-  caption?: string;
-  createdAt?: string;
+  caption: string;
+  album: string;
 }
 
-export interface Announcement {
+export interface VideoItem {
   id: string;
   title: string;
-  body: string;
-  date: string;
-  pinned?: boolean;
-}
-
-export interface Training {
-  id: string;
-  date: string;
-  time: string;
-  location: string;
-  note?: string;
-}
-
-export interface Sponsor {
-  id: string;
-  name: string;
-  logoUrl: string;
-  website: string;
-}
-
-export interface SocialLink {
-  id: string;
-  label: string;
   url: string;
-}
-
-export interface Formation {
-  id: string;
-  name: string;
-  formation: string;
-  slots: FormationSlot[];
-  notes?: string;
-  matchId?: string;
 }
 
 export interface DocumentItem {
   id: string;
   title: string;
   url: string;
-  category?: string;
+}
+
+export interface Honour {
+  id: string;
+  year: string;
+  title: string;
+}
+
+export interface TimelineItem {
+  id: string;
+  year: string;
+  title: string;
+  text: string;
+}
+
+export interface FaqItem {
+  id: string;
+  q: string;
+  a: string;
+}
+
+export interface Chant {
+  id: string;
+  title: string;
+  lyrics: string;
+}
+
+export interface ClubRecord {
+  id: string;
+  label: string;
+  value: string;
+}
+
+export interface MerchItem {
+  id: string;
+  name: string;
+  price: string;
+  category: string;
+  url: string;
+}
+
+export interface PollOption {
+  id: string;
+  label: string;
+  votes: number;
+}
+
+export interface Poll {
+  id: string;
+  question: string;
+  options: PollOption[];
+}
+
+export interface QuoteItem {
+  id: string;
+  text: string;
+  author: string;
+}
+
+export interface Legend {
+  id: string;
+  name: string;
+  years: string;
+  text: string;
+}
+
+export interface YouthTeam {
+  id: string;
+  name: string;
+  coach: string;
+  age: string;
 }
 
 export interface ClubEvent {
   id: string;
-  title: string;
   date: string;
-  time?: string;
-  location?: string;
-  description?: string;
+  title: string;
+  place: string;
+  text: string;
+  color?: string;
 }
 
-export interface Fine {
+export interface FineItem {
   id: string;
-  playerId: string;
-  amount: number;
+  playerName: string;
   reason: string;
-  date: string;
-  paid?: boolean;
+  amount: string;
+  paid: boolean;
+}
+
+export interface KitItem {
+  id: string;
+  name: string;
+  season: string;
+  colors: string;
+}
+
+export type LiveStatus = "idle" | "live" | "ht" | "ft";
+
+export type MatchEventType =
+  | "kickoff"
+  | "period"
+  | "goal"
+  | "own_goal"
+  | "penalty"
+  | "yellow"
+  | "red"
+  | "sub"
+  | "var"
+  | "note";
+
+export type MatchEventTeam = "us" | "opp";
+
+export interface MatchEvent {
+  id: string;
+  matchId: string;
+  minute: number;
+  extra?: number;
+  type: MatchEventType;
+  team: MatchEventTeam;
+  playerId?: string;
+  assistId?: string;
+  playerOutId?: string;
+  playerInId?: string;
+  oppName?: string;
+  text: string;
+  createdAt: string;
+  statsApplied?: boolean;
+}
+
+export interface MatchLive {
+  matchId: string;
+  status: LiveStatus;
+  scoreUs: number;
+  scoreOpp: number;
+  minute: number;
+  extra?: number;
+  events: MatchEvent[];
+  clockBaseMinute: number;
+  clockStartedAt: string | null;
+  updatedAt: string;
+}
+
+export interface MatchLivesStore {
+  activeMatchId: string;
+  lives: MatchLive[];
+}
+
+export interface ClubInfo {
+  founded: string;
+  city: string;
+  address: string;
+  stadiumCapacity: string;
+  president: string;
+  sportingDirector: string;
+  whatsapp: string;
+  mapsUrl: string;
+  ticketUrl: string;
+  liveStreamUrl: string;
+  radioUrl: string;
+  youtubeUrl: string;
+  facebookUrl: string;
+  tiktokUrl: string;
+  shopUrl: string;
+  anthem: string;
+  mascot: string;
+  history: string;
+  values: string;
+  fairPlay: string;
+  parking: string;
+  transport: string;
+  hospitality: string;
+  disabledAccess: string;
+  ticketPrices: string;
+  openingHours: string;
+  pressEmail: string;
+  alertBanner: string;
+  liveStatus: LiveStatus;
+  liveScore: string;
+  liveMinute: string;
+  liveMatchId?: string;
+  viceCaptainId: string;
+  penaltyTakerId: string;
+  freeKickTakerId: string;
+  cornerTakerId: string;
+}
+
+export interface ClubExtras {
+  info: ClubInfo;
+  gallery: GalleryItem[];
+  videos: VideoItem[];
+  documents: DocumentItem[];
+  honours: Honour[];
+  timeline: TimelineItem[];
+  faqs: FaqItem[];
+  chants: Chant[];
+  records: ClubRecord[];
+  merch: MerchItem[];
+  polls: Poll[];
+  quotes: QuoteItem[];
+  legends: Legend[];
+  youth: YouthTeam[];
+  events: ClubEvent[];
+  fines: FineItem[];
+  kits: KitItem[];
+  callupPlayerIds: string[];
+  callupNote: string;
+  callupMeeting: string;
+  callupPublishedAt: string;
+  matchLives?: MatchLive[];
 }
 
 export interface TeamData {
@@ -266,20 +469,22 @@ export interface TeamData {
   players: Player[];
   staff: StaffMember[];
   matches: Match[];
-  formations: Formation[];
-  standings: Standings;
-  teams?: ClubTeam[];
-  announcements: Announcement[];
-  trainings: Training[];
+  formation: Formation;
+  announcements: NewsItem[];
+  trainings: TrainingItem[];
   sponsors: Sponsor[];
   socialLinks: SocialLink[];
-  gallery: GalleryItem[];
-  documents: DocumentItem[];
-  events: ClubEvent[];
-  fines?: Fine[];
+  standings: Standings;
+  teams?: ClubTeam[];
+  club: ClubExtras;
 }
 
-export type UserRole = "admin" | "staff" | "player" | "fan";
+export interface AuthData {
+  username: string;
+  passwordHash: string;
+}
+
+export type UserRole = "fan" | "player" | "coach" | "assistant_coach" | "team_manager";
 
 export interface AppUser {
   id: string;

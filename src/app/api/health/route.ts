@@ -18,16 +18,13 @@ export async function GET() {
     }
   }
 
-  const ok = database !== "error";
-
-  return NextResponse.json(
-    {
-      ok,
-      app: "MIZZLI FC",
-      ts: Date.now(),
-      database,
-      storage,
-    },
-    { status: ok ? 200 : 503 }
-  );
+  // Sempre 200: Render usa healthCheckPath; un 503 qui tiene il servizio in 502.
+  // Lo stato DB resta nel body per il monitoraggio.
+  return NextResponse.json({
+    ok: true,
+    app: "MIZZLI FC",
+    ts: Date.now(),
+    database,
+    storage,
+  });
 }

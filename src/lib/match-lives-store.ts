@@ -33,16 +33,20 @@ export async function getMatchLivesStore(): Promise<MatchLivesStore> {
 }
 
 export async function saveMatchLivesStore(store: MatchLivesStore): Promise<void> {
-  await writeJson(STORE_KEY, normalizeStore(store));
+  try {
+    await writeJson(STORE_KEY, normalizeStore(store));
+  } catch (err) {
+    console.error("saveMatchLivesStore failed", err);
+  }
 }
 
 export async function seedMatchLivesFromTeam(data: TeamData): Promise<MatchLivesStore> {
   const current = await getMatchLivesStore();
   if (current.lives.length) return current;
-  const fallback = data.club.matchLives;
+  const fallback = data.club?.matchLives;
   if (!fallback?.length) return current;
   const seeded: MatchLivesStore = {
-    activeMatchId: data.club.info.liveMatchId || current.activeMatchId,
+    activeMatchId: data.club?.info?.liveMatchId || current.activeMatchId,
     lives: fallback,
   };
   await saveMatchLivesStore(seeded);
@@ -50,9 +54,9 @@ export async function seedMatchLivesFromTeam(data: TeamData): Promise<MatchLives
 }
 
 export function livesStoreFromTeam(data: TeamData): MatchLivesStore {
-  const lives = data.club.matchLives || [];
+  const lives = data.club?.matchLives || [];
   const active =
-    data.club.info.liveMatchId ||
+    data.club?.info?.liveMatchId ||
     lives.find((live) => live.status === "live" || live.status === "ht")?.matchId ||
     "";
   return { activeMatchId: active, lives };

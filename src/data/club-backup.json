@@ -1,1 +1,41 @@
-{"settings":{"teamName":"MIZZLI FC","motto":"Born To Be Mizzli","logoUrl":"/api/media/16eafe68-678b-4ec8-9889-02b44185d296","appIconUrl":"/api/media/501c5826-8979-4dd2-95f4-placeholder","themeId":"mizzli-viola"},"players":[],"matches":[],"standings":{"rows":[],"excludedKeys":[]},"sponsors":[],"teams":[],"staff":[],"formation":{},"club":{},"trainings":[],"socialLinks":[],"announcements":[]}
+{
+  "settings": {
+    "teamName": "MIZZLI FC",
+    "motto": "Born To Be Mizzli",
+    "logoUrl": "/api/media/16eafe68-678b-4ec8-9889-02b44185d296",
+    "appIconUrl": "/api/media/16eafe68-678b-4ec8-9889-02b44185d296",
+    "themeId": "mizzli-viola",
+    "branding": {
+      "leagueName": "Campionato",
+      "seasonLabel": "2026/2027"
+    }
+  },
+  "players": [
+    {"id": "p1", "name": "Nicolas Lanseni", "number": 1, "position": "Portiere", "role": "POR", "status": "available", "stats": {"goals": 0, "assists": 0, "appearances": 0}},
+    {"id": "p2", "name": "Simone Abate Panarese", "number": 30, "position": "Esterno", "role": "CEN", "status": "available", "stats": {"goals": 0, "assists": 0, "appearances": 0}},
+    {"id": "p3", "name": "Cristiano Borsese", "number": 10, "position": "Ala", "role": "ATT", "status": "available", "stats": {"goals": 0, "assists": 0, "appearances": 0}}
+  ],
+  "matches": [],
+  "standings": {
+    "rows": [
+      {"id": "st-league-1", "name": "PHOENIX Autofficina Riotti", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goalsFor": 0, "goalsAgainst": 0, "isUs": false, "logoUrl": ""},
+      {"id": "st-league-2", "name": "MIZZLI FC", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goalsFor": 0, "goalsAgainst": 0, "isUs": true, "logoUrl": ""},
+      {"id": "st-league-3", "name": "GS 2 Settembre 1971", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goalsFor": 0, "goalsAgainst": 0, "isUs": false, "logoUrl": ""},
+      {"id": "st-league-4", "name": "ZENER SO.RA.ME.", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goalsFor": 0, "goalsAgainst": 0, "isUs": false, "logoUrl": ""},
+      {"id": "st-league-5", "name": "GS Ospedale San Martino", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goalsFor": 0, "goalsAgainst": 0, "isUs": false, "logoUrl": ""},
+      {"id": "st-league-6", "name": "Real Quezzi", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goalsFor": 0, "goalsAgainst": 0, "isUs": false, "logoUrl": ""},
+      {"id": "st-league-7", "name": "Amatori Genova Per Torre", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goalsFor": 0, "goalsAgainst": 0, "isUs": false, "logoUrl": ""},
+      {"id": "st-league-8", "name": "Xeneizes", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goalsFor": 0, "goalsAgainst": 0, "isUs": false, "logoUrl": ""},
+      {"id": "st-league-9", "name": "Quizena", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goalsFor": 0, "goalsAgainst": 0, "isUs": false, "logoUrl": ""}
+    ],
+    "excludedKeys": []
+  },
+  "sponsors": [],
+  "teams": [],
+  "staff": [],
+  "formation": {},
+  "club": {},
+  "trainings": [],
+  "socialLinks": [{"id": "so1", "label": "@mizzlifc", "url": "https://www.instagram.com/mizzlifc/"}],
+  "announcements": []
+}

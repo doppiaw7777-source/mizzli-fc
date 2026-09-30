@@ -2,6 +2,7 @@
 
 import type { Player } from "@/lib/types";
 import { photoFitStyle, playerPhoto } from "@/lib/player-art";
+import { playerAge } from "@/lib/club";
 import CaptainBand from "@/components/CaptainBand";
 
 const roleLabels: Record<string, string> = {
@@ -26,6 +27,7 @@ export default function PlayerCard({
 }) {
   const status = player.status && player.status !== "available" ? player.status : null;
   const art = playerPhoto(player);
+  const age = playerAge(player.birthDate);
   return (
     <div className="group overflow-hidden rounded-xl border border-white/10 bg-[var(--team-card-bg)] backdrop-blur-md team-card">
       <div className="relative flex h-44 items-end justify-center overflow-hidden">
@@ -73,7 +75,8 @@ export default function PlayerCard({
           </div>
         </div>
         <p className="mt-2 text-xs opacity-50">
-          {player.nationality} · {new Date(player.birthDate).toLocaleDateString("it-IT")}
+          {player.nationality}
+          {age ? ` · ${age} anni` : ""}
         </p>
       </div>
     </div>
